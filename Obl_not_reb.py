@@ -231,6 +231,7 @@ EPp=sm.expand(AllEpp)
 
 
 
+print("Время раскрытия скобок")
 print(datetime.now() - start_time)
 
 
