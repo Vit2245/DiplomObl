@@ -14,9 +14,9 @@ h = 0.09
 n =1
 N = np.power(n, 2)
 
-a =60 * h
+a =round(60 * h,2)
 a1 = 0
-b = 60 * h
+b = round(60 * h,2)
 
 E1 =2.1 * 10 ** 5
 E2 =2.1 * 10 ** 5
@@ -104,8 +104,6 @@ SN.append(psiy)
 #print(SN)
 
 
-
-
 for i in range(1, int(np.sqrt(N)+1)):
     for j in range(1, int(np.sqrt(N)+1)):
         U = U + u[i-1][j-1] * X1(i) * Y1(j)
@@ -114,86 +112,102 @@ for i in range(1, int(np.sqrt(N)+1)):
         Psix = Psix + psix[i-1][j-1] * X4(i) * Y4(j)
         Psiy = Psiy + psiy[i-1][j-1] * X5(i) * Y5(j)
 
-print(U)
-print(V)
-print(W)
-print(Psix)
-print(Psiy)
-
+#print(U)
+#print(V)
+#print(W)
+#print(Psix)
+#print(Psiy)
 
 Theta1 = sm.expand(-(diff(W, x)) / A - kx * U)
-print("Theta1")
+#print("Theta1")
 #print(Theta1)
 
 
 
 Theta2 =sm.expand( -(diff(W, y)) / B - ky * V)
-print("Theta2")
+#print("Theta2")
 #print(Theta2)
 ex =sm.expand( (diff(U, x)) / A + (diff(A, y)) * V / (A * B) - kx * W + (1 / 2) * Theta1 ** 2)
-print("#ex")
+#print("#ex")
 #print(ex)
 ey = sm.expand((diff(V, y)) / B + (diff(B, x)) * U / (A * B) - ky * W + (1 / 2) * Theta2 ** 2)
-print("#ey")
+#print("#ey")
 #print(ey)
 gxy =sm.expand( (diff(V, x)) / A + (diff(U, y)) / B - (diff(A, y)) * U / (A * B) - (diff(B, x)) * V / (A * B) + Theta1 * Theta2)
-print("#gxy")
+#print("#gxy")
 #print(gxy)
 gxz =sm.expand( k * (f(z)) * (Psix - Theta1))
 gyz =sm.expand( k * (f(z)) * (Psiy - Theta2))
-print("#gxz")
+#print("#gxz")
 #print(gxz)
-print("#gyz")
+#print("#gyz")
 #print(gyz)
 varkappa1 =sm.expand( (diff(Psix, x)) / A + (diff(A, y)) * Psiy / (A * B))
 varkappa2 =sm.expand( (diff(Psiy, y)) / B + (diff(B, x)) * Psix / (A * B))
-
 varkappa12 =expand( 1 / 2 * ((diff(Psiy, x)) / A + (diff(Psix, y)) / B - ((diff(A, y)) * Psix + (diff(B, x)) * Psiy) / (A * B)))
-print("#varkappa1")
+#print("#varkappa1")
 
 #print(varkappa1)
-print("#varkappa2")
+#print("#varkappa2")
 #print(varkappa2)
-print("#varkappa12")
+#print("#varkappa12")
 #print(varkappa12)
 
-
-Mx = sm.expand((1 / 12) * E1 * h ** 3 * (mu21 * varkappa2 + varkappa1) / (1-mu12 * mu21))
-My = sm.expand((1 / 12) * E2 * h ** 3 * (mu12 * varkappa1 + varkappa2) / (1-mu12 * mu21))
-Mxy = sm.expand((1 / 6) * G12 * h ** 3 * varkappa12)
-Myx = sm.expand((1 / 6) * G12 * h ** 3 * varkappa12)
-Nx = sm.expand((E1 * h / (1-mu12 * mu21)) * (ex + mu21 * ey))
-Ny = sm.expand((E2 * h / (1-mu12 * mu21)) * (ey + mu12 * ex))
-
-print( sm.expand((E1 * h / (1-mu12 * mu21)) * (ex + mu21 * ey)))
-
+print(sm.expand( 0E1/(1-mu12*mu21)*(h**3)/12*(varkappa1+mu21*varkappa2)))
 
 
 print("#Mx")
 
-#print(Mx)
-print("#My")
-#print(My)
-print("#Mxy")
-#print(Mxy)
-print("#")
 
-#print(Myx)
+Mx = sm.expand((1 / 12) * E1 * h ** 3 * (mu21 * varkappa2 + varkappa1) / (1-mu12 * mu21))
+print(Mx)
+
+
+print("#My")
+
+
+My = sm.expand((1 / 12) * E2 * h ** 3 * (mu12 * varkappa1 + varkappa2) / (1-mu12 * mu21))
+print(My)
+print("#Mxy")
+Mxy = sm.expand((1 / 6) * G12 * h ** 3 * varkappa12)
+
+print(Mxy)
+print("#Myx")
+Myx = sm.expand((1 / 6) * G12 * h ** 3 * varkappa12)
+print(Myx)
 print("#Nx")
+Nx = sm.expand((E1 * h / (1-mu12 * mu21)) * (ex + mu21 * ey))
 print(Nx)
+
 print("#Ny")
+Ny = sm.expand((E2 * h / (1-mu12 * mu21)) * (ey + mu12 * ex))
 print(Ny)
 
 
 
-print("#")
+
+
 Nxy = sm.expand(G12 * h * gxy)
+print("Nxy")
+print(Nxy)
+
 Nyx = sm.expand(G12 * h * gxy)
+print("Nyx")
+print(Nyx)
+
 Px = 0
 Py = 0
 Qx = sm.expand(G13 * k * h * (Psix - Theta1))
+print("Qx")
+print(Qx)
+
 Qy = sm.expand(G23 * k * h * (Psiy - Theta2))
-print("#")
+
+print("Qy")
+print(Qy)
+
+
+
 
 
 """
@@ -239,32 +253,30 @@ print("EPp")
 
 print(EPp)
 
-##print(type(EPp))
-#print("split")
-#Epp=str(EPp).split('+')
-#print("Epp")
-#print(Epp)
-#print("len(Epp)")
-##print(len(Epp))
-##print(Epp[0])
-#print("Epp")
-#
-#
-#EP=0
-#zxc=0
-"""
-for i in Epp:
-    print(zxc)
+print(type(EPp))
+print("split")
+Epp=str(EPp).split('+')
+print("Epp")
+print(Epp)
+print(len(Epp))
+EP=0
+zxc=0
+# print(1 / 2 * integrate(Epp[1]*A*B,(y, 0, b)))
+# zxcv=1 / 2 * integrate(Epp[1]*A*B,(y, 0, b))
+# print(zxcv)
+# print(integrate(zxcv, (x, a1, a)))
+# print(1 / 2 * integrate(integrate(Epp[1]*A*B,(y, 0, b)), (x, a1, a)))
+print("Inty")
+for i in range(0,len(Epp)):
+    EP=EP+1/2*integrate(integrate(Epp[i]*A*B,(y, 0, b)),(x, a1, a))
     print(i)
-    EP=EP+1 / 2 * quad(quad(i*A*B,  0, b),  a1, a)
 
-    print(EP)
-    zxc=zxc+1
+
 
 
 print("EP")
 print(sm.expand(EP))
-
+"""
 
 
 AA = integrate(integrate((Px * U + Py * V + W * q) * A * B, (y, 0, b)), (x, a1, a))
@@ -272,10 +284,9 @@ print("#")
 
 
 Es = EP - AA
-Es=expand(Es)
+Es=sm.expand(Es)
 print("Es")
 print(Es)
-
 
 
 Coef=[]
