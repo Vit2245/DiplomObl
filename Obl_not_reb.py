@@ -81,7 +81,7 @@ for l in range(0, n):
 
 for i in range(1, int(np.sqrt(N)+1)):
     for j in range(1, int(np.sqrt(N)+1)):
-        u[i-1][j-1]=(Symbol('u' + str(i) + '' + str(j)))
+        u[i-1][j-1]=(var('u' + str(i) + '' + str(j)))
         v[i-1][j-1]=(Symbol('v' + str(i) + '' + str(j)))
         w[i-1][j-1]=(Symbol('w' + str(i) + '' + str(j)))
         psix[i-1][j-1]=(Symbol('psix' + str(i) + '' + str(j)))
@@ -261,21 +261,123 @@ print(Epp)
 print(len(Epp))
 EP=0
 zxc=0
+
+
+variable=[]
+variable.append(str(X1(1)))
+variable.append(str(integrate(X1(1),(x, 0, b))))
+variable.append(str(X2(1)))
+variable.append(str(integrate(X2(1),(x, 0, b))))
+variable.append(str(X3(1)))
+variable.append(str(integrate(X3(1),(x, 0, b))))
+variable.append(str(X4(1)))
+variable.append(str(integrate(X4(1),(x, 0, b))))
+variable.append(str(X5(1)))
+variable.append(str(integrate(X5(1),(x, 0, b))))
+variable.append(str(X1(1)**2))
+variable.append(str(integrate(X1(1)**2,(x, 0, b))))
+variable.append(str(X2(1)**2))
+variable.append(str(integrate(X2(1)**2,(x, 0, b))))
+variable.append(str(X3(1)**2))
+variable.append(str(integrate(X3(1)**2,(x, 0, b))))
+variable.append(str(X4(1)**2))
+variable.append(str(integrate(X4(1)**2,(x, 0, b))))
+variable.append(str(X5(1)**2))
+variable.append(str(integrate(X5(1)**2,(x, 0, b))))
+variable.append(str(X1(1)**3))
+variable.append(str(integrate(X1(1)**3,(x, 0, b))))
+variable.append(str(X2(1)**3))
+variable.append(str(integrate(X2(1)**3,(x, 0, b))))
+variable.append(str(X3(1)**3))
+variable.append(str(integrate(X3(1)**3,(x, 0, b))))
+variable.append(str(X4(1)**3))
+variable.append(str(integrate(X4(1)**3,(x, 0, b))))
+variable.append(str(X5(1)**3))
+variable.append(str(integrate(X5(1)**3,(x, 0, b))))
+variable.append(str(X1(1)**4))
+variable.append(str(integrate(X1(1)**4,(x, 0, b))))
+variable.append(str(X2(1)**4))
+variable.append(str(integrate(X2(1)**4,(x, 0, b))))
+variable.append(str(X3(1)**4))
+variable.append(str(integrate(X3(1)**4,(x, 0, b))))
+variable.append(str(X4(1)**4))
+variable.append(str(integrate(X4(1)**4,(x, 0, b))))
+variable.append(str(X5(1)**4))
+variable.append(str(integrate(X5(1)**4,(x, 0, b))))
+
+
+
+variable.append(str(Y1(1)))
+variable.append(str(integrate(Y1(1),(y, 0, b))))
+variable.append(str(Y2(1)))
+variable.append(str(integrate(Y2(1),(y, 0, b))))
+variable.append(str(Y3(1)))
+variable.append(str(integrate(Y3(1),(y, 0, b))))
+variable.append(str(Y4(1)))
+variable.append(str(integrate(Y4(1),(y, 0, b))))
+variable.append(str(Y5(1)))
+variable.append(str(integrate(Y5(1),(y, 0, b))))
+variable.append(str(Y1(1)**2))
+variable.append(str(integrate(Y1(1)**2,(y, 0, b))))
+variable.append(str(Y2(1)**2))
+variable.append(str(integrate(Y2(1)**2,(y, 0, b))))
+variable.append(str(Y3(1)**2))
+variable.append(str(integrate(Y3(1)**2,(y, 0, b))))
+variable.append(str(Y4(1)**2))
+variable.append(str(integrate(Y4(1)**2,(y, 0, b))))
+variable.append(str(Y5(1)**2))
+variable.append(str(integrate(Y5(1)**2,(y, 0, b))))
+variable.append(str(Y1(1)**3))
+variable.append(str(integrate(Y1(1)**3,(y, 0, b))))
+variable.append(str(Y2(1)**3))
+variable.append(str(integrate(Y2(1)**3,(y, 0, b))))
+variable.append(str(Y3(1)**3))
+variable.append(str(integrate(Y3(1)**3,(y, 0, b))))
+variable.append(str(Y4(1)**3))
+variable.append(str(integrate(Y4(1)**3,(y, 0, b))))
+variable.append(str(Y5(1)**3))
+variable.append(str(integrate(Y5(1)**3,(y, 0, b))))
+variable.append(str(Y1(1)**4))
+variable.append(str(integrate(Y1(1)**4,(y, 0, b))))
+variable.append(str(Y2(1)**4))
+variable.append(str(integrate(Y2(1)**4,(y, 0, b))))
+variable.append(str(Y3(1)**4))
+variable.append(str(integrate(Y3(1)**4,(y, 0, b))))
+variable.append(str(Y4(1)**4))
+variable.append(str(integrate(Y4(1)**4,(y, 0, b))))
+variable.append(str(Y5(1)**4))
+variable.append(str(integrate(Y5(1)**4,(y, 0, b))))
+
+nn=[]
+number=0
+for xc in Epp:
+    for z in range(0,len(variable),2):
+        while xc.find(variable[z]) > 0:
+            subStrNew=variable[z+1]
+            i = xc.find(variable[z])
+            xc = xc[:i] + subStrNew + xc[i+len(variable[z]):]
+            Epp[number]=xc
+    number=number+1
+bv=0
+for cv in Epp:
+    bv=bv+sm.Add(cv)
+print(sm.expand(bv))
+
 # print(1 / 2 * integrate(Epp[1]*A*B,(y, 0, b)))
 # zxcv=1 / 2 * integrate(Epp[1]*A*B,(y, 0, b))
 # print(zxcv)
 # print(integrate(zxcv, (x, a1, a)))
 # print(1 / 2 * integrate(integrate(Epp[1]*A*B,(y, 0, b)), (x, a1, a)))
-print("Inty")
-for i in range(0,len(Epp)):
-    EP=EP+1/2*integrate(integrate(Epp[i]*A*B,(y, 0, b)),(x, a1, a))
-    print(i)
-
-
-
-
-print("EP")
-print(sm.expand(EP))
+# print("Inty")
+# for i in range(0,len(Epp)):
+#     EP=EP+1/2*integrate(integrate(Epp[i]*A*B,(y, 0, b)),(x, a1, a))
+#     print(i)
+#
+#
+#
+#
+# print("EP")
+# print(sm.expand(EP))
 """
 
 
