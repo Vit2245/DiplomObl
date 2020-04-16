@@ -1,32 +1,16 @@
-import numpy as np
 import math as mth
-from sympy import *
+from math import *
+import numpy as np
+import sympy as sp
 import symengine as sm
-h = 0.09
-
-n =1
-N = np.power(n, 2)
-
-a =round(60 * h,2)
-a1 = 0
-b = round(60 * h,2)
-
-
-x = symbols('x')
-y = symbols('y')
-
-X1 = lambda i: sin(2 * i * round(mth.pi, 5) * x / a)
-X2 = lambda i: sin((2 * i - 1) * round(mth.pi, 5) * x / a)
-X3 = lambda i: sin((2 * i - 1) * round(mth.pi, 5)*  x / a)
-X4 = lambda i: cos((2 * i - 1) * round(mth.pi, 5) * x / a)
-X5 = lambda i: sin((2 * i - 1) * round(mth.pi, 5) * x / a)
-Y1 = lambda i: sin((2 * i - 1) * round(mth.pi, 5) * y / b)
-Y2 = lambda i: sin(2 * i * round(mth.pi, 5) * y / b)
-Y3 = lambda i: sin((2 * i - 1) * round(mth.pi, 5) * y / b)
-Y4 = lambda i: sin((2 * i - 1) * round(mth.pi, 5) * y / b)
-Y5 = lambda i: cos((2 * i - 1) * round(mth.pi, 5) * y / b)
-
-e=['0.0 ', ' 4.74499410004808*psix11**2*sin(0.581775925925926*y)**2*sin(0.581775925925926*x)**2 ', ' 2475.0*psix11**2*sin(0.581775925925926*y)**2*cos(0.581775925925926*x)**2 ', ' 0.678534156306875*psix11**2*cos(0.581775925925926*y)**2*cos(0.581775925925926*x)**2 ', ' 4.74499410004808*psiy11**2*sin(0.581775925925926*y)**2*sin(0.581775925925926*x)**2 ', ' 2475.0*psiy11**2*cos(0.581775925925926*y)**2*sin(0.581775925925926*x)**2 ', ' 0.678534156306875*psiy11**2*cos(0.581775925925926*y)**2*cos(0.581775925925926*x)**2 ', ' 6.03566529492454*u11**2*sin(1.16355185185185*x)**2*sin(0.581775925925926*y)**2 ', ' 1005.2357871213*u11**2*sin(1.16355185185185*x)**2*cos(0.581775925925926*y)**2 ', ' 28118.4835558404*u11**2*cos(1.16355185185185*x)**2*sin(0.581775925925926*y)**2 ', ' 0.0308787925851719*u11**4*sin(1.16355185185185*x)**4*sin(0.581775925925926*y)**4 ', ' 6.03566529492454*v11**2*sin(1.16355185185185*y)**2*sin(0.581775925925926*x)**2 ', ' 1005.2357871213*v11**2*sin(1.16355185185185*y)**2*cos(0.581775925925926*x)**2 ', ' 28118.4835558404*v11**2*cos(1.16355185185185*y)**2*sin(0.581775925925926*x)**2 ', ' 0.0308787925851719*v11**4*sin(1.16355185185185*y)**4*sin(0.581775925925926*x)**4 ', ' 131.687242798354*w11**2*sin(0.581775925925926*y)**2*sin(0.581775925925926*x)**2 ', ' 837.696489267749*w11**2*sin(0.581775925925926*y)**2*cos(0.581775925925926*x)**2 ', ' 837.696489267749*w11**2*cos(0.581775925925926*y)**2*sin(0.581775925925926*x)**2 ', ' 594.817044400514*w11**4*sin(0.581775925925926*y)**4*cos(0.581775925925926*x)**4 ', ' 594.817044400514*w11**4*cos(0.581775925925926*y)**4*sin(0.581775925925926*x)**4 ', ' 2.84699646002885*psiy11*psix11*sin(0.581775925925926*y)**2*sin(0.581775925925926*x)**2 ', ' 1.35706831261375*psiy11*psix11*cos(0.581775925925926*y)**2*cos(0.581775925925926*x)**2 ', ' 58.9326673935725*u11**3*sin(1.16355185185185*x)**2*cos(1.16355185185185*x)*sin(0.581775925925926*y)**3 ', ' 58.9326673935725*v11**3*sin(1.16355185185185*y)**2*cos(1.16355185185185*y)*sin(0.581775925925926*x)**3 ', ' 2879.79083333334*w11*psix11*sin(0.581775925925926*y)**2*cos(0.581775925925926*x)**2 ', ' 2879.79083333334*w11*psiy11*cos(0.581775925925926*y)**2*sin(0.581775925925926*x)**2 - 451.284303982624*w11**3*sin(0.581775925925926*y)*cos(0.581775925925926*y)**2*sin(0.581775925925926*x)**3 - 451.284303982624*w11**3*sin(0.581775925925926*y)**3*sin(0.581775925925926*x)*cos(0.581775925925926*x)**2 ', ' 244.444444444444*u11*psix11*sin(1.16355185185185*x)*sin(0.581775925925926*y)**2*cos(0.581775925925926*x) ', ' 244.444444444444*v11*psiy11*sin(1.16355185185185*y)*cos(0.581775925925926*y)*sin(0.581775925925926*x)**2 ', ' 142.211893004115*w11*u11*sin(1.16355185185185*x)*sin(0.581775925925926*y)**2*cos(0.581775925925926*x) - 3102.8049382716*w11*u11*cos(1.16355185185185*x)*sin(0.581775925925926*y)**2*sin(0.581775925925926*x) - 3.25153685921861*w11*u11**2*sin(1.16355185185185*x)**2*sin(0.581775925925926*y)**3*sin(0.581775925925926*x) ', ' 1.45512758996475*w11*u11**3*sin(1.16355185185185*x)**3*sin(0.581775925925926*y)**4*cos(0.581775925925926*x) ', ' 142.211893004115*w11*v11*sin(1.16355185185185*y)*cos(0.581775925925926*y)*sin(0.581775925925926*x)**2 - 3102.8049382716*w11*v11*cos(1.16355185185185*y)*sin(0.581775925925926*y)*sin(0.581775925925926*x)**2 - 3.25153685921861*w11*v11**2*sin(1.16355185185185*y)**2*sin(0.581775925925926*y)*sin(0.581775925925926*x)**3 ', ' 1.45512758996475*w11*v11**3*sin(1.16355185185185*y)**3*cos(0.581775925925926*y)*sin(0.581775925925926*x)**4 ', ' 8179.32840316598*w11**2*u11*cos(1.16355185185185*x)*sin(0.581775925925926*y)**3*cos(0.581775925925926*x)**2 ', ' 25.7142053551352*w11**2*u11**2*sin(1.16355185185185*x)**2*sin(0.581775925925926*y)**4*cos(0.581775925925926*x)**2 ', ' 8179.32840316598*w11**2*v11*cos(1.16355185185185*y)*cos(0.581775925925926*y)**2*sin(0.581775925925926*x)**3 ', ' 25.7142053551352*w11**2*v11**2*sin(1.16355185185185*y)**2*cos(0.581775925925926*y)**2*sin(0.581775925925926*x)**4 ', ' 201.958726004098*w11**3*u11*sin(1.16355185185185*x)*sin(0.581775925925926*y)**4*cos(0.581775925925926*x)**3 ', ' 201.958726004098*w11**3*v11*sin(1.16355185185185*y)*cos(0.581775925925926*y)**3*sin(0.581775925925926*x)**4 ', ' 697.125576037404*w11**4*sin(0.581775925925926*y)**2*cos(0.581775925925926*y)**2*sin(0.581775925925926*x)**2*cos(0.581775925925926*x)**2 ', ' 2010.47157424259*v11*u11*sin(1.16355185185185*x)*sin(1.16355185185185*y)*cos(0.581775925925926*y)*cos(0.581775925925926*x) ', ' 16871.0901335042*v11*u11*cos(1.16355185185185*x)*cos(1.16355185185185*y)*sin(0.581775925925926*y)*sin(0.581775925925926*x) ', ' 17.6798002180718*v11*u11**2*sin(1.16355185185185*x)**2*cos(1.16355185185185*y)*sin(0.581775925925926*y)**2*sin(0.581775925925926*x) ', ' 17.6798002180718*v11**2*u11*sin(1.16355185185185*y)**2*cos(1.16355185185185*x)*sin(0.581775925925926*y)*sin(0.581775925925926*x)**2 ', ' 0.0361899449098215*v11**2*u11**2*sin(1.16355185185185*x)**2*sin(1.16355185185185*y)**2*sin(0.581775925925926*y)**2*sin(0.581775925925926*x)**2 ', ' 1388.5670891773*w11*u11**2*sin(1.16355185185185*x)*cos(1.16355185185185*x)*sin(0.581775925925926*y)**3*cos(0.581775925925926*x) ', ' 99.2825468761774*w11*u11**2*sin(1.16355185185185*x)**2*sin(0.581775925925926*y)*cos(0.581775925925926*y)**2*sin(0.581775925925926*x) ', ' 1388.5670891773*w11*v11**2*sin(1.16355185185185*y)*cos(1.16355185185185*y)*cos(0.581775925925926*y)*sin(0.581775925925926*x)**3 ', ' 99.2825468761774*w11*v11**2*sin(1.16355185185185*y)**2*sin(0.581775925925926*y)*sin(0.581775925925926*x)*cos(0.581775925925926*x)**2 - 76.6124676116444*w11**2*u11*sin(1.16355185185185*x)*sin(0.581775925925926*y)**3*sin(0.581775925925926*x)*cos(0.581775925925926*x) ', ' 2453.79852094979*w11**2*u11*cos(1.16355185185185*x)*sin(0.581775925925926*y)*cos(0.581775925925926*y)**2*sin(0.581775925925926*x)**2 ', ' 5.02284144603642*w11**2*u11**2*sin(1.16355185185185*x)**2*sin(0.581775925925926*y)**2*cos(0.581775925925926*y)**2*sin(0.581775925925926*x)**2 - 76.6124676116444*w11**2*v11*sin(1.16355185185185*y)*sin(0.581775925925926*y)*cos(0.581775925925926*y)*sin(0.581775925925926*x)**3 ', ' 2453.79852094979*w11**2*v11*cos(1.16355185185185*y)*sin(0.581775925925926*y)**2*sin(0.581775925925926*x)*cos(0.581775925925926*x)**2 ', ' 5.02284144603642*w11**2*v11**2*sin(1.16355185185185*y)**2*sin(0.581775925925926*y)**2*sin(0.581775925925926*x)**2*cos(0.581775925925926*x)**2 ', ' 8.4273714372809*v11*u11**2*sin(1.16355185185185*x)**2*sin(1.16355185185185*y)*sin(0.581775925925926*y)*cos(0.581775925925926*y)*sin(0.581775925925926*x) ', ' 8.4273714372809*v11**2*u11*sin(1.16355185185185*x)*sin(1.16355185185185*y)**2*sin(0.581775925925926*y)*sin(0.581775925925926*x)*cos(0.581775925925926*x) ', ' 1169.64396165274*w11**2*u11*sin(1.16355185185185*x)*sin(0.581775925925926*y)*cos(0.581775925925926*y)**2*sin(0.581775925925926*x)*cos(0.581775925925926*x) ', ' 1169.64396165274*w11**2*v11*sin(1.16355185185185*y)*sin(0.581775925925926*y)*cos(0.581775925925926*y)*sin(0.581775925925926*x)*cos(0.581775925925926*x)**2 ', ' 118.347813438402*w11**3*u11*sin(1.16355185185185*x)*sin(0.581775925925926*y)**2*cos(0.581775925925926*y)**2*sin(0.581775925925926*x)**2*cos(0.581775925925926*x) ', ' 118.347813438402*w11**3*v11*sin(1.16355185185185*y)*sin(0.581775925925926*y)**2*cos(0.581775925925926*y)*sin(0.581775925925926*x)**2*cos(0.581775925925926*x)**2 ', ' 416.57012675319*w11*v11*u11*sin(1.16355185185185*x)*cos(1.16355185185185*y)*sin(0.581775925925926*y)**2*sin(0.581775925925926*x)*cos(0.581775925925926*x) ', ' 416.57012675319*w11*v11*u11*sin(1.16355185185185*y)*cos(1.16355185185185*x)*sin(0.581775925925926*y)*cos(0.581775925925926*y)*sin(0.581775925925926*x)**2 ', ' 0.852704767719347*w11*v11*u11**2*sin(1.16355185185185*x)**2*sin(1.16355185185185*y)*sin(0.581775925925926*y)**2*cos(0.581775925925926*y)*sin(0.581775925925926*x)**2 ', ' 0.852704767719347*w11*v11**2*u11*sin(1.16355185185185*x)*sin(1.16355185185185*y)**2*sin(0.581775925925926*y)**2*sin(0.581775925925926*x)**2*cos(0.581775925925926*x) ', ' 198.565093752355*w11*v11*u11*sin(1.16355185185185*x)*sin(1.16355185185185*y)*sin(0.581775925925926*y)*cos(0.581775925925926*y)*sin(0.581775925925926*x)*cos(0.581775925925926*x) ', ' 20.0913657841457*w11**2*v11*u11*sin(1.16355185185185*x)*sin(1.16355185185185*y)*sin(0.581775925925926*y)**2*cos(0.581775925925926*y)*sin(0.581775925925926*x)**2*cos(0.581775925925926*x)']
+from datetime import datetime
+import time
+#import test as ts
+from threading import Thread
+import scipy.integrate as integrate
+import scipy.special as special
+import matplotlib.pyplot as plt
+start_time = datetime.now()
 class Quadrature:
     """Базовые определения для квадратурных формул"""
     __sum = 0.0
@@ -64,22 +48,8 @@ class Quadrature:
         Quadrature.__ncalls += nseg
         return Quadrature.__sum * 0.5 * dx
 
-    def trapezoid(func, x0, x1, rtol = 1e-10, nseg0 = 1):
-        """Интегрирование методом трапеций с заданной точностью.
-           rtol - относительная точность,
-           nseg0 - число отрезков начального разбиения"""
-        ans = Quadrature.__restart(func, x0, x1, nseg0)
-        old_ans = 0.0
-        err_est = max(1, abs(ans))
-        while (err_est > abs(rtol * ans)):
-            old_ans = ans
-            ans = Quadrature.__double_nseg(func, x0, x1)
-            err_est = abs(old_ans - ans)
-
-        print("Total function calls: " + str(Quadrature.__ncalls))
-        return ans
-
     def simpson(func, x0, x1, rtol = 1.0e-10, nseg0 = 1):
+        start_time_simp = datetime.now()
         """Интегрирование методом парабол с заданной точностью.
            rtol - относительная точность,
            nseg0 - число отрезков начального разбиения"""
@@ -87,125 +57,862 @@ class Quadrature:
         new_trapez_sum = Quadrature.__double_nseg(func, x0, x1)
         ans = (4 * new_trapez_sum - old_trapez_sum) / 3
         old_ans = 0.0
+        i=0
         err_est = max(1, abs(ans))
         while (err_est > abs(rtol * ans)):
-            old_ans = ans
-            old_trapez_sum = new_trapez_sum
-            new_trapez_sum = Quadrature.__double_nseg(func, x0, x1)
-            ans = (4 * new_trapez_sum - old_trapez_sum) / 3
-            err_est = abs(old_ans - ans)
+            i=i+1
+            if Quadrature.__ncalls>5000:
+                # print("Total function calls: " + str(Quadrature.__ncalls))
+                return ans
+            else:
+                old_ans = ans
+                old_trapez_sum = new_trapez_sum
+                new_trapez_sum = Quadrature.__double_nseg(func, x0, x1)
+                ans = (4 * new_trapez_sum - old_trapez_sum) / 3
+                err_est = abs(old_ans - ans)
 
-        print("Total function calls: " + str(Quadrature.__ncalls))
+        # print("Total function calls: " + str(Quadrature.__ncalls))
+        # print("Время взятия интегралла")
+        # print(datetime.now() - start_time_simp)
         return ans
+def Fun1(zxccxz,dict_xx):
+    zamena_x = ''
+    number = 0
+    for elem in zxccxz:
+        # print(number)
+        for zz in variable_x:
+            if elem.find("*"+zz):
+                i = elem.find("*"+zz)
+                if i < 0:
+                    continue
+                elem = elem[:i] + '' + elem[i + len(zz) + 1:]
+                zamena_x = zamena_x + '*' + zz
+                EP[number] = elem.strip(' ')
+            continue
+        if zamena_x[1:] in dict_xx:
+            resul_x = dict_xx.get(zamena_x[1:])
+            EP[number] = elem.strip() + "*"+str(resul_x)
+            zamena_x = ""
+            number = number + 1
+            int_x.close()
+            continue
+        else:
 
-# zxc=str(X4(1)**2)
-# print(zxc)
-# subStrNew=str(integrate(X2(1)**2,(x, 0, b)))
-# lenStrOld=len(zxc)
+            zam_x = sm.expand(zamena_x[1:])
+            resul_x = integrate.quad(lambda xx: (zam_x * A).subs(x, xx), 0, 5.4)[0]
+            dict_xx.update({zamena_x[1:]: resul_x})
+            EP[number] = elem.strip() +"*"+ str(resul_x)
+            zamena_x = ""
+            number = number + 1
+    return EP
+
+def Fun2(zxccxz,dict_yy):
+    zamena_y = ''
+    number = 0
+    for elem in zxccxz:
+        # print(number)
+        for zz in variable_y:
+            if elem.find("*"+zz):
+                i = elem.find("*"+zz)
+                if i < 0:
+                    continue
+                elem = elem[:i] + '' + elem[i + len(zz) + 1:]
+                zamena_y = zamena_y + '*' + zz
+
+                EP[number] = elem.strip()
+            continue
+        if zamena_y[1:] in dict_yy:
+            # print("нашел")
+            resul_y = dict_yy.get(zamena_y[1:])
+            EP[number] = elem.strip() + '*' + str(resul_y)
+            zamena_y = ""
+            number = number + 1
+            int_y.close()
+            continue
+        else:
+            # print("не нашел")
+            zam_y = sm.expand(zamena_y[1:])
+
+            resul_y = integrate.quad(lambda yy: (zam_y * B).subs(y, yy), 0, 5.4)[0]
+
+            dict_yy.update({zamena_y[1:]: resul_y})
+            EP[number] = elem.strip() + '*' + str(resul_y)
+            zamena_y = ""
+            number = number + 1
+    return EP
+
+
+h = 0.09
+
+n =2
+N = np.power(n, 2)
+
+aa =round(60 * h,2)
+aa1 = 0
+bb = round(60 * h,2)
+
+E1 =2.1 * 10 ** 5
+E2 =2.1 * 10 ** 5
+mu12= 0.3
+mu21=0.3
+
+
+
+z = -(1 / 2) * h
+
+r = 225 * h
+
+k = 5 / 6
+f = lambda i: 6 * (1 / 4 - i ** 2 / h ** 2)
+
+A = 1
+B = 1
+
+kx =1 / r
+ky =1 / r
+
+G12 = 0.33 * 10 ** 5
+G13 = 0.33 * 10 ** 5
+G23 = 0.33 * 10 ** 5
+x = sp.symbols('x')
+y = sp.symbols('y')
+q = sp.symbols('q')
+print(mth.pi)
+
+X1 = lambda i: sp.sin(2 * i * round(mth.pi, 5) * x / aa)
+X2 = lambda i: sp.sin((2 * i - 1) * round(mth.pi, 5) * x / aa)
+X3 = lambda i: sp.sin((2 * i - 1) * round(mth.pi, 5)*  x / aa)
+X4 = lambda i: sp.cos((2 * i - 1) * round(mth.pi, 5) * x / aa)
+X5 = lambda i: sp.sin((2 * i - 1) * round(mth.pi, 5) * x / aa)
+Y1 = lambda i: sp.sin((2 * i - 1) * round(mth.pi, 5) * y / bb)
+Y2 = lambda i: sp.sin(2 * i * round(mth.pi, 5) * y / bb)
+Y3 = lambda i: sp.sin((2 * i - 1) * round(mth.pi, 5) * y / bb)
+Y4 = lambda i: sp.sin((2 * i - 1) * round(mth.pi, 5) * y / bb)
+Y5 = lambda i: sp.cos((2 * i - 1) * round(mth.pi, 5) * y / bb)
+
+U = 0
+V = 0
+W = 0
+Psix = 0
+Psiy = 0
+
+u=[]
+for l in range(0, n):
+    u.append([0]*n)
+v=[]
+for l in range(0, n):
+    v.append([0]*n)
+w=[]
+for l in range(0, n):
+    w.append([0]*n)
+psix=[]
+for l in range(0, n):
+    psix.append([0]*n)
+psiy=[]
+for l in range(0, n):
+    psiy.append([0]*n)
+
+
+for i in range(1, int(np.sqrt(N)+1)):
+    for j in range(1, int(np.sqrt(N)+1)):
+        u[i-1][j-1]=(sp.symbols('u' + str(i) + '' + str(j)))
+        v[i-1][j-1]=(sp.symbols('v' + str(i) + '' + str(j)))
+        w[i-1][j-1]=(sp.symbols('w' + str(i) + '' + str(j)))
+        psix[i-1][j-1]=(sp.symbols('psix' + str(i) + '' + str(j)))
+        psiy[i-1][j-1]=(sp.symbols('psiy' + str(i) + '' + str(j)))
+
+
+
+
+SN=[]
+
+
+
+for i in range(1, int(np.sqrt(N)+1)):
+    for j in range(1, int(np.sqrt(N)+1)):
+        SN.append(sp.symbols('u' + str(i) + '' + str(j)))
+for i in range(1, int(np.sqrt(N)+1)):
+    for j in range(1, int(np.sqrt(N)+1)):
+        SN.append(sp.symbols('v' + str(i) + '' + str(j)))
+for i in range(1, int(np.sqrt(N)+1)):
+    for j in range(1, int(np.sqrt(N)+1)):
+        SN.append(sp.symbols('w' + str(i) + '' + str(j)))
+for i in range(1, int(np.sqrt(N)+1)):
+    for j in range(1, int(np.sqrt(N)+1)):
+        SN.append(sp.symbols('psix' + str(i) + '' + str(j)))
+for i in range(1, int(np.sqrt(N)+1)):
+    for j in range(1, int(np.sqrt(N)+1)):
+        SN.append(sp.symbols('psiy' + str(i) + '' + str(j)))
+
+for i in range(1, int(np.sqrt(N)+1)):
+    for j in range(1, int(np.sqrt(N)+1)):
+        U = U + u[i-1][j-1] * X1(i) * Y1(j)
+        V = V + v[i-1][j-1] * X2(i) * Y2(j)
+        W = W + w[i-1][j-1] * X3(i) * Y3(j)
+        Psix = Psix + psix[i-1][j-1] * X4(i) * Y4(j)
+        Psiy = Psiy + psiy[i-1][j-1] * X5(i) * Y5(j)
+
+#print(U)
+#print(V)
+#print(W)
+#print(Psix)
+#print(Psiy)
+
+Theta1 = sm.expand(-(sp.diff(W, x)) / A - kx * U)
+#print("Theta1")
+#print(Theta1)
+
+
+
+Theta2 =sm.expand( -(sp.diff(W, y)) / B - ky * V)
+#print("Theta2")
+#print(Theta2)
+ex =sm.expand( (sp.diff(U, x)) / A + (sp.diff(A, y)) * V / (A * B) - kx * W + (1 / 2) * Theta1 ** 2)
+#print("#ex")
+#print(ex)
+ey = sm.expand((sp.diff(V, y)) / B + (sp.diff(B, x)) * U / (A * B) - ky * W + (1 / 2) * Theta2 ** 2)
+#print("#ey")
+#print(ey)
+gxy =sm.expand( (sp.diff(V, x)) / A + (sp.diff(U, y)) / B - (sp.diff(A, y)) * U / (A * B) - (sp.diff(B, x)) * V / (A * B) + Theta1 * Theta2)
+#print("#gxy")
+#print(gxy)
+gxz =sm.expand( k * (f(z)) * (Psix - Theta1))
+gyz =sm.expand( k * (f(z)) * (Psiy - Theta2))
+#print("#gxz")
+#print(gxz)
+#print("#gyz")
+#print(gyz)
+varkappa1 =sm.expand( (sp.diff(Psix, x)) / A + (sp.diff(A, y)) * Psiy / (A * B))
+varkappa2 =sm.expand( (sp.diff(Psiy, y)) / B + (sp.diff(B, x)) * Psix / (A * B))
+varkappa12 =sm.expand( 1 / 2 * ((sp.diff(Psiy, x)) / A + (sp.diff(Psix, y)) / B - ((sp.diff(A, y)) * Psix + (sp.diff(B, x)) * Psiy) / (A * B)))
+#print("#varkappa1")
+
+#print(varkappa1)
+#print("#varkappa2")
+#print(varkappa2)
+#print("#varkappa12")
+#print(varkappa12)
+
+
+print("#Mx")
+
+
+Mx = sm.expand((1 / 12) * E1 * h ** 3 * (mu21 * varkappa2 + varkappa1) / (1-mu12 * mu21))
+# print(Mx)
+
+
+print("#My")
+
+
+My = sm.expand((1 / 12) * E2 * h ** 3 * (mu12 * varkappa1 + varkappa2) / (1-mu12 * mu21))
+# print(My)
+print("#Mxy")
+Mxy = sm.expand((1 / 6) * G12 * h ** 3 * varkappa12)
+
+# print(Mxy)
+print("#Myx")
+Myx = sm.expand((1 / 6) * G12 * h ** 3 * varkappa12)
+# print(Myx)
+print("#Nx")
+Nx = sm.expand((E1 * h / (1-mu12 * mu21)) * (ex + mu21 * ey))
+# print(Nx)
+
+print("#Ny")
+Ny = sm.expand((E2 * h / (1-mu12 * mu21)) * (ey + mu12 * ex))
+# print(Ny)
+
+
+
+
+
+Nxy = sm.expand(G12 * h * gxy)
+print("Nxy")
+# print(Nxy)
+
+Nyx = sm.expand(G12 * h * gxy)
+print("Nyx")
+# print(Nyx)
+
+Px = 0
+Py = 0
+Qx = sm.expand(G13 * k * h * (Psix - Theta1))
+print("Qx")
+# print(Qx)
+
+Qy = sm.expand(G23 * k * h * (Psiy - Theta2))
+
+print("Qy")
+# print(Qy)
+
+
+
+
+
 #
 #
-variable=[]
-variable.append(str(X1(1)))
-variable.append(str(integrate(X1(1),(x, 0, b))))
-variable.append(str(X2(1)))
-variable.append(str(integrate(X2(1),(x, 0, b))))
-variable.append(str(X3(1)))
-variable.append(str(integrate(X3(1),(x, 0, b))))
-variable.append(str(X4(1)))
-variable.append(str(integrate(X4(1),(x, 0, b))))
-variable.append(str(X5(1)))
-variable.append(str(integrate(X5(1),(x, 0, b))))
-variable.append(str(X1(1)**2))
-variable.append(str(integrate(X1(1)**2,(x, 0, b))))
-variable.append(str(X2(1)**2))
-variable.append(str(integrate(X2(1)**2,(x, 0, b))))
-variable.append(str(X3(1)**2))
-variable.append(str(integrate(X3(1)**2,(x, 0, b))))
-variable.append(str(X4(1)**2))
-variable.append(str(integrate(X4(1)**2,(x, 0, b))))
-variable.append(str(X5(1)**2))
-variable.append(str(integrate(X5(1)**2,(x, 0, b))))
-variable.append(str(X1(1)**3))
-variable.append(str(integrate(X1(1)**3,(x, 0, b))))
-variable.append(str(X2(1)**3))
-variable.append(str(integrate(X2(1)**3,(x, 0, b))))
-variable.append(str(X3(1)**3))
-variable.append(str(integrate(X3(1)**3,(x, 0, b))))
-variable.append(str(X4(1)**3))
-variable.append(str(integrate(X4(1)**3,(x, 0, b))))
-variable.append(str(X5(1)**3))
-variable.append(str(integrate(X5(1)**3,(x, 0, b))))
-variable.append(str(X1(1)**4))
-variable.append(str(integrate(X1(1)**4,(x, 0, b))))
-variable.append(str(X2(1)**4))
-variable.append(str(integrate(X2(1)**4,(x, 0, b))))
-variable.append(str(X3(1)**4))
-variable.append(str(integrate(X3(1)**4,(x, 0, b))))
-variable.append(str(X4(1)**4))
-variable.append(str(integrate(X4(1)**4,(x, 0, b))))
-variable.append(str(X5(1)**4))
-variable.append(str(integrate(X5(1)**4,(x, 0, b))))
+#
+# Epp=Nx * ex+Ny * ey+1 / 2 * (Nxy + Nyx) * gxy +Mx * varkappa1+My * varkappa2 +(Mxy + Myx) * varkappa12 +Qx * (Psix - Theta1)+Qy * (Psiy - Theta2)
+# EPp=sm.expand(Epp)
+#
+
+Epp1 = Nx * ex+Ny * ey
+print("Razbienie1")
+# print(Epp1)
+del(Nx , ex,Ny , ey)
+Epp3 =Epp1+ 1 / 2 * (Nxy + Nyx) * gxy
+del(Nxy , Nyx, gxy)
+print("Razbienie3")
+Epp4 =Epp3+ Mx * varkappa1+My * varkappa2
+print("Razbienie4")
+del(Mx ,varkappa1,My , varkappa2)
+Epp6 =Epp4+ (Mxy + Myx) * varkappa12
+print("Razbienie6")
+del(Mxy ,Myx, varkappa12)
+Epp7 =Epp6+ Qx * (Psix - Theta1)
+print("Razbienie7")
+del(Qx ,Psix , Theta1)
+Epp8 =Epp7+ Qy * (Psiy - Theta2)
+print("Razbienie8")
+del(Qy ,Psiy,Theta2)
+
+AllEpp=Epp8
+# print(AllEpp)
+del(Epp1,Epp3,Epp4,Epp6,Epp7,Epp8)
+
+EPp=sm.expand(AllEpp)
 
 
 
-variable.append(str(Y1(1)))
-variable.append(str(integrate(Y1(1),(y, 0, b))))
-variable.append(str(Y2(1)))
-variable.append(str(integrate(Y2(1),(y, 0, b))))
-variable.append(str(Y3(1)))
-variable.append(str(integrate(Y3(1),(y, 0, b))))
-variable.append(str(Y4(1)))
-variable.append(str(integrate(Y4(1),(y, 0, b))))
-variable.append(str(Y5(1)))
-variable.append(str(integrate(Y5(1),(y, 0, b))))
-variable.append(str(Y1(1)**2))
-variable.append(str(integrate(Y1(1)**2,(y, 0, b))))
-variable.append(str(Y2(1)**2))
-variable.append(str(integrate(Y2(1)**2,(y, 0, b))))
-variable.append(str(Y3(1)**2))
-variable.append(str(integrate(Y3(1)**2,(y, 0, b))))
-variable.append(str(Y4(1)**2))
-variable.append(str(integrate(Y4(1)**2,(y, 0, b))))
-variable.append(str(Y5(1)**2))
-variable.append(str(integrate(Y5(1)**2,(y, 0, b))))
-variable.append(str(Y1(1)**3))
-variable.append(str(integrate(Y1(1)**3,(y, 0, b))))
-variable.append(str(Y2(1)**3))
-variable.append(str(integrate(Y2(1)**3,(y, 0, b))))
-variable.append(str(Y3(1)**3))
-variable.append(str(integrate(Y3(1)**3,(y, 0, b))))
-variable.append(str(Y4(1)**3))
-variable.append(str(integrate(Y4(1)**3,(y, 0, b))))
-variable.append(str(Y5(1)**3))
-variable.append(str(integrate(Y5(1)**3,(y, 0, b))))
-variable.append(str(Y1(1)**4))
-variable.append(str(integrate(Y1(1)**4,(y, 0, b))))
-variable.append(str(Y2(1)**4))
-variable.append(str(integrate(Y2(1)**4,(y, 0, b))))
-variable.append(str(Y3(1)**4))
-variable.append(str(integrate(Y3(1)**4,(y, 0, b))))
-variable.append(str(Y4(1)**4))
-variable.append(str(integrate(Y4(1)**4,(y, 0, b))))
-variable.append(str(Y5(1)**4))
-variable.append(str(integrate(Y5(1)**4,(y, 0, b))))
+print("Время раскрытия скобок")
+print(datetime.now() - start_time)
+# print("EPp")
+# print(EPp)
+# print(type(EPp))
+# print("split")
+Epp=str(EPp).split('+')
+# print("Epp")
+# print(Epp)
 
-print(e[9])
+del(Epp[0])
 
-nn=[]
+
+variable_x=[]
+for i in range(1,n+1):
+    for st in range(4, 0, -1):
+        variable_x.append(str(sp.sin(2 * i * round(mth.pi, 5) * x / aa)**st))
+        variable_x.append(str(sp.cos(2 * i * round(mth.pi, 5) * x / aa)**st))
+        variable_x.append(str(sp.sin((2 * i - 1) * round(mth.pi, 5) * x / aa)**st))
+        variable_x.append(str(sp.cos((2 * i - 1) * round(mth.pi, 5) * x / aa)**st))
+variable_y = []
+for i in range(1,n+1):
+    for st in range(4, 0, -1):
+        variable_y.append(str(sp.sin(2 * i * round(mth.pi, 5) * y / bb)**st))
+        variable_y.append(str(sp.cos(2 * i * round(mth.pi, 5) * y / bb)**st))
+        variable_y.append(str(sp.sin((2 * i - 1) * round(mth.pi, 5) * y / bb)**st))
+        variable_y.append(str(sp.cos((2 * i - 1) * round(mth.pi, 5) * y / bb)**st))
 number=0
-for xc in e:
-    for z in range(0,len(variable),2):
-        while xc.find(variable[z]) > 0:
-            subStrNew=variable[z+1]
-            i = xc.find(variable[z])
-            xc = xc[:i] + subStrNew + xc[i+len(variable[z]):]
-            e[number]=xc
-    number=number+1
 
-print(e)
+EP=[]
+
+for xc in Epp:
+    Epp=xc.split('-')
+    if len(Epp)>1:
+
+        EP.append(Epp[0])
+        del(Epp[0])
+        for el in Epp:
+            EP.append('-'+el)
+    else:
+        EP.append(Epp[0])
+
+print(len(EP))
+for i in EP:
+    print(i)
+
+
+my_dict={}
+dict_x={}
+dict_y={}
+
+
+
+int_x=open('out_x.txt')
+
+int_y=open('out_y.txt')
+with int_x as inp:
+    for i in inp.readlines():
+        key,val = i.strip().split(':')
+        dict_x[key] = val.strip(' ')
+with int_y as inp:
+    for i in inp.readlines():
+        key,val = i.strip().split(':')
+        dict_y[key] = val.strip(' ')
+int_x.close()
+int_y.close()
+# zamena_x=''
+# zamena_y=''
+# number=0
+
+# for elem in EP:
+#     # print(number)
+#     for zz in variable_x:
+#         if elem.find(zz):
+#             i = elem.find(zz)
+#             if i < 0:
+#                 continue
+#             elem = elem[:i] + '' + elem[i + len(zz)+1:]
+#             zamena_x=zamena_x+'*'+zz
+#             EP[number]=elem
+#         continue
+#     if zamena_x[1:] in dict_x:
+#         # print("нашел")
+#         resul_x = dict_x.get(zamena_x[1:])
+#         # print(resul_x)
+#         EP[number] = elem+str(resul_x)
+#         zamena_x = ""
+#         number = number + 1
+#         int_x.close()
+#         continue
+#     else:
+#         # print("не нашел")
+#         zam_x=sm.expand(zamena_x[1:])
+#         # print(zam_x)
+#         # resul_x=Quadrature.simpson(lambda xx: (zam_x*A).subs(x,xx), 0, 5.4, rtol=1e-10)
+#         resul_x= integrate.quad(lambda xx: (zam_x*A).subs(x,xx), 0, 5.4)[0]
+#         dict_x.update({zamena_x[1:]:resul_x})
 #
-# bv=0
-# for cv in e:
-#     bv=bv+sm.symbols(cv)
-# print(sm.expand(bv))
+#         EP[number] = elem+str(resul_x)
+#         zamena_x=""
+#
+#         number=number+1
+# print("Время раскрытия скобок")
+# print(datetime.now() - start_time)
+#
+# with open('out_x.txt','w') as out:
+#     for key,val in dict_x.items():
+#         out.write('{}:{}\n'.format(key,val))
+#
+# number=0
+# for elem in EP:
+#     # print(number)
+#     for zz in variable_y:
+#         if elem.find(zz):
+#             i = elem.find(zz)
+#             if i < 0:
+#                 continue
+#             elem = elem[:i] + '' + elem[i + len(zz)+1:]
+#             zamena_y=zamena_y+'*'+zz
+#             EP[number]=elem
+#         continue
+#     if zamena_y[1:] in dict_y:
+#         # print("нашел")
+#         resul_y = dict_y.get(zamena_y[1:])
+#
+#         EP[number] = elem+'*'+str(resul_y)
+#         zamena_y= ""
+#         number = number + 1
+#         int_y.close()
+#         continue
+#     else:
+#         # print("не нашел")
+#         zam_y=sm.expand(zamena_y[1:])
+#         # resul_y=Quadrature.simpson(lambda yy: (zam_y*B).subs(y,yy), 0, 5.4, rtol=1e-10)
+#         resul_y= integrate.quad(lambda yy: (zam_y*B).subs(y,yy), 0, 5.4)[0]
+#         dict_y.update({zamena_y[1:]:resul_y})
+#
+#         EP[number] = elem+'*'+str(resul_y)
+#         zamena_y=""
+#         number=number+1
 
+
+
+
+
+
+thread1 = Thread(target=Fun1, args=(EP,dict_x))
+thread2 = Thread(target=Fun2, args=(EP,dict_y))
+
+
+
+thread1.start()
+thread2.start()
+thread1.join()
+thread2.join()
+
+print("Время раскрытия скобок")
+print(datetime.now() - start_time)
+
+with open('out_x.txt','w') as out:
+    for key,val in dict_x.items():
+        out.write('{}:{}\n'.format(key,val))
+with open('out_y.txt','w') as out:
+    for key,val in dict_y.items():
+        out.write('{}:{}\n'.format(key,val))
+number=0
+print("Resul")
+for el in EP:
+     print(sm.expand(el))
+print("Время раскрытия скобок")
+print(datetime.now() - start_time)
+print("Resul1")
+with open('out_y.txt','w') as out:
+    for key,val in dict_y.items():
+        out.write('{}:{}\n'.format(key,val))
+int_x.close()
+int_y.close()
+print("Время раскрытия скобок")
+print(datetime.now() - start_time)
+
+allin=0
+for el in EP:
+    allin=allin+1/2*sm.expand(el)
+
+print("Allin")
+allin=sm.expand(allin)
+print(allin)
+
+
+
+
+print("#")
+AA = sp.integrate(sp.integrate((Px * U + Py * V + W * q) * A * B, (y, 0, 5.4)), (x, 0, 5.4))
+#print(AA)
+
+AA=sm.expand(AA)
+Es = allin - AA
+
+Es=sm.expand(Es)
+print("Es")
+#print(Es)
+
+#print(Coef)
+Jacobi2=np.array([0] * 5 * N)
+print(Jacobi2)
+
+
+Jacobi = [0] * 5 * N
+
+
+k = 0
+# for i in range(0, n ):
+#     for j in range(0, n ):
+#         Jacobi[k] =         sm.expand(sp.diff(Es, u[i][j]))
+#         Jacobi[k + N] =     sm.expand(sp.diff(Es, v[i][j]))
+#         Jacobi[k + 2 * N] = sm.expand(sp.diff(Es, w[i][j]))
+#         Jacobi[k + 3 * N] = sm.expand(sp.diff(Es, psix[i][j]))
+#         Jacobi[k + 4 * N] = sm.expand(sp.diff(Es, psiy[i][j]))
+#         k = k + 1
+# print("Jacobi")
+# print(Jacobi[0])
+Jacobi=[]
+
+for i in SN:
+    Jacobi.append(sm.expand(Es.diff(i)))
+
+
+
+Deter=[]
+
+for i in range(0, len(Jacobi)):
+    dpU = Jacobi[i]
+    for columnsOfHessian in range(0, len(Jacobi)):
+        lineOfHessian = []
+        for symb in SN:
+            lineOfHessian.append(sm.expand(dpU.diff(symb)))
+    Deter.append(lineOfHessian)
+
+Jacobi=sp.Matrix(Jacobi)
+Deter=sp.Matrix(Deter)
+
+print('Начальный нулевой вектор ... ', end='')
+
+
+epsillon=1*10**(-5)
+
+
+Coef=np.zeros(len(SN),dtype=np.float)
+# print(Coef)
+XkPred=np.array(Coef)
+
+MasRes = []
+res2=[]
+
+WC=[]
+WCC=[]
+wcWW=[]
+WC2=[]
+
+BufV=np.zeros((5*N),dtype=float)
+Buf = np.zeros((5*N),dtype=float)
+
+
+
+delq = 0.01
+MAX = 330
+Q_y=[]
+
+
+
+
+def Fun3(mat,dict_zam):
+    Deter1=mat.evalf(subs=dict_zam)
+    return Deter1
+
+def Fun4(mat,dict_zam):
+    Jacobi1=np.array(mat.evalf(subs=dict_zam))
+    return Jacobi1
+
+
+dict_U = dict(zip(SN[0:int(N)], list(Coef[0:int(N)])))
+dict_V = dict(zip(SN[int(N):2 * int(N)], list(Coef[int(N):2 * int(N)])))
+dict_W = dict(zip(SN[2 * int(N):3 * int(N)], list(Coef[2 * int(N):3 * int(N)])))
+# dict_Px = dict(zip(SN[3 * int(N):4 * int(N)], list(Coef[3 * int(N):4 * int(N)])))
+# dict_Py = dict(zip(SN[4 * int(N):5 * int(N)], list(Coef[4 * int(N):5 * int(N)])))
+
+
+
+threadU = Thread(target=Fun3, args=(Deter, dict_U))
+# thread2 = Thread(target=Fun3, args=(Deter, dict_W))
+thread3 = Thread(target=Fun3, args=(Deter, dict_V))
+threadU.start()
+# thread2.start()
+time.sleep(1)
+thread3.start()
+
+threadU.join()
+# thread2.join()
+thread3.join()
+
+# # print("Время замены")
+# # start_time1 = datetime.now()
+# # Deter2 = Deter.evalf(subs=dict_coef)
+# # Jacobi2 = np.array(Jacobi.evalf(subs=dict_coef))
+# # print(datetime.now() - start_time1)
+#
+# dict_coef=dict(zip(SN, list(Coef)))
+# for qi in range(0,MAX+1):
+#         qq=round(delq*qi,2) # Увеличиваем нагрузку
+#         dict_coef.update({q: qq})
+#         print('Увеличиваем нагрузку qq={: f}'.format(qq)," коэффициенты: ", end="")
+#         delta=1
+#         kol_iter=0
+#         print(dict_coef)
+#         while delta>epsillon:
+#             dict_U = dict(zip(SN[0:int(N)], list(Coef[0:int(N)])))
+#             dict_V = dict(zip(SN[int(N):2 * int(N)], list(Coef[int(N):2 * int(N)])))
+#             dict_W = dict(zip(SN[2 * int(N):3 * int(N)], list(Coef[2 * int(N):3 * int(N)])))
+#             dict_Px = dict(zip(SN[3 * int(N):4 * int(N)], list(Coef[3 * int(N):4 * int(N)])))
+#             dict_Py = dict(zip(SN[4 * int(N):5 * int(N)], list(Coef[4 * int(N):5 * int(N)])))
+#
+#             dict_coef.update(zip(SN, list(Coef)))
+#             print("Время замены")
+#             start_time1 = datetime.now()
+#             thread1 = Thread(target=Fun3, args=(Deter, dict_U))
+#             thread2 = Thread(target=Fun3, args=(Deter, dict_W))
+#             thread3 = Thread(target=Fun3, args=(Deter, dict_V))
+#             thread1.start()
+#             thread2.start()
+#             thread3.start()
+#             thread1.join()
+#             thread2.join()
+#             thread3.join()
+#             # print("Время замены")
+#             # start_time1 = datetime.now()
+#
+#
+#             # print(datetime.now() - start_time1)
+#             # print("Время расчета")
+#             # start_time2 = datetime.now()
+#             Rans=np.dot(np.array(Deter1.inv()), Jacobi1).reshape(Coef.shape)
+#             tmp=Coef-Rans
+#             Coef=np.array(tmp)	# Находим решение методом Ньютона
+#
+#             delta= np.sum(np.abs(Coef - XkPred))/len(Coef)# ??
+#
+#             XkPred=np.array(Coef)
+#
+#             kol_iter=kol_iter+1
+#             if kol_iter>15:
+#                 delta=0
+#             # print(datetime.now() - start_time2)
+#         print("kol_iter=",kol_iter,"delta=",delta)
+#
+#         wc1 = W
+#         Xk_new = list(Coef)
+#         for wi in range(2 * N, 3 * N):
+#             wc1 = wc1.subs(SN[wi], Coef[wi])
+#         # wc1=wc1
+#         # wcWW.append(wc1)  # масив значений функции W c подставленными коэф. с в завимости от q
+#         wc11 = wc1.subs(x, (aa + aa1) / 2)
+#         wc = wc11.subs(y, bb / 2)
+#         WC.append(wc)
+#         Q_y.append(qq)
+#         wc2 = W
+#         Xk_new = list(Coef)
+#         for wi in range(2 * N, 3 * N):
+#             wc2 = wc2.subs(SN[wi], Coef[wi])
+#         # wc1=wc1
+#         # wcWW.append(wc1)  # масив значений функции W c подставленными коэф. с в завимости от q
+#         wc22 = wc2.subs(x, (aa + aa1) / 4)
+#         wc23 = wc22.subs(y, bb / 4)
+#         WC2.append(wc23)
+#
+#
+#
+#
+#
+#
+#
+#
+#
+# """
+# delq = 0.01
+# qq = 0
+#
+#
+# AnsMatr=np.zeros((MAX+1, 5*N+5),dtype=float)
+# Jacobi1 = [0] * 5 * N
+# Deter1=[]
+#
+# for l in range(0, 5 * N):
+#     Deter1.append([0]*5*N)
+# #print("@")
+#
+# bb=np.zeros(5*N)
+# cc=np.zeros((5*N, 5*N),dtype=float)
+# Coef=np.zeros((5*N),dtype=float)
+# BufV=np.zeros((5*N),dtype=float)
+# Buf = np.zeros((5*N),dtype=float)
+# #print(Coef)
+# #print(Buf)
+# #print(BufV)
+# Resul = [0] * (MAX+1)
+#
+# print("Основной цикл")
+# a =round(60 * h,2)
+# a1 = 0
+# b = round(60 * h,2)
+# print(SN)
+# my_dict={}
+# valuee=[0]*5*N
+#
+# my_dict=dict.fromkeys(SN,0)
+# # for z in range(len(valuee)):
+# #     my_dict[SN[z]] = valuee[z]
+#
+# # for p in range(0, MAX+1):
+# #     for ll in range(0, len(Jacobi)):
+# #         Jacobi1[ll] = Jacobi[ll].subs(q, p / 100)
+# #         bb[ll] = Jacobi1[ll].subs(SN, Coef)
+# #     print(bb)
+#
+#
+# for p in range(0, MAX+1):
+#     print(p)
+#     delt = 1
+#     number=0
+#     while delt >epsillon:
+#         if number>10:
+#             delt=-epsillon
+#         else:
+#
+#             for l in  range(0, 5*N):
+#                 BufV[l]=Coef[l]
+#
+#             for ll in range(0, len(Jacobi)):
+#                 Jacobi1[ll] = Jacobi[ll].subs(q, p / 100)
+#                 bb[ll] = Jacobi1[ll].subs(SN, Coef)
+#
+#             for ii in range(0, len(Deter)):
+#                 for jj in range(0, len(Deter[ii])):
+#                     Deter1[ii][jj] = Deter[ii][jj].subs(q, p / 100)
+#                     cc[ii][jj] = Deter1[ii][jj].subs(SN, Coef)
+#             # print("Jac")
+#             # print(bb)
+#             # print("Deter")
+#             # print(cc)
+#
+#
+#             Rans = np.linalg.inv(cc).dot(bb)
+#             # print("Rans")
+#             # print(Rans)
+#             Buf = Coef
+#             # print('Buf')
+#             # print(Buf)
+#             Coef = Buf- Rans
+#             # print("Coef")
+#             # print(Coef)
+#             # print("BufV")
+#             # print(BufV)
+#             delt = abs(BufV[0] - Coef[0])
+#
+#             for l in  range(0, 5*N):
+#                 if abs(BufV[l]-Coef[l])>delt:
+#                     delt=abs(BufV[l]-Coef[l])
+#             number=number+1
+#
+#     for l in range(0, 5 * N):
+#         AnsMatr[p][l + 1]= Coef[l]
+#     AnsMatr[p][0] = p/100
+#     # print("End")
+#     # print(Coef)
+#     Resul[p] = W.subs(x, a/2)
+#     Resul[p] = Resul[p].subs(y, b / 2)
+#     Resul[p]=Resul[p].subs(sp.symbols('w' + str(1) + '' + str(1)),Coef[2])
+#     # Resul[p] = Resul[p].subs(sp.symbols('w' + str(1) + '' + str(2)), Coef[11])
+#     # Resul[p] = Resul[p].subs(sp.symbols('w' + str(2) + '' + str(1)), Coef[12])
+#     # Resul[p] = Resul[p].subs(sp.symbols('w' + str(2) + '' + str(2)), Coef[13])
+#
+# print("Время раскрытия скобок")
+# print(datetime.now() - start_time)
+# print("123456789")
+# for i in Resul:
+#     print(i)
+#
+# print("Время раскрытия скобок")
+# print(datetime.now() - start_time)
+#
+# # for i in AnsMatr:
+# #     print(i)
+#
+#
+# #EPN = EPN.subs([(Symbol('u' + str(1) + '' + str(1)), 0),(Symbol('v' + str(i) + '' + str(j)), 0),(Symbol('w' + str(i) + '' + str(j)), 0),(Symbol('psix' + str(i) + '' + str(j)), 0),(Symbol('psiy' + str(i) + '' + str(j)), 0)])
+#
+#
+#
+#
+#             del := abs(evalf(BufV[1]-Coef[1]));
+#             for l to 5*N do
+#                 if abs(evalf(BufV[l]-Coef[l])) > del then del := abs(evalf(BufV[l]-Coef[l]))
+#                 end if
+#             end do
+#         end do;
+#         for l to 5*N do
+#             AnsMatr[p, l+1] := Coef[l]
+#         end do;
+#         AnsMatr[p, 1] := qq;
+#         AnsMatr[p, 2] := subs({x = (1/2)*a, y = (1/2)*b}, W);
+#         AnsMatr[p, 3] := subs({x = (1/4)*a, y = (1/4)*b}, W);
+#         qq := qq+delq;
+#         print(qq)
+# end do;
+#
+# evalm(AnsMatr);
+# with(plots);
+#
+# gr1 := pointplot([seq([AnsMatr[i, 2], AnsMatr[i, 1]], i = 1 .. MAX)], color = red, axis = [gridlines = [10, color = black]], labels = ["W", "q"]);
+# gr2 := pointplot([seq([AnsMatr[i, 3], AnsMatr[i, 1]], i = 1 .. MAX)], color = blue, axis = [gridlines = [10, color = black]], labels = ["W", "q"]);
+# print(display([gr1, gr2]));
+#
+# NULL;
+# """
+# fig=plt.figure(num=1, figsize=(8, 6))
+# plt.plot(WC,Q_y,color='r', linestyle='--', marker='o', markersize=3, label='W((a+a1)/2,b/2)')
+# plt.plot(WC2,Q_y,color='b', linestyle='--', marker='o', markersize=3, label='W((a+a1)/4,b/4)')
+# plt.legend(loc='upper left')
+# grid1 = plt.grid(True)
+# plt.xlabel("W,м")
+# plt.ylabel("q,МПа")
+# plt.title('График прогиба W')
+# plt.show()
+# #
