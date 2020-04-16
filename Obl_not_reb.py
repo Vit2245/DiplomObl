@@ -668,10 +668,10 @@ dict_coef=dict(zip(SN, list(Coef)))
 for qi in range(0,MAX+1):
         qq=round(delq*qi,2) # Увеличиваем нагрузку
         dict_coef.update({q: qq})
-        # print('Увеличиваем нагрузку qq={: f}'.format(qq)," коэффициенты: ", end="")
+        print('Увеличиваем нагрузку qq={: f}'.format(qq)," коэффициенты: ", end="")
         delta=1
         kol_iter=0
-        # print(dict_coef)
+        print(dict_coef)
         while delta>epsillon:
 
             dict_coef.update(zip(SN, list(Coef)))
@@ -696,7 +696,7 @@ for qi in range(0,MAX+1):
             if kol_iter>15:
                 delta=0
 
-        # print("kol_iter=",kol_iter,"delta=",delta)
+        print("kol_iter=",kol_iter,"delta=",delta)
         wc1 = W
         Xk_new = list(Coef)
         for wi in range(2 * N, 3 * N):
@@ -876,3 +876,4 @@ plt.ylabel("q,МПа")
 plt.title('График прогиба W')
 plt.show()
 #
+print(datetime.now() - start_time)
