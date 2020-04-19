@@ -657,13 +657,13 @@ Q_y=[]
 
 dict_coef=dict(zip(SN, list(Coef)))
 
-def Fun3(mat,dict_zam):
-    Deter1=mat.evalf(subs=dict_zam)
-    return Deter1
-
-def Fun4(mat,dict_zam):
-    Jacobi1=np.array(mat.evalf(subs=dict_zam))
-    return Jacobi1
+# def Fun3(mat,dict_zam):
+#     Deter1=mat.evalf(subs=dict_zam)
+#     return Deter1
+#
+# def Fun4(mat,dict_zam):
+#     Jacobi1=np.array(mat.evalf(subs=dict_zam))
+#     return Jacobi1
 
 
 
