@@ -586,298 +586,144 @@ Es = allin - AA
 Es=sm.expand(Es)
 print("Es")
 print(Es)
-#
-# #print(Coef)
-# Jacobi2=np.array([0] * 5 * N)
-# print(Jacobi2)
-#
-#
-# Jacobi = [0] * 5 * N
-#
-#
-# k = 0
-# # for i in range(0, n ):
-# #     for j in range(0, n ):
-# #         Jacobi[k] =         sm.expand(sp.diff(Es, u[i][j]))
-# #         Jacobi[k + N] =     sm.expand(sp.diff(Es, v[i][j]))
-# #         Jacobi[k + 2 * N] = sm.expand(sp.diff(Es, w[i][j]))
-# #         Jacobi[k + 3 * N] = sm.expand(sp.diff(Es, psix[i][j]))
-# #         Jacobi[k + 4 * N] = sm.expand(sp.diff(Es, psiy[i][j]))
-# #         k = k + 1
-# # print("Jacobi")
-# # print(Jacobi[0])
-# Jacobi=[]
-#
-# for i in SN:
-#     Jacobi.append(sm.expand(Es.diff(i)))
-#
-#
-#
-# Deter=[]
-#
-# for i in range(0, len(Jacobi)):
-#     dpU = Jacobi[i]
-#     for columnsOfHessian in range(0, len(Jacobi)):
-#         lineOfHessian = []
-#         for symb in SN:
-#             lineOfHessian.append(sm.expand(dpU.diff(symb)))
-#     Deter.append(lineOfHessian)
-#
-# Jacobi=sp.Matrix(Jacobi)
-# Deter=sp.Matrix(Deter)
-#
-# print('Начальный нулевой вектор ... ', end='')
-#
-#
-# epsillon=1*10**(-5)
-#
-#
-# Coef=np.zeros(len(SN),dtype=np.float)
-# # print(Coef)
-# XkPred=np.array(Coef)
-#
-# MasRes = []
-# res2=[]
-#
-# WC=[]
-# WCC=[]
-# wcWW=[]
-# WC2=[]
-#
-# BufV=np.zeros((5*N),dtype=float)
-# Buf = np.zeros((5*N),dtype=float)
-#
-#
-#
-# delq = 0.01
-# MAX = 330
-# Q_y=[]
-#
-#
-#
-# dict_coef=dict(zip(SN, list(Coef)))
-#
-# def Fun3(mat,dict_zam):
-#     Deter1=mat.evalf(subs=dict_zam)
-#     return Deter1
-#
-# def Fun4(mat,dict_zam):
-#     Jacobi1=np.array(mat.evalf(subs=dict_zam))
-#     return Jacobi1
-#
-#
-#
-# dict_coef=dict(zip(SN, list(Coef)))
-# for qi in range(0,MAX+1):
-#         qq=round(delq*qi,2) # Увеличиваем нагрузку
-#         dict_coef.update({q: qq})
-#         print('Увеличиваем нагрузку qq={: f}'.format(qq)," коэффициенты: ", end="")
-#         delta=1
-#         kol_iter=0
-#         print(dict_coef)
-#         while delta>epsillon:
-#
-#             dict_coef.update(zip(SN, list(Coef)))
-#
-#             # print("Время замены")
-#             start_time1 = datetime.now()
-#
-#             Deter1 = Deter.evalf(subs=dict_coef)
-#             Jacobi1 = np.array(Jacobi.evalf(subs=dict_coef))
-#
-#             # print(datetime.now() - start_time1)
-#
-#             Rans=np.dot(np.array(Deter1.inv()), Jacobi1).reshape(Coef.shape)
-#             tmp=Coef-Rans
-#             Coef=np.array(tmp)	# Находим решение методом Ньютона
-#
-#             delta= np.sum(np.abs(Coef - XkPred))/len(Coef)# ??
-#
-#             XkPred=np.array(Coef)
-#
-#             kol_iter=kol_iter+1
-#             if kol_iter>15:
-#                 delta=0
-#
-#         print("kol_iter=",kol_iter,"delta=",delta)
-#         wc1 = W
-#         Xk_new = list(Coef)
-#         for wi in range(2 * N, 3 * N):
-#             wc1 = wc1.subs(SN[wi], Coef[wi])
-#         # wc1=wc1
-#         # wcWW.append(wc1)  # масив значений функции W c подставленными коэф. с в завимости от q
-#         wc11 = wc1.subs(x, (aa + aa1) / 2)
-#         wc = wc11.subs(y, bb / 2)
-#         WC.append(wc)
-#         Q_y.append(qq)
-#         wc2 = W
-#         Xk_new = list(Coef)
-#         for wi in range(2 * N, 3 * N):
-#             wc2 = wc2.subs(SN[wi], Coef[wi])
-#         # wc1=wc1
-#         # wcWW.append(wc1)  # масив значений функции W c подставленными коэф. с в завимости от q
-#         wc22 = wc2.subs(x, (aa + aa1) / 4)
-#         wc23 = wc22.subs(y, bb / 4)
-#         WC2.append(wc23)
-#
-#
-#
-#
-#
-#
-#
-#
-#
-# """
-# delq = 0.01
-# qq = 0
-#
-#
-# AnsMatr=np.zeros((MAX+1, 5*N+5),dtype=float)
-# Jacobi1 = [0] * 5 * N
-# Deter1=[]
-#
-# for l in range(0, 5 * N):
-#     Deter1.append([0]*5*N)
-# #print("@")
-#
-# bb=np.zeros(5*N)
-# cc=np.zeros((5*N, 5*N),dtype=float)
-# Coef=np.zeros((5*N),dtype=float)
-# BufV=np.zeros((5*N),dtype=float)
-# Buf = np.zeros((5*N),dtype=float)
-# #print(Coef)
-# #print(Buf)
-# #print(BufV)
-# Resul = [0] * (MAX+1)
-#
-# print("Основной цикл")
-# a =round(60 * h,2)
-# a1 = 0
-# b = round(60 * h,2)
-# print(SN)
-# my_dict={}
-# valuee=[0]*5*N
-#
-# my_dict=dict.fromkeys(SN,0)
-# # for z in range(len(valuee)):
-# #     my_dict[SN[z]] = valuee[z]
-#
-# # for p in range(0, MAX+1):
-# #     for ll in range(0, len(Jacobi)):
-# #         Jacobi1[ll] = Jacobi[ll].subs(q, p / 100)
-# #         bb[ll] = Jacobi1[ll].subs(SN, Coef)
-# #     print(bb)
-#
-#
-# for p in range(0, MAX+1):
-#     print(p)
-#     delt = 1
-#     number=0
-#     while delt >epsillon:
-#         if number>10:
-#             delt=-epsillon
-#         else:
-#
-#             for l in  range(0, 5*N):
-#                 BufV[l]=Coef[l]
-#
-#             for ll in range(0, len(Jacobi)):
-#                 Jacobi1[ll] = Jacobi[ll].subs(q, p / 100)
-#                 bb[ll] = Jacobi1[ll].subs(SN, Coef)
-#
-#             for ii in range(0, len(Deter)):
-#                 for jj in range(0, len(Deter[ii])):
-#                     Deter1[ii][jj] = Deter[ii][jj].subs(q, p / 100)
-#                     cc[ii][jj] = Deter1[ii][jj].subs(SN, Coef)
-#             # print("Jac")
-#             # print(bb)
-#             # print("Deter")
-#             # print(cc)
-#
-#
-#             Rans = np.linalg.inv(cc).dot(bb)
-#             # print("Rans")
-#             # print(Rans)
-#             Buf = Coef
-#             # print('Buf')
-#             # print(Buf)
-#             Coef = Buf- Rans
-#             # print("Coef")
-#             # print(Coef)
-#             # print("BufV")
-#             # print(BufV)
-#             delt = abs(BufV[0] - Coef[0])
-#
-#             for l in  range(0, 5*N):
-#                 if abs(BufV[l]-Coef[l])>delt:
-#                     delt=abs(BufV[l]-Coef[l])
-#             number=number+1
-#
-#     for l in range(0, 5 * N):
-#         AnsMatr[p][l + 1]= Coef[l]
-#     AnsMatr[p][0] = p/100
-#     # print("End")
-#     # print(Coef)
-#     Resul[p] = W.subs(x, a/2)
-#     Resul[p] = Resul[p].subs(y, b / 2)
-#     Resul[p]=Resul[p].subs(sp.symbols('w' + str(1) + '' + str(1)),Coef[2])
-#     # Resul[p] = Resul[p].subs(sp.symbols('w' + str(1) + '' + str(2)), Coef[11])
-#     # Resul[p] = Resul[p].subs(sp.symbols('w' + str(2) + '' + str(1)), Coef[12])
-#     # Resul[p] = Resul[p].subs(sp.symbols('w' + str(2) + '' + str(2)), Coef[13])
-#
-# print("Время раскрытия скобок")
-# print(datetime.now() - start_time)
-# print("123456789")
-# for i in Resul:
-#     print(i)
-#
-# print("Время раскрытия скобок")
-# print(datetime.now() - start_time)
-#
-# # for i in AnsMatr:
-# #     print(i)
-#
-#
-# #EPN = EPN.subs([(Symbol('u' + str(1) + '' + str(1)), 0),(Symbol('v' + str(i) + '' + str(j)), 0),(Symbol('w' + str(i) + '' + str(j)), 0),(Symbol('psix' + str(i) + '' + str(j)), 0),(Symbol('psiy' + str(i) + '' + str(j)), 0)])
-#
-#
-#
-#
-#             del := abs(evalf(BufV[1]-Coef[1]));
-#             for l to 5*N do
-#                 if abs(evalf(BufV[l]-Coef[l])) > del then del := abs(evalf(BufV[l]-Coef[l]))
-#                 end if
-#             end do
-#         end do;
-#         for l to 5*N do
-#             AnsMatr[p, l+1] := Coef[l]
-#         end do;
-#         AnsMatr[p, 1] := qq;
-#         AnsMatr[p, 2] := subs({x = (1/2)*a, y = (1/2)*b}, W);
-#         AnsMatr[p, 3] := subs({x = (1/4)*a, y = (1/4)*b}, W);
-#         qq := qq+delq;
-#         print(qq)
-# end do;
-#
-# evalm(AnsMatr);
-# with(plots);
-#
-# gr1 := pointplot([seq([AnsMatr[i, 2], AnsMatr[i, 1]], i = 1 .. MAX)], color = red, axis = [gridlines = [10, color = black]], labels = ["W", "q"]);
-# gr2 := pointplot([seq([AnsMatr[i, 3], AnsMatr[i, 1]], i = 1 .. MAX)], color = blue, axis = [gridlines = [10, color = black]], labels = ["W", "q"]);
-# print(display([gr1, gr2]));
-#
-# NULL;
-# """
-# print(datetime.now() - start_time)
-# fig=plt.figure(num=1, figsize=(8, 6))
-# plt.plot(WC,Q_y,color='r', linestyle='--', marker='o', markersize=3, label='W((a+a1)/2,b/2)')
-# plt.plot(WC2,Q_y,color='b', linestyle='--', marker='o', markersize=3, label='W((a+a1)/4,b/4)')
-# plt.legend(loc='upper left')
-# grid1 = plt.grid(True)
-# plt.xlabel("W,м")
-# plt.ylabel("q,МПа")
-# plt.title('График прогиба W')
-# plt.show()
-# #
-# print(datetime.now() - start_time)
+
+#print(Coef)
+Jacobi2=np.array([0] * 5 * N)
+print(Jacobi2)
+
+
+Jacobi = [0] * 5 * N
+
+
+k = 0
+# for i in range(0, n ):
+#     for j in range(0, n ):
+#         Jacobi[k] =         sm.expand(sp.diff(Es, u[i][j]))
+#         Jacobi[k + N] =     sm.expand(sp.diff(Es, v[i][j]))
+#         Jacobi[k + 2 * N] = sm.expand(sp.diff(Es, w[i][j]))
+#         Jacobi[k + 3 * N] = sm.expand(sp.diff(Es, psix[i][j]))
+#         Jacobi[k + 4 * N] = sm.expand(sp.diff(Es, psiy[i][j]))
+#         k = k + 1
+# print("Jacobi")
+# print(Jacobi[0])
+Jacobi=[]
+
+for i in SN:
+    Jacobi.append(sm.expand(Es.diff(i)))
+
+
+
+Deter=[]
+
+for i in range(0, len(Jacobi)):
+    dpU = Jacobi[i]
+    for columnsOfHessian in range(0, len(Jacobi)):
+        lineOfHessian = []
+        for symb in SN:
+            lineOfHessian.append(sm.expand(dpU.diff(symb)))
+    Deter.append(lineOfHessian)
+
+Jacobi=sp.Matrix(Jacobi)
+Deter=sp.Matrix(Deter)
+
+print('Начальный нулевой вектор ... ', end='')
+
+
+epsillon=1*10**(-5)
+
+
+Coef=np.zeros(len(SN),dtype=np.float)
+# print(Coef)
+XkPred=np.array(Coef)
+
+MasRes = []
+res2=[]
+
+WC=[]
+WCC=[]
+wcWW=[]
+WC2=[]
+
+BufV=np.zeros((5*N),dtype=float)
+Buf = np.zeros((5*N),dtype=float)
+
+
+
+delq = 0.01
+MAX = 330
+Q_y=[]
+
+
+
+dict_coef=dict(zip(SN, list(Coef)))
+
+def Fun3(mat,dict_zam):
+    Deter1=mat.evalf(subs=dict_zam)
+    return Deter1
+
+def Fun4(mat,dict_zam):
+    Jacobi1=np.array(mat.evalf(subs=dict_zam))
+    return Jacobi1
+
+
+
+dict_coef=dict(zip(SN, list(Coef)))
+for qi in range(0,MAX+1):
+        qq=round(delq*qi,2) # Увеличиваем нагрузку
+        dict_coef.update({q: qq})
+        print('Увеличиваем нагрузку qq={: f}'.format(qq)," коэффициенты: ", end="")
+        delta=1
+        kol_iter=0
+        print(dict_coef)
+        while delta>epsillon:
+
+            dict_coef.update(zip(SN, list(Coef)))
+
+            Deter1 = Deter.evalf(subs=dict_coef)
+            Jacobi1 = np.array(Jacobi.evalf(subs=dict_coef))
+
+            Rans=np.dot(np.array(Deter1.inv()), Jacobi1).reshape(Coef.shape)
+            tmp=Coef-Rans
+            Coef=np.array(tmp)	# Находим решение методом Ньютона
+
+            delta= np.sum(np.abs(Coef - XkPred))/len(Coef)# ??
+
+            XkPred=np.array(Coef)
+
+            kol_iter=kol_iter+1
+            if kol_iter>15:
+                delta=0
+
+        print("kol_iter=",kol_iter,"delta=",delta)
+        wc1 = W
+        Xk_new = list(Coef)
+        for wi in range(2 * N, 3 * N):
+            wc1 = wc1.subs(SN[wi], Coef[wi])
+        # wc1=wc1
+        # wcWW.append(wc1)  # масив значений функции W c подставленными коэф. с в завимости от q
+        wc11 = wc1.subs(x, (aa + aa1) / 2)
+        wc = wc11.subs(y, bb / 2)
+        WC.append(wc)
+        Q_y.append(qq)
+        wc2 = W
+        Xk_new = list(Coef)
+        for wi in range(2 * N, 3 * N):
+            wc2 = wc2.subs(SN[wi], Coef[wi])
+        # wc1=wc1
+        # wcWW.append(wc1)  # масив значений функции W c подставленными коэф. с в завимости от q
+        wc22 = wc2.subs(x, (aa + aa1) / 4)
+        wc23 = wc22.subs(y, bb / 4)
+        WC2.append(wc23)
+
+print(datetime.now() - start_time)
+fig=plt.figure(num=1, figsize=(8, 6))
+plt.plot(WC,Q_y,color='r', linestyle='--', marker='o', markersize=3, label='W((a+a1)/2,b/2)')
+plt.plot(WC2,Q_y,color='b', linestyle='--', marker='o', markersize=3, label='W((a+a1)/4,b/4)')
+plt.legend(loc='upper left')
+grid1 = plt.grid(True)
+plt.xlabel("W,м")
+plt.ylabel("q,МПа")
+plt.title('График прогиба W')
+plt.show()
+#
+print(datetime.now() - start_time)
