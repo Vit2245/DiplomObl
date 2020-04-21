@@ -145,7 +145,7 @@ def Fun2(zxccxz,dict_yy):
 
 h = 0.09
 
-n =3
+n =1
 N = np.power(n, 2)
 
 aa =round(60 * h,2)
@@ -649,8 +649,8 @@ Buf = np.zeros((5*N),dtype=float)
 
 
 
-delq = 0.01
-MAX = 330
+delq = 0.1
+MAX = 33
 Q_y=[]
 
 
