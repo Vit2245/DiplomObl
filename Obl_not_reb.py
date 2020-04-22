@@ -456,28 +456,24 @@ def replace_by_dict(ep: [str], variables: [str], dictionary: dict, a: Num, b: Nu
         # print(index)
         # put the polynom's members in the right order
         for zz in variables:
-            if elem.find(zz):
-                i = elem.find(zz)
-                if i < 0:
-                    continue
+            i = elem.find(zz)
+            if i >= 0:
                 elem = elem[:i] + '' + elem[i + len(zz) + 1:]
                 zamena += '*' + zz
-                ep[index] = elem
-            continue
-        if zamena[1:] in dictionary:
+        zamena = zamena[1:]
+        if zamena in dictionary:
             # print("нашел")
-            result = dictionary.get(zamena[1:])
+            result = dictionary.get(zamena)
             # print(result)
-            ep[index] = elem + operator + str(result)
         else:
             # print("не нашел")
-            zam_x = sm.expand(zamena[1:])
+            zam_x = sm.expand(zamena)
             # print(zam_x)
             # result=Quadrature.simpson(lambda xx: (zam_x*A).subs(x,xx), 0, 5.4, rtol=1e-10)
             result = integrate.quad(lambda xx: (zam_x * A).subs(x, xx), a, b)[0]
-            dictionary.update({zamena[1:]: result})
+            dictionary.update({zamena: result})
 
-            ep[index] = elem + operator + str(result)
+        ep[index] = elem + operator + str(result)
 
 replace_by_dict(EP, variable_x, dict_x, 0, 5.4, x)
 
