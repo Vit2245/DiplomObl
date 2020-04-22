@@ -87,46 +87,9 @@ class Quadrature:
         return ans
 
 
-# def Fun1(zxccxz, dict_xx):
-# def Fun2(zxccxz, dict_yy):
-#     zamena_y = ''
-#     number = 0
-#     for elem in zxccxz:
-#         # print(number)
-#         for zz in variable_y:
-#             if elem.find("*" + zz):
-#                 i = elem.find("*" + zz)
-#                 if i < 0:
-#                     continue
-#                 elem = elem[:i] + '' + elem[i + len(zz) + 1:]
-#                 zamena_y = zamena_y + '*' + zz
-#
-#                 EP[number] = elem.strip()
-#             continue
-#         if zamena_y[1:] in dict_yy:
-#             # print("нашел")
-#             resul_y = dict_yy.get(zamena_y[1:])
-#             EP[number] = elem.strip() + '*' + str(resul_y)
-#             zamena_y = ""
-#             number = number + 1
-#             int_y.close()
-#             continue
-#         else:
-#             # print("не нашел")
-#             zam_y = sm.expand(zamena_y[1:])
-#
-#             resul_y = integrate.quad(lambda yy: (zam_y * B).subs(y, yy), 0, 5.4)[0]
-#
-#             dict_yy.update({zamena_y[1:]: resul_y})
-#             EP[number] = elem.strip() + '*' + str(resul_y)
-#             zamena_y = ""
-#             number = number + 1
-#     return EP
-
-
 h = 0.09
 
-n = 1
+n = 3
 N = np.power(n, 2)
 
 aa = round(60 * h, 2)
@@ -419,7 +382,8 @@ int_y.close()
 Num = Union[int, float]
 
 
-def replace_by_dict(ep: [str], variables: [str], dictionary: dict, a: Num, b: Num,s=sp.symbols, operator: str = '') -> None:
+def replace_by_dict(ep: [str], variables: [str], dictionary: dict, a: Num, b: Num, s=sp.symbols,
+                    operator: str = '') -> None:
     for index, elem in enumerate(ep):
         zamena = ''
         # print(index)
@@ -443,7 +407,7 @@ def replace_by_dict(ep: [str], variables: [str], dictionary: dict, a: Num, b: Nu
             zam_x = sm.expand(zamena[1:])
             # print(zam_x)
             # result=Quadrature.simpson(lambda xx: (zam_x*A).subs(x,xx), 0, 5.4, rtol=1e-10)
-            if s=='x':
+            if s == 'x':
                 result = integrate.quad(lambda xx: (zam_x * A).subs(x, xx), a, b)[0]
             else:
                 result = integrate.quad(lambda yy: (zam_x * B).subs(y, yy), a, b)[0]
@@ -452,7 +416,7 @@ def replace_by_dict(ep: [str], variables: [str], dictionary: dict, a: Num, b: Nu
             ep[index] = elem + operator + str(result)
 
 
-replace_by_dict(EP, variable_x, dict_x, 0, 5.4,x)
+replace_by_dict(EP, variable_x, dict_x, 0, 5.4, x)
 
 print("Время раскрытия скобок")
 print(datetime.now() - start_time)
@@ -461,7 +425,7 @@ with open('out_x.txt', 'w') as out:
     for key, val in dict_x.items():
         out.write('{}:{}\n'.format(key, val))
 
-replace_by_dict(EP, variable_y, dict_y, 0, 5.4,y, '*')
+replace_by_dict(EP, variable_y, dict_y, 0, 5.4, y, '*')
 
 # thread1 = Thread(target=Fun1, args=(EP,dict_x))
 # thread2 = Thread(target=Fun2, args=(EP,dict_y))
@@ -494,33 +458,29 @@ print("Resul")
 #      print(sm.expand(el))
 
 
-
 with open('агт.txt', 'w') as out:
     for el in EP:
         out.write(str(sm.expand(el)) + "\n")
 
-
-start_time=datetime.now()
-for i,el in enumerate(EP):
-    EP[i]=1/2*sm.expand(el)
+start_time = datetime.now()
+for i, el in enumerate(EP):
+    EP[i] = 1 / 2 * sm.expand(el)
 print("Время раскрытия скобок1111")
 print(datetime.now() - start_time)
 print("Resul1")
-start_time=datetime.now()
-allin='0'
+start_time = datetime.now()
+allin = '0'
 for el in EP:
-    allin=allin+'+'+str(el)
+    allin = allin + '+' + str(el)
 print(allin)
 print("Время раскрытия скобок123")
 print(datetime.now() - start_time)
 print("Allin")
 
-
-start_time=datetime.now()
-allin=sm.expand(allin)
+start_time = datetime.now()
+allin = sm.expand(allin)
 print("Время раскрытия скобок234")
 print(datetime.now() - start_time)
-
 
 AA = sp.integrate(sp.integrate((Px * U + Py * V + W * q) * A * B, (y, 0, 5.4)), (x, 0, 5.4))
 # print(AA)
@@ -535,11 +495,6 @@ print("Es")
 # print(Coef)
 Jacobi2 = np.array([0] * 5 * N)
 print(Jacobi2)
-
-
-Jacobi2=np.array([0] * 5 * N)
-
-Jacobi = [0] * 5 * N
 
 k = 0
 # for i in range(0, n ):
@@ -556,49 +511,37 @@ k = 0
 Jacobi = []
 
 for i in SN:
-    Jacobi.append(sm.expand(Es.diff(i)))
-
-Deter = []
-
-
-Jacobi=[]
-start_time=datetime.now()
-for i in SN:
-    Jacobi.append(sm.expand(Es.diff(i)))
-
-
+    Jacobi.append(sm.expand(sm.diff(Es, i)))
+istart_time = datetime.now()
 print("Время первая производная")
 print(datetime.now() - start_time)
 
-Deter=[]
-start_time=datetime.now()
+Deter = []
+start_time = datetime.now()
 
 for i in range(0, len(Jacobi)):
     dpU = Jacobi[i]
     for columnsOfHessian in range(0, len(Jacobi)):
         lineOfHessian = []
         for symb in SN:
-            lineOfHessian.append(sm.expand(sm.diff(dpU,symb)))
+            lineOfHessian.append(sm.diff(dpU, symb))
     Deter.append(lineOfHessian)
-
 
 Jacobi = sp.Matrix(Jacobi)
 Deter = sp.Matrix(Deter)
 
-print('Начальный нулевой вектор ... ', end='')
-
 print("Время вторая производная")
 print(datetime.now() - start_time)
-start_time=datetime.now()
-Jacobi=sp.Matrix(Jacobi)
-Deter=sp.Matrix(Deter)
+start_time = datetime.now()
+Jacobi = sp.Matrix(Jacobi)
+Deter = sp.Matrix(Deter)
 print("Время матрицы")
 print(datetime.now() - start_time)
 print('Начальный нулевой вектор ... ')
 
-
 epsillon = 1 * 10 ** (-5)
 
+print('Начальный нулевой вектор ... ', end='')
 Coef = np.zeros(len(SN), dtype=np.float)
 # print(Coef)
 XkPred = np.array(Coef)
@@ -614,15 +557,13 @@ WC2 = []
 BufV = np.zeros((5 * N), dtype=float)
 Buf = np.zeros((5 * N), dtype=float)
 
-
 delq = 0.1
 MAX = 33
 Q_y = []
 
 delq = 0.01
 MAX = 330
-Q_y=[]
-
+Q_y = []
 
 dict_coef = dict(zip(SN, list(Coef)))
 
@@ -640,7 +581,7 @@ dict_coef.update({q: 0.})
 
 lambda_deter = sp.lambdify(dict_coef.keys(), Deter)
 lambda_jacobi = sp.lambdify(dict_coef.keys(), Jacobi)
-start_time2=datetime.now()
+start_time2 = datetime.now()
 for qi in range(0, MAX + 1):
     qq = round(delq * qi, 2)  # Увеличиваем нагрузку
     dict_coef.update({q: qq})
@@ -703,4 +644,3 @@ plt.show()
 #
 
 print(datetime.now() - start_time)
-
