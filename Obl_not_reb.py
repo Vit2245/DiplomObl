@@ -153,7 +153,7 @@ def Fun2(zxccxz, dict_yy):
 
 h = 0.09
 
-n = 1
+n = 2
 N = np.power(n, 2)
 
 aa = round(60 * h, 2)
