@@ -1,6 +1,7 @@
 import math as mth
 from math import *
 import numpy as np
+from numpy import linalg as la
 import sympy as sp
 from sympy.integrals.quadrature import gauss_legendre
 import symengine as sm
@@ -271,7 +272,7 @@ ey = sm.expand((sp.diff(V, y)) / B + (sp.diff(B, x)) * U / (A * B) - ky * W + (1
 # print("#ey")
 # print(ey)
 gxy = sm.expand((sp.diff(V, x)) / A + (sp.diff(U, y)) / B - (sp.diff(A, y)) * U / (A * B) - (sp.diff(B, x)) * V / (
-            A * B) + Theta1 * Theta2)
+        A * B) + Theta1 * Theta2)
 # print("#gxy")
 # print(gxy)
 gxz = sm.expand(k * (f(z)) * (Psix - Theta1))
@@ -283,8 +284,8 @@ gyz = sm.expand(k * (f(z)) * (Psiy - Theta2))
 varkappa1 = sm.expand((sp.diff(Psix, x)) / A + (sp.diff(A, y)) * Psiy / (A * B))
 varkappa2 = sm.expand((sp.diff(Psiy, y)) / B + (sp.diff(B, x)) * Psix / (A * B))
 varkappa12 = sm.expand(1 / 2 * (
-            (sp.diff(Psiy, x)) / A + (sp.diff(Psix, y)) / B - ((sp.diff(A, y)) * Psix + (sp.diff(B, x)) * Psiy) / (
-                A * B)))
+        (sp.diff(Psiy, x)) / A + (sp.diff(Psix, y)) / B - ((sp.diff(A, y)) * Psix + (sp.diff(B, x)) * Psiy) / (
+        A * B)))
 # print("#varkappa1")
 
 # print(varkappa1)
@@ -634,6 +635,11 @@ dict_coef = dict(zip(SN, list(Coef)))
 
 
 dict_coef = dict(zip(SN, list(Coef)))
+dict_coef.update({q: 0.})
+
+lambda_deter = sp.lambdify(dict_coef.keys(), Deter)
+lambda_jacobi = sp.lambdify(dict_coef.keys(), Jacobi)
+
 for qi in range(0, MAX + 1):
     qq = round(delq * qi, 2)  # Увеличиваем нагрузку
     dict_coef.update({q: qq})
@@ -645,10 +651,11 @@ for qi in range(0, MAX + 1):
 
         dict_coef.update(zip(SN, list(Coef)))
 
-        Deter1 = Deter.evalf(subs=dict_coef)
-        Jacobi1 = np.array(Jacobi.evalf(subs=dict_coef))
+        dict_values = dict_coef.values()
+        Deter1 = lambda_deter(*dict_values)
+        Jacobi1 = lambda_jacobi(*dict_values)
 
-        Rans = np.dot(np.array(Deter1.inv()), Jacobi1).reshape(Coef.shape)
+        Rans = np.dot(np.array(la.inv(Deter1)), Jacobi1).reshape(Coef.shape)
         tmp = Coef - Rans
         Coef = np.array(tmp)  # Находим решение методом Ньютона
 
