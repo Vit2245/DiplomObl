@@ -449,7 +449,8 @@ int_y.close()
 Num = Union[int, float]
 
 
-def replace_by_dict(ep: [str], variables: [str], dictionary: dict, a: Num, b: Num, operator: str = '') -> None:
+def replace_by_dict(ep: [str], variables: [str], dictionary: dict, a: Num, b: Num, x: sp.Symbol,
+                    operator: str = '') -> None:
     for index, elem in enumerate(ep):
         zamena = ''
         # print(index)
@@ -478,8 +479,7 @@ def replace_by_dict(ep: [str], variables: [str], dictionary: dict, a: Num, b: Nu
 
             ep[index] = elem + operator + str(result)
 
-
-replace_by_dict(EP, variable_x, dict_x, 0, 5.4)
+replace_by_dict(EP, variable_x, dict_x, 0, 5.4, x)
 
 print("Время раскрытия скобок")
 print(datetime.now() - start_time)
@@ -488,7 +488,7 @@ with open('out_x.txt', 'w') as out:
     for key, val in dict_x.items():
         out.write('{}:{}\n'.format(key, val))
 
-replace_by_dict(EP, variable_y, dict_y, 0, 5.4, '*')
+replace_by_dict(EP, variable_y, dict_y, 0, 5.4, y, '*')
 
 # thread1 = Thread(target=Fun1, args=(EP,dict_x))
 # thread2 = Thread(target=Fun2, args=(EP,dict_y))
