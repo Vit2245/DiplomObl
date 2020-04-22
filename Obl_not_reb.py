@@ -13,6 +13,7 @@ import scipy.integrate as integrate
 import scipy.special as special
 import matplotlib.pyplot as plt
 import sys
+
 sys.setrecursionlimit(10 ** 6)
 
 start_time = datetime.now()
@@ -438,42 +439,46 @@ with int_y as inp:
         dict_y[key] = val.strip(' ')
 int_x.close()
 int_y.close()
-zamena_x = ''
-zamena_y = ''
-number = 0
 
-for elem in EP:
-    # print(number)
-    for zz in variable_x:
-        if elem.find(zz):
-            i = elem.find(zz)
-            if i < 0:
-                continue
-            elem = elem[:i] + '' + elem[i + len(zz) + 1:]
-            zamena_x = zamena_x + '*' + zz
-            EP[number] = elem
-        continue
-    if zamena_x[1:] in dict_x:
-        # print("нашел")
-        resul_x = dict_x.get(zamena_x[1:])
-        # print(resul_x)
-        EP[number] = elem + str(resul_x)
-        zamena_x = ""
-        number = number + 1
-        int_x.close()
-        continue
-    else:
-        # print("не нашел")
-        zam_x = sm.expand(zamena_x[1:])
-        # print(zam_x)
-        # resul_x=Quadrature.simpson(lambda xx: (zam_x*A).subs(x,xx), 0, 5.4, rtol=1e-10)
-        resul_x = integrate.quad(lambda xx: (zam_x * A).subs(x, xx), 0, 5.4)[0]
-        dict_x.update({zamena_x[1:]: resul_x})
 
-        EP[number] = elem + str(resul_x)
-        zamena_x = ""
+def replace_by_dict(EP: [str], variable_x: [str], dict_x: dict, operator: str = '') -> None:
+    zamena_x = ''
+    number = 0
+    for elem in EP:
+        # print(number)
+        for zz in variable_x:
+            if elem.find(zz):
+                i = elem.find(zz)
+                if i < 0:
+                    continue
+                elem = elem[:i] + '' + elem[i + len(zz) + 1:]
+                zamena_x = zamena_x + '*' + zz
+                EP[number] = elem
+            continue
+        if zamena_x[1:] in dict_x:
+            # print("нашел")
+            resul_x = dict_x.get(zamena_x[1:])
+            # print(resul_x)
+            EP[number] = elem + operator + str(resul_x)
+            zamena_x = ""
+            number = number + 1
+            int_x.close()
+            continue
+        else:
+            # print("не нашел")
+            zam_x = sm.expand(zamena_x[1:])
+            # print(zam_x)
+            # resul_x=Quadrature.simpson(lambda xx: (zam_x*A).subs(x,xx), 0, 5.4, rtol=1e-10)
+            resul_x = integrate.quad(lambda xx: (zam_x * A).subs(x, xx), 0, 5.4)[0]
+            dict_x.update({zamena_x[1:]: resul_x})
 
-        number = number + 1
+            EP[number] = elem + operator + str(resul_x)
+            zamena_x = ""
+            number = number + 1
+
+
+replace_by_dict(EP, variable_x, dict_x)
+
 print("Время раскрытия скобок")
 print(datetime.now() - start_time)
 
@@ -481,37 +486,7 @@ with open('out_x.txt', 'w') as out:
     for key, val in dict_x.items():
         out.write('{}:{}\n'.format(key, val))
 
-number = 0
-for elem in EP:
-    # print(number)
-    for zz in variable_y:
-        if elem.find(zz):
-            i = elem.find(zz)
-            if i < 0:
-                continue
-            elem = elem[:i] + '' + elem[i + len(zz) + 1:]
-            zamena_y = zamena_y + '*' + zz
-            EP[number] = elem
-        continue
-    if zamena_y[1:] in dict_y:
-        # print("нашел")
-        resul_y = dict_y.get(zamena_y[1:])
-
-        EP[number] = elem + '*' + str(resul_y)
-        zamena_y = ""
-        number = number + 1
-        int_y.close()
-        continue
-    else:
-        # print("не нашел")
-        zam_y = sm.expand(zamena_y[1:])
-        # resul_y=Quadrature.simpson(lambda yy: (zam_y*B).subs(y,yy), 0, 5.4, rtol=1e-10)
-        resul_y = integrate.quad(lambda yy: (zam_y * B).subs(y, yy), 0, 5.4)[0]
-        dict_y.update({zamena_y[1:]: resul_y})
-
-        EP[number] = elem + '*' + str(resul_y)
-        zamena_y = ""
-        number = number + 1
+replace_by_dict(EP, variable_y, dict_y, '*')
 
 # thread1 = Thread(target=Fun1, args=(EP,dict_x))
 # thread2 = Thread(target=Fun2, args=(EP,dict_y))
