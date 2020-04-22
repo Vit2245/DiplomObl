@@ -687,7 +687,7 @@ for qi in range(0, MAX + 1):
         Deter1 = lambda_deter(*dict_values)
         Jacobi1 = lambda_jacobi(*dict_values)
 
-        Rans = np.dot(np.array(la.inv(Deter1)), Jacobi1).reshape(Coef.shape)
+        Rans = np.dot(np.array(np.linalg.inv(Deter1)), Jacobi1).reshape(Coef.shape)
         tmp = Coef - Rans
         Coef = np.array(tmp)  # Находим решение методом Ньютона
 
