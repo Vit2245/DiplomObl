@@ -1,5 +1,7 @@
 import math as mth
 from math import *
+from typing import Union
+
 import numpy as np
 from numpy import linalg as la
 import sympy as sp
@@ -440,9 +442,11 @@ with int_y as inp:
 int_x.close()
 int_y.close()
 
+Num = Union[int, float]
 
-def replace_by_dict(ep: [str], variables: [str], dictionary: dict, operator: str = '') -> None:
-    zamena_x = ''
+
+def replace_by_dict(ep: [str], variables: [str], dictionary: dict, a: Num, b: Num, operator: str = '') -> None:
+    zamena = ''
     number = 0
     for elem in ep:
         # print(number)
@@ -452,32 +456,32 @@ def replace_by_dict(ep: [str], variables: [str], dictionary: dict, operator: str
                 if i < 0:
                     continue
                 elem = elem[:i] + '' + elem[i + len(zz) + 1:]
-                zamena_x = zamena_x + '*' + zz
+                zamena = zamena + '*' + zz
                 ep[number] = elem
             continue
-        if zamena_x[1:] in dictionary:
+        if zamena[1:] in dictionary:
             # print("нашел")
-            resul_x = dictionary.get(zamena_x[1:])
-            # print(resul_x)
-            ep[number] = elem + operator + str(resul_x)
-            zamena_x = ""
+            result = dictionary.get(zamena[1:])
+            # print(result)
+            ep[number] = elem + operator + str(result)
+            zamena = ""
             number = number + 1
             int_x.close()
             continue
         else:
             # print("не нашел")
-            zam_x = sm.expand(zamena_x[1:])
+            zam_x = sm.expand(zamena[1:])
             # print(zam_x)
-            # resul_x=Quadrature.simpson(lambda xx: (zam_x*A).subs(x,xx), 0, 5.4, rtol=1e-10)
-            resul_x = integrate.quad(lambda xx: (zam_x * A).subs(x, xx), 0, 5.4)[0]
-            dictionary.update({zamena_x[1:]: resul_x})
+            # result=Quadrature.simpson(lambda xx: (zam_x*A).subs(x,xx), 0, 5.4, rtol=1e-10)
+            result = integrate.quad(lambda xx: (zam_x * A).subs(x, xx), a, b)[0]
+            dictionary.update({zamena[1:]: result})
 
-            ep[number] = elem + operator + str(resul_x)
-            zamena_x = ""
+            ep[number] = elem + operator + str(result)
+            zamena = ""
             number = number + 1
 
 
-replace_by_dict(EP, variable_x, dict_x)
+replace_by_dict(EP, variable_x, dict_x, 0, 5.4)
 
 print("Время раскрытия скобок")
 print(datetime.now() - start_time)
@@ -486,7 +490,7 @@ with open('out_x.txt', 'w') as out:
     for key, val in dict_x.items():
         out.write('{}:{}\n'.format(key, val))
 
-replace_by_dict(EP, variable_y, dict_y, '*')
+replace_by_dict(EP, variable_y, dict_y, 0, 5.4, '*')
 
 # thread1 = Thread(target=Fun1, args=(EP,dict_x))
 # thread2 = Thread(target=Fun2, args=(EP,dict_y))
