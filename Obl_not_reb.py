@@ -12,6 +12,8 @@ from threading import Thread
 import scipy.integrate as integrate
 import scipy.special as special
 import matplotlib.pyplot as plt
+import sys
+sys.setrecursionlimit(10 ** 6)
 
 start_time = datetime.now()
 
