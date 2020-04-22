@@ -441,25 +441,25 @@ int_x.close()
 int_y.close()
 
 
-def replace_by_dict(EP: [str], variable_x: [str], dict_x: dict, operator: str = '') -> None:
+def replace_by_dict(ep: [str], variables: [str], dictionary: dict, operator: str = '') -> None:
     zamena_x = ''
     number = 0
-    for elem in EP:
+    for elem in ep:
         # print(number)
-        for zz in variable_x:
+        for zz in variables:
             if elem.find(zz):
                 i = elem.find(zz)
                 if i < 0:
                     continue
                 elem = elem[:i] + '' + elem[i + len(zz) + 1:]
                 zamena_x = zamena_x + '*' + zz
-                EP[number] = elem
+                ep[number] = elem
             continue
-        if zamena_x[1:] in dict_x:
+        if zamena_x[1:] in dictionary:
             # print("нашел")
-            resul_x = dict_x.get(zamena_x[1:])
+            resul_x = dictionary.get(zamena_x[1:])
             # print(resul_x)
-            EP[number] = elem + operator + str(resul_x)
+            ep[number] = elem + operator + str(resul_x)
             zamena_x = ""
             number = number + 1
             int_x.close()
@@ -470,9 +470,9 @@ def replace_by_dict(EP: [str], variable_x: [str], dict_x: dict, operator: str = 
             # print(zam_x)
             # resul_x=Quadrature.simpson(lambda xx: (zam_x*A).subs(x,xx), 0, 5.4, rtol=1e-10)
             resul_x = integrate.quad(lambda xx: (zam_x * A).subs(x, xx), 0, 5.4)[0]
-            dict_x.update({zamena_x[1:]: resul_x})
+            dictionary.update({zamena_x[1:]: resul_x})
 
-            EP[number] = elem + operator + str(resul_x)
+            ep[number] = elem + operator + str(resul_x)
             zamena_x = ""
             number = number + 1
 
