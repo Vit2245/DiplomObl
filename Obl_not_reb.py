@@ -87,71 +87,41 @@ class Quadrature:
         return ans
 
 
-def Fun1(zxccxz, dict_xx):
-    zamena_x = ''
-    number = 0
-    for elem in zxccxz:
-        # print(number)
-        for zz in variable_x:
-            if elem.find("*" + zz):
-                i = elem.find("*" + zz)
-                if i < 0:
-                    continue
-                elem = elem[:i] + '' + elem[i + len(zz) + 1:]
-                zamena_x = zamena_x + '*' + zz
-                EP[number] = elem.strip(' ')
-            continue
-        if zamena_x[1:] in dict_xx:
-            resul_x = dict_xx.get(zamena_x[1:])
-            EP[number] = elem.strip() + "*" + str(resul_x)
-            zamena_x = ""
-            number = number + 1
-            int_x.close()
-            continue
-        else:
-            zam_x = sm.expand(zamena_x[1:])
-            resul_x = integrate.quad(lambda xx: (zam_x * A).subs(x, xx), 0, 5.4)[0]
-            dict_xx.update({zamena_x[1:]: resul_x})
-            EP[number] = elem.strip() + "*" + str(resul_x)
-            zamena_x = ""
-            number = number + 1
-    return EP
-
-
-def Fun2(zxccxz, dict_yy):
-    zamena_y = ''
-    number = 0
-    for elem in zxccxz:
-        # print(number)
-        for zz in variable_y:
-            if elem.find("*" + zz):
-                i = elem.find("*" + zz)
-                if i < 0:
-                    continue
-                elem = elem[:i] + '' + elem[i + len(zz) + 1:]
-                zamena_y = zamena_y + '*' + zz
-
-                EP[number] = elem.strip()
-            continue
-        if zamena_y[1:] in dict_yy:
-            # print("нашел")
-            resul_y = dict_yy.get(zamena_y[1:])
-            EP[number] = elem.strip() + '*' + str(resul_y)
-            zamena_y = ""
-            number = number + 1
-            int_y.close()
-            continue
-        else:
-            # print("не нашел")
-            zam_y = sm.expand(zamena_y[1:])
-
-            resul_y = integrate.quad(lambda yy: (zam_y * B).subs(y, yy), 0, 5.4)[0]
-
-            dict_yy.update({zamena_y[1:]: resul_y})
-            EP[number] = elem.strip() + '*' + str(resul_y)
-            zamena_y = ""
-            number = number + 1
-    return EP
+# def Fun1(zxccxz, dict_xx):
+# def Fun2(zxccxz, dict_yy):
+#     zamena_y = ''
+#     number = 0
+#     for elem in zxccxz:
+#         # print(number)
+#         for zz in variable_y:
+#             if elem.find("*" + zz):
+#                 i = elem.find("*" + zz)
+#                 if i < 0:
+#                     continue
+#                 elem = elem[:i] + '' + elem[i + len(zz) + 1:]
+#                 zamena_y = zamena_y + '*' + zz
+#
+#                 EP[number] = elem.strip()
+#             continue
+#         if zamena_y[1:] in dict_yy:
+#             # print("нашел")
+#             resul_y = dict_yy.get(zamena_y[1:])
+#             EP[number] = elem.strip() + '*' + str(resul_y)
+#             zamena_y = ""
+#             number = number + 1
+#             int_y.close()
+#             continue
+#         else:
+#             # print("не нашел")
+#             zam_y = sm.expand(zamena_y[1:])
+#
+#             resul_y = integrate.quad(lambda yy: (zam_y * B).subs(y, yy), 0, 5.4)[0]
+#
+#             dict_yy.update({zamena_y[1:]: resul_y})
+#             EP[number] = elem.strip() + '*' + str(resul_y)
+#             zamena_y = ""
+#             number = number + 1
+#     return EP
 
 
 h = 0.09
@@ -421,8 +391,8 @@ for xc in Epp:
         EP.append(Epp[0])
 
 print(len(EP))
-for i in EP:
-    print(i)
+# for i in EP:
+#     print(i)
 
 my_dict = {}
 dict_x = {}
@@ -449,7 +419,7 @@ int_y.close()
 Num = Union[int, float]
 
 
-def replace_by_dict(ep: [str], variables: [str], dictionary: dict, a: Num, b: Num, operator: str = '') -> None:
+def replace_by_dict(ep: [str], variables: [str], dictionary: dict, a: Num, b: Num,s=sp.symbols, operator: str = '') -> None:
     for index, elem in enumerate(ep):
         zamena = ''
         # print(index)
@@ -473,13 +443,16 @@ def replace_by_dict(ep: [str], variables: [str], dictionary: dict, a: Num, b: Nu
             zam_x = sm.expand(zamena[1:])
             # print(zam_x)
             # result=Quadrature.simpson(lambda xx: (zam_x*A).subs(x,xx), 0, 5.4, rtol=1e-10)
-            result = integrate.quad(lambda xx: (zam_x * A).subs(x, xx), a, b)[0]
+            if s=='x':
+                result = integrate.quad(lambda xx: (zam_x * A).subs(x, xx), a, b)[0]
+            else:
+                result = integrate.quad(lambda yy: (zam_x * B).subs(y, yy), a, b)[0]
             dictionary.update({zamena[1:]: result})
 
             ep[index] = elem + operator + str(result)
 
 
-replace_by_dict(EP, variable_x, dict_x, 0, 5.4)
+replace_by_dict(EP, variable_x, dict_x, 0, 5.4,x)
 
 print("Время раскрытия скобок")
 print(datetime.now() - start_time)
@@ -488,7 +461,7 @@ with open('out_x.txt', 'w') as out:
     for key, val in dict_x.items():
         out.write('{}:{}\n'.format(key, val))
 
-replace_by_dict(EP, variable_y, dict_y, 0, 5.4, '*')
+replace_by_dict(EP, variable_y, dict_y, 0, 5.4,y, '*')
 
 # thread1 = Thread(target=Fun1, args=(EP,dict_x))
 # thread2 = Thread(target=Fun2, args=(EP,dict_y))
@@ -516,23 +489,38 @@ int_x.close()
 int_y.close()
 number = 0
 print("Resul")
-for el in EP:
-    print(sm.expand(el))
 
-print("Время раскрытия скобок")
-print(datetime.now() - start_time)
-print("Resul1")
+# for el in EP:
+#      print(sm.expand(el))
+
+
 
 with open('агт.txt', 'w') as out:
     for el in EP:
         out.write(str(sm.expand(el)) + "\n")
 
-allin = 0
-for el in EP:
-    allin = allin + 1 / 2 * sm.expand(el)
 
+start_time=datetime.now()
+for i,el in enumerate(EP):
+    EP[i]=1/2*sm.expand(el)
+print("Время раскрытия скобок1111")
+print(datetime.now() - start_time)
+print("Resul1")
+start_time=datetime.now()
+allin='0'
+for el in EP:
+    allin=allin+'+'+str(el)
+print(allin)
+print("Время раскрытия скобок123")
+print(datetime.now() - start_time)
 print("Allin")
-allin = sm.expand(allin)
+
+
+start_time=datetime.now()
+allin=sm.expand(allin)
+print("Время раскрытия скобок234")
+print(datetime.now() - start_time)
+
 
 AA = sp.integrate(sp.integrate((Px * U + Py * V + W * q) * A * B, (y, 0, 5.4)), (x, 0, 5.4))
 # print(AA)
@@ -542,11 +530,14 @@ Es = allin - AA
 
 Es = sm.expand(Es)
 print("Es")
-print(Es)
+# print(Es)
 
 # print(Coef)
 Jacobi2 = np.array([0] * 5 * N)
 print(Jacobi2)
+
+
+Jacobi2=np.array([0] * 5 * N)
 
 Jacobi = [0] * 5 * N
 
@@ -561,6 +552,7 @@ k = 0
 #         k = k + 1
 # print("Jacobi")
 # print(Jacobi[0])
+
 Jacobi = []
 
 for i in SN:
@@ -568,18 +560,42 @@ for i in SN:
 
 Deter = []
 
+
+Jacobi=[]
+start_time=datetime.now()
+for i in SN:
+    Jacobi.append(sm.expand(Es.diff(i)))
+
+
+print("Время первая производная")
+print(datetime.now() - start_time)
+
+Deter=[]
+start_time=datetime.now()
+
 for i in range(0, len(Jacobi)):
     dpU = Jacobi[i]
     for columnsOfHessian in range(0, len(Jacobi)):
         lineOfHessian = []
         for symb in SN:
-            lineOfHessian.append(sm.expand(dpU.diff(symb)))
+            lineOfHessian.append(sm.expand(sm.diff(dpU,symb)))
     Deter.append(lineOfHessian)
+
 
 Jacobi = sp.Matrix(Jacobi)
 Deter = sp.Matrix(Deter)
 
 print('Начальный нулевой вектор ... ', end='')
+
+print("Время вторая производная")
+print(datetime.now() - start_time)
+start_time=datetime.now()
+Jacobi=sp.Matrix(Jacobi)
+Deter=sp.Matrix(Deter)
+print("Время матрицы")
+print(datetime.now() - start_time)
+print('Начальный нулевой вектор ... ')
+
 
 epsillon = 1 * 10 ** (-5)
 
@@ -598,9 +614,15 @@ WC2 = []
 BufV = np.zeros((5 * N), dtype=float)
 Buf = np.zeros((5 * N), dtype=float)
 
+
 delq = 0.1
 MAX = 33
 Q_y = []
+
+delq = 0.01
+MAX = 330
+Q_y=[]
+
 
 dict_coef = dict(zip(SN, list(Coef)))
 
@@ -618,7 +640,7 @@ dict_coef.update({q: 0.})
 
 lambda_deter = sp.lambdify(dict_coef.keys(), Deter)
 lambda_jacobi = sp.lambdify(dict_coef.keys(), Jacobi)
-
+start_time2=datetime.now()
 for qi in range(0, MAX + 1):
     qq = round(delq * qi, 2)  # Увеличиваем нагрузку
     dict_coef.update({q: qq})
@@ -667,7 +689,7 @@ for qi in range(0, MAX + 1):
     wc23 = wc22.subs(y, bb / 4)
     WC2.append(wc23)
 
-print(datetime.now() - start_time)
+print(datetime.now() - start_time2)
 fig = plt.figure(num=1, figsize=(8, 6))
 plt.plot(WC, Q_y, color='r', linestyle='--', marker='o', markersize=3, label='W((a+a1)/2,b/2)')
 plt.plot(WC2, Q_y, color='b', linestyle='--', marker='o', markersize=3, label='W((a+a1)/4,b/4)')
@@ -676,6 +698,9 @@ grid1 = plt.grid(True)
 plt.xlabel("W,м")
 plt.ylabel("q,МПа")
 plt.title('График прогиба W')
+print(datetime.now() - start_time)
 plt.show()
 #
+
 print(datetime.now() - start_time)
+
