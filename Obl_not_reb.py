@@ -429,45 +429,45 @@ dict_x = {}
 dict_y = {}
 
 int_x = open('out_x.txt')
-
-int_y = open('out_y.txt')
 with int_x as inp:
     for i in inp.readlines():
         key, val = i.strip().split(':')
-        dict_x[key] = val.strip(' ')
+        val = val.strip(' ')
+        dict_x[key] = val
+int_x.close()
+
+# dict_symbol_x = {}
+# dict_symbol_x = [symbols[]
+
+int_y = open('out_y.txt')
 with int_y as inp:
     for i in inp.readlines():
         key, val = i.strip().split(':')
         dict_y[key] = val.strip(' ')
-int_x.close()
 int_y.close()
 
 Num = Union[int, float]
 
 
 def replace_by_dict(ep: [str], variables: [str], dictionary: dict, a: Num, b: Num, operator: str = '') -> None:
-    zamena = ''
-    number = 0
-    for elem in ep:
-        # print(number)
+    for index, elem in enumerate(ep):
+        zamena = ''
+        # print(index)
+        # put the polynom's members in the right order
         for zz in variables:
             if elem.find(zz):
                 i = elem.find(zz)
                 if i < 0:
                     continue
                 elem = elem[:i] + '' + elem[i + len(zz) + 1:]
-                zamena = zamena + '*' + zz
-                ep[number] = elem
+                zamena += '*' + zz
+                ep[index] = elem
             continue
         if zamena[1:] in dictionary:
             # print("нашел")
             result = dictionary.get(zamena[1:])
             # print(result)
-            ep[number] = elem + operator + str(result)
-            zamena = ""
-            number = number + 1
-            int_x.close()
-            continue
+            ep[index] = elem + operator + str(result)
         else:
             # print("не нашел")
             zam_x = sm.expand(zamena[1:])
@@ -476,9 +476,7 @@ def replace_by_dict(ep: [str], variables: [str], dictionary: dict, a: Num, b: Nu
             result = integrate.quad(lambda xx: (zam_x * A).subs(x, xx), a, b)[0]
             dictionary.update({zamena[1:]: result})
 
-            ep[number] = elem + operator + str(result)
-            zamena = ""
-            number = number + 1
+            ep[index] = elem + operator + str(result)
 
 
 replace_by_dict(EP, variable_x, dict_x, 0, 5.4)
