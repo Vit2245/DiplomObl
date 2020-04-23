@@ -17,6 +17,7 @@ import matplotlib.pyplot as plt
 import sys
 
 sys.setrecursionlimit(10 ** 6)
+Num = Union[int, float]
 
 start_time = datetime.now()
 
@@ -391,20 +392,21 @@ Epp = str(EPp).split('+')
 
 del (Epp[0])
 
-variable_x = []
-for i in range(1, n + 1):
-    for st in range(4, 0, -1):
-        variable_x.append(str(sp.sin(2 * i * round(mth.pi, 5) * x / aa) ** st))
-        variable_x.append(str(sp.cos(2 * i * round(mth.pi, 5) * x / aa) ** st))
-        variable_x.append(str(sp.sin((2 * i - 1) * round(mth.pi, 5) * x / aa) ** st))
-        variable_x.append(str(sp.cos((2 * i - 1) * round(mth.pi, 5) * x / aa) ** st))
-variable_y = []
-for i in range(1, n + 1):
-    for st in range(4, 0, -1):
-        variable_y.append(str(sp.sin(2 * i * round(mth.pi, 5) * y / bb) ** st))
-        variable_y.append(str(sp.cos(2 * i * round(mth.pi, 5) * y / bb) ** st))
-        variable_y.append(str(sp.sin((2 * i - 1) * round(mth.pi, 5) * y / bb) ** st))
-        variable_y.append(str(sp.cos((2 * i - 1) * round(mth.pi, 5) * y / bb) ** st))
+
+def create_variables(n: Num, symbol: sp.Symbol, limit: Num) -> list:
+    variables = []
+    for i in range(1, n + 1):
+        for st in range(4, 0, -1):
+            variables.append(str(sp.sin(2 * i * round(mth.pi, 5) * symbol / limit) ** st))
+            variables.append(str(sp.cos(2 * i * round(mth.pi, 5) * symbol / limit) ** st))
+            variables.append(str(sp.sin((2 * i - 1) * round(mth.pi, 5) * symbol / limit) ** st))
+            variables.append(str(sp.cos((2 * i - 1) * round(mth.pi, 5) * symbol / limit) ** st))
+    return variables
+
+
+variable_x = create_variables(n, x, aa)
+variable_y = create_variables(n, y, bb)
+
 number = 0
 
 EP = []
@@ -446,10 +448,8 @@ with int_y as inp:
         dict_y[key] = val.strip(' ')
 int_y.close()
 
-Num = Union[int, float]
 
-
-def replace_by_dict(ep: [str], variables: [str], dictionary: dict, a: Num, b: Num, x: sp.Symbol,
+def replace_by_dict(ep: [str], variables: [str], dictionary: dict, a: Num, b: Num, x: sp.Symbol, lame: Num,
                     operator: str = '') -> None:
     for index, elem in enumerate(ep):
         zamena = ''
@@ -470,12 +470,13 @@ def replace_by_dict(ep: [str], variables: [str], dictionary: dict, a: Num, b: Nu
             zam_x = sm.expand(zamena)
             # print(zam_x)
             # result=Quadrature.simpson(lambda xx: (zam_x*A).subs(x,xx), 0, 5.4, rtol=1e-10)
-            result = integrate.quad(lambda xx: (zam_x * A).subs(x, xx), a, b)[0]
+            result = integrate.quad(lambda xx: (zam_x * lame).subs(x, xx), a, b)[0]
             dictionary.update({zamena: result})
 
         ep[index] = elem + operator + str(result)
 
-replace_by_dict(EP, variable_x, dict_x, 0, 5.4, x)
+
+replace_by_dict(EP, variable_x, dict_x, 0, 5.4, x, A)
 
 print("Время раскрытия скобок")
 print(datetime.now() - start_time)
@@ -484,7 +485,7 @@ with open('out_x.txt', 'w') as out:
     for key, val in dict_x.items():
         out.write('{}:{}\n'.format(key, val))
 
-replace_by_dict(EP, variable_y, dict_y, 0, 5.4, y, '*')
+replace_by_dict(EP, variable_y, dict_y, 0, 5.4, y, B, '*')
 
 # thread1 = Thread(target=Fun1, args=(EP,dict_x))
 # thread2 = Thread(target=Fun2, args=(EP,dict_y))
