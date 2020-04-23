@@ -407,8 +407,6 @@ def create_variables(n: Num, symbol: sp.Symbol, limit: Num) -> list:
 variable_x = create_variables(n, x, aa)
 variable_y = create_variables(n, y, bb)
 
-number = 0
-
 EP = []
 
 for xc in Epp:
@@ -545,8 +543,6 @@ print(Es)
 Jacobi2 = np.array([0] * 5 * N)
 print(Jacobi2)
 
-Jacobi = [0] * 5 * N
-
 k = 0
 # for i in range(0, n ):
 #     for j in range(0, n ):
@@ -565,12 +561,10 @@ for i in SN:
 
 Deter = []
 
-for i in range(0, len(Jacobi)):
-    dpU = Jacobi[i]
-    for columnsOfHessian in range(0, len(Jacobi)):
-        lineOfHessian = []
-        for symb in SN:
-            lineOfHessian.append(sm.expand(dpU.diff(symb)))
+for dpU in Jacobi:
+    lineOfHessian = []
+    for symb in SN:
+        lineOfHessian.append(sm.expand(dpU.diff(symb)))
     Deter.append(lineOfHessian)
 
 Jacobi = sp.Matrix(Jacobi)
@@ -598,8 +592,6 @@ Buf = np.zeros((5 * N), dtype=float)
 delq = 0.1
 MAX = 33
 Q_y = []
-
-dict_coef = dict(zip(SN, list(Coef)))
 
 # def Fun3(mat,dict_zam):
 #     Deter1=mat.evalf(subs=dict_zam)
