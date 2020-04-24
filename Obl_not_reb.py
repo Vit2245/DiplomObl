@@ -242,6 +242,9 @@ delq = 0.1
 MAX = 33
 x = x_center
 y = y_center
+
+numbers = x, y, aa, bb, kx, ky, E1, E2, k, r, z, mu12, mu21, h, G12, G13, G23, A, B
+
 Q_y = []
 
 for qi in range(0, MAX + 1):
@@ -255,8 +258,8 @@ for qi in range(0, MAX + 1):
         dict_coef.update(zip(SN, list(Coef)))
 
         dict_values = dict_coef.values()
-        Deter1 = lambda_deter(*dict_values)
-        Jacobi1 = lambda_jacobi(*dict_values)
+        Deter1 = lambda_deter(*dict_values, *numbers)
+        Jacobi1 = lambda_jacobi(*dict_values, *numbers)
 
         Rans = np.dot(np.array(la.inv(Deter1)), Jacobi1).reshape(Coef.shape)
         tmp = Coef - Rans
