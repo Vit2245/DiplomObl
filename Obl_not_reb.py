@@ -420,7 +420,7 @@ print(datetime.now() - start_time)
 with open('out_x.txt', 'w') as out:
     for key, val in dict_x.items():
         out.write('{}:{}\n'.format(key, val))
-
+int_x.close()
 replace_by_dict(EP, variable_y, dict_y, 0, 5.4, y, '*')
 
 
@@ -439,14 +439,12 @@ replace_by_dict(EP, variable_y, dict_y, 0, 5.4, y, '*')
 print("Время раскрытия скобок")
 print(datetime.now() - start_time)
 
-with open('out_x.txt', 'w') as out:
-    for key, val in dict_x.items():
-        out.write('{}:{}\n'.format(key, val))
+
 with open('out_y.txt', 'w') as out:
     for key, val in dict_y.items():
         out.write('{}:{}\n'.format(key, val))
 
-int_x.close()
+
 int_y.close()
 number = 0
 # for el in EP:
