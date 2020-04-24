@@ -344,23 +344,23 @@ print(len(xc))
 for i in xc:
     print(i)
 replace_by_dict(EP, variable_x, dict_x, 0, 5.4, 'x')
-print("-----------")
-for i in EP:
-    print(sm.expand(i))
+# print("-----------")
+# for i in EP:
+#     print(sm.expand(i))
 # print("Время раскрытия скобок")
 # print(datetime.now() - start_time)
 #
 
-int_x = open('out_x.txt''w')
+int_x = open('out_x.txt','w')
 with int_x as out:
     for key, val in dict_x.items():
         out.write('{}:{}\n'.format(key, val))
 
 int_x.close()
 replace_by_dict(EP, variable_y, dict_y, 0, 5.4, y, '*')
-print("-----------")
-for i in EP:
-    print(sm.expand(i))
+# print("-----------")
+# for i in EP:
+#     print(sm.expand(i))
 
 # thread1 = Thread(target=Fun1, args=(EP,dict_x))
 # thread2 = Thread(target=Fun2, args=(EP,dict_y))
@@ -377,7 +377,7 @@ for i in EP:
 print("Время раскрытия скобок")
 print(datetime.now() - start_time)
 
-int_y = open('out_y.txt''w')
+int_y = open('out_y.txt','w')
 with int_y as out:
     for key, val in dict_y.items():
         out.write('{}:{}\n'.format(key, val))
