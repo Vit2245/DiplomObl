@@ -6,11 +6,14 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 import scipy.integrate as integrate
-from sympy import Symbol, pi, sin, cos, symbols, diff, Matrix, lambdify, S, integrate
+from sympy import Symbol, pi, sin, cos, symbols, diff, Matrix, lambdify, S, integrate, latex
 from numpy import linalg as la
 
 sys.setrecursionlimit(10 ** 6)
 Num = Union[int, float]
+
+def print_latex(*args):
+    print(*[latex(func) + '\n' for func in args])
 
 start_time = datetime.now()
 
@@ -53,6 +56,8 @@ def create_functional(n):
     Y4 = sin((2 * i - 1) * pi * y / bb)
     Y5 = cos((2 * i - 1) * pi * y / bb)
 
+    # print_latex(X1, X2, X3, X4, X5, Y1, Y2, Y3, Y4, Y5)
+
     U = 0
     V = 0
     W = 0
@@ -84,6 +89,8 @@ def create_functional(n):
             W += w[m][k] * X3.subs(i, m + 1) * Y3.subs(i, k + 1)
             Psix += psix[m][k] * X4.subs(i, m + 1) * Y4.subs(i, k + 1)
             Psiy += psiy[m][k] * X5.subs(i, m + 1) * Y5.subs(i, k + 1)
+
+    # print_latex(U, V, W, Psix, Psiy)
 
     Theta1 = -(diff(W, x)) / A - kx * U
 
