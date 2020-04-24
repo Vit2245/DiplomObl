@@ -417,7 +417,7 @@ print("1231231231231231231231")
 print("Время раскрытия скобок")
 print(datetime.now() - start_time)
 
-with open('out_x.txt', 'w') as out:
+with int_x as out:
     for key, val in dict_x.items():
         out.write('{}:{}\n'.format(key, val))
 int_x.close()
@@ -440,7 +440,7 @@ print("Время раскрытия скобок")
 print(datetime.now() - start_time)
 
 
-with open('out_y.txt', 'w') as out:
+with int_y as out:
     for key, val in dict_y.items():
         out.write('{}:{}\n'.format(key, val))
 
@@ -453,6 +453,7 @@ number = 0
 with open('агт.txt', 'w') as out:
     for el in EP:
         out.write(str(sm.expand(el)) + "\n")
+
 EPP1=[]
 start_time = datetime.now()
 for i, el in enumerate(EP):
