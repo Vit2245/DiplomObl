@@ -153,21 +153,15 @@ def create_functional(n):
     Epp6 = Epp4 + (Mxy + Myx) * varkappa12
     Epp7 = Epp6 + Qx * (Psix - Theta1)
     Epp8 = Epp7 + Qy * (Psiy - Theta2)
-    AllEpp = Epp8
-    EPp = AllEpp
-    Epp = EPp.args
-    EP = Epp
-    allin = 0
-    for el in EP:
-        allin += S(1) / 2 * el
-
+    EP = S(1) / 2 * integrate(integrate(Epp8 * A * B, (y, 0, aa)), (x, 0, bb))
     AA = integrate(integrate((Px * U + Py * V + W * q) * A * B, (y, 0, aa)), (x, 0, bb))
 
-    Es = allin - AA
-    return Es, SN, q, W
+    Es = EP - AA
+    print_latex(Es)
+    return Es, SN, W
 
 
-Es, SN, q, W = create_functional(n)
+Es, SN, W = create_functional(n)
 
 print("functional created", datetime.now() - start_time)
 
