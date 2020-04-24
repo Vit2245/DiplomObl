@@ -1,20 +1,17 @@
 import math as mth
-from math import *
 from typing import Union
-
 import numpy as np
 from numpy import linalg as la
 import sympy as sp
-from sympy.integrals.quadrature import gauss_legendre
 import symengine as sm
 from datetime import datetime
 import time
-# import test as ts
 from threading import Thread
 import scipy.integrate as integrate
-import scipy.special as special
 import matplotlib.pyplot as plt
 import sys
+
+
 
 sys.setrecursionlimit(10 ** 6)
 
@@ -85,11 +82,11 @@ class Quadrature:
         # print("Время взятия интегралла")
         # print(datetime.now() - start_time_simp)
         return ans
-
+start_all=datetime.now()
 
 h = 0.09
 
-n = 3
+n =2
 N = np.power(n, 2)
 
 aa = round(60 * h, 2)
@@ -232,7 +229,6 @@ varkappa12 = sm.expand(1 / 2 * (
 # print("#varkappa12")
 # print(varkappa12)
 
-
 print("#Mx")
 
 Mx = sm.expand((1 / 12) * E1 * h ** 3 * (mu21 * varkappa2 + varkappa1) / (1 - mu12 * mu21))
@@ -278,13 +274,9 @@ Qy = sm.expand(G23 * k * h * (Psiy - Theta2))
 print("Qy")
 # print(Qy)
 
-
-#
-# 
-# 
 # Epp=Nx * ex+Ny * ey+1 / 2 * (Nxy + Nyx) * gxy +Mx * varkappa1+My * varkappa2 +(Mxy + Myx) * varkappa12 +Qx * (Psix - Theta1)+Qy * (Psiy - Theta2)
 # EPp=sm.expand(Epp)
-#
+
 
 Epp1 = Nx * ex + Ny * ey
 print("Razbienie1")
@@ -309,9 +301,8 @@ del (Qy, Psiy, Theta2)
 AllEpp = Epp8
 # print(AllEpp)
 del (Epp1, Epp3, Epp4, Epp6, Epp7, Epp8)
-
 EPp = sm.expand(AllEpp)
-
+# print(EPp)
 print("Время раскрытия скобок")
 print(datetime.now() - start_time)
 # print("EPp")
@@ -409,14 +400,19 @@ def replace_by_dict(ep: [str], variables: [str], dictionary: dict, a: Num, b: Nu
             # result=Quadrature.simpson(lambda xx: (zam_x*A).subs(x,xx), 0, 5.4, rtol=1e-10)
             if s == 'x':
                 result = integrate.quad(lambda xx: (zam_x * A).subs(x, xx), a, b)[0]
+                if result > -0.00001 and result <0.00001:
+                    result = 0
             else:
                 result = integrate.quad(lambda yy: (zam_x * B).subs(y, yy), a, b)[0]
+                if result > -0.00001 and result <0.00001:
+                    result = 0
             dictionary.update({zamena[1:]: result})
 
             ep[index] = elem + operator + str(result)
 
 
-replace_by_dict(EP, variable_x, dict_x, 0, 5.4, x)
+replace_by_dict(EP, variable_x, dict_x, 0, 5.4, 'x')
+print("1231231231231231231231")
 
 print("Время раскрытия скобок")
 print(datetime.now() - start_time)
@@ -426,6 +422,7 @@ with open('out_x.txt', 'w') as out:
         out.write('{}:{}\n'.format(key, val))
 
 replace_by_dict(EP, variable_y, dict_y, 0, 5.4, y, '*')
+
 
 # thread1 = Thread(target=Fun1, args=(EP,dict_x))
 # thread2 = Thread(target=Fun2, args=(EP,dict_y))
@@ -452,96 +449,75 @@ with open('out_y.txt', 'w') as out:
 int_x.close()
 int_y.close()
 number = 0
-print("Resul")
-
 # for el in EP:
 #      print(sm.expand(el))
-
 
 with open('агт.txt', 'w') as out:
     for el in EP:
         out.write(str(sm.expand(el)) + "\n")
-
+EPP1=[]
 start_time = datetime.now()
 for i, el in enumerate(EP):
-    EP[i] = 1 / 2 * sm.expand(el)
-print("Время раскрытия скобок1111")
-print(datetime.now() - start_time)
-print("Resul1")
-start_time = datetime.now()
-allin = '0'
-for el in EP:
-    allin = allin + '+' + str(el)
-print(allin)
-print("Время раскрытия скобок123")
-print(datetime.now() - start_time)
-print("Allin")
+    if str( 1 / 2 * sm.expand(el))=="0.0000000000000000" or str( 1 / 2 * sm.expand(el))=="-0.0000000000000000"or str( 1 / 2 * sm.expand(el))=="0.00000000000000000"or str( 1 / 2 * sm.expand(el))=="-0.00000000000000000":
+        continue
+    else:
+        EPP1.append(str( 1 / 2 * sm.expand(el)))
+def Sum(massiv):
+    aa = '+'.join(massiv)
+    a=aa.replace('+-','-')
+    otvet=sm.expand(a)
+    return otvet
 
+# bbbb='+'.join(EPP1)
+# bbbb=bbbb.replace('+-','-')
+
+print("Время Allin")
 start_time = datetime.now()
-allin = sm.expand(allin)
-print("Время раскрытия скобок234")
+allin = Sum(EPP1)
+
 print(datetime.now() - start_time)
 
 AA = sp.integrate(sp.integrate((Px * U + Py * V + W * q) * A * B, (y, 0, 5.4)), (x, 0, 5.4))
 # print(AA)
-
+start_time = datetime.now()
 AA = sm.expand(AA)
 Es = allin - AA
-
 Es = sm.expand(Es)
 print("Es")
+print(datetime.now() - start_time)
 # print(Es)
 
 # print(Coef)
-Jacobi2 = np.array([0] * 5 * N)
-print(Jacobi2)
-
-k = 0
-# for i in range(0, n ):
-#     for j in range(0, n ):
-#         Jacobi[k] =         sm.expand(sp.diff(Es, u[i][j]))
-#         Jacobi[k + N] =     sm.expand(sp.diff(Es, v[i][j]))
-#         Jacobi[k + 2 * N] = sm.expand(sp.diff(Es, w[i][j]))
-#         Jacobi[k + 3 * N] = sm.expand(sp.diff(Es, psix[i][j]))
-#         Jacobi[k + 4 * N] = sm.expand(sp.diff(Es, psiy[i][j]))
-#         k = k + 1
-# print("Jacobi")
-# print(Jacobi[0])
-
+start_time1 = datetime.now()
 Jacobi = []
-
 for i in SN:
     Jacobi.append(sm.expand(sm.diff(Es, i)))
-istart_time = datetime.now()
+
 print("Время первая производная")
-print(datetime.now() - start_time)
+print(datetime.now() - start_time1)
 
 Deter = []
-start_time = datetime.now()
-
-for i in range(0, len(Jacobi)):
-    dpU = Jacobi[i]
-    for columnsOfHessian in range(0, len(Jacobi)):
-        lineOfHessian = []
-        for symb in SN:
-            lineOfHessian.append(sm.diff(dpU, symb))
+start_time2 = datetime.now()
+for dpU in Jacobi:
+    lineOfHessian = []
+    for symb in SN:
+        lineOfHessian.append(sp.diff(dpU, symb))
     Deter.append(lineOfHessian)
 
-Jacobi = sp.Matrix(Jacobi)
-Deter = sp.Matrix(Deter)
 
 print("Время вторая производная")
-print(datetime.now() - start_time)
-start_time = datetime.now()
-Jacobi = sp.Matrix(Jacobi)
-Deter = sp.Matrix(Deter)
-print("Время матрицы")
-print(datetime.now() - start_time)
-print('Начальный нулевой вектор ... ')
+print(datetime.now() - start_time2)
 
+# start_time = datetime.now()
+# Jacobi1 = sp.Matrix(Jacobi)
+# Deter1 = sp.Matrix(Deter)
+# print("Время матрицы")
+# print(datetime.now() - start_time)
+
+print('1')
 epsillon = 1 * 10 ** (-5)
-
-print('Начальный нулевой вектор ... ', end='')
+print('2')
+print('Начальный нулевой вектор ... ')
 Coef = np.zeros(len(SN), dtype=np.float)
 # print(Coef)
 XkPred = np.array(Coef)
@@ -561,26 +537,19 @@ delq = 0.1
 MAX = 33
 Q_y = []
 
-delq = 0.01
-MAX = 330
-Q_y = []
-
-dict_coef = dict(zip(SN, list(Coef)))
-
-# def Fun3(mat,dict_zam):
-#     Deter1=mat.evalf(subs=dict_zam)
-#     return Deter1
-#
-# def Fun4(mat,dict_zam):
-#     Jacobi1=np.array(mat.evalf(subs=dict_zam))
-#     return Jacobi1
-
 
 dict_coef = dict(zip(SN, list(Coef)))
 dict_coef.update({q: 0.})
 
+start_time = datetime.now()
 lambda_deter = sp.lambdify(dict_coef.keys(), Deter)
+print("Время матрицы")
+print(datetime.now() - start_time)
+start_time = datetime.now()
 lambda_jacobi = sp.lambdify(dict_coef.keys(), Jacobi)
+print("Время матрицы")
+print(datetime.now() - start_time)
+
 start_time2 = datetime.now()
 for qi in range(0, MAX + 1):
     qq = round(delq * qi, 2)  # Увеличиваем нагрузку
@@ -594,10 +563,10 @@ for qi in range(0, MAX + 1):
         dict_coef.update(zip(SN, list(Coef)))
 
         dict_values = dict_coef.values()
-        Deter1 = lambda_deter(*dict_values)
-        Jacobi1 = lambda_jacobi(*dict_values)
+        Deter2 = lambda_deter(*dict_values)
+        Jacobi2 = lambda_jacobi(*dict_values)
 
-        Rans = np.dot(np.array(la.inv(Deter1)), Jacobi1).reshape(Coef.shape)
+        Rans = np.dot(np.array(la.inv(Deter2)), Jacobi2).reshape(Coef.shape)
         tmp = Coef - Rans
         Coef = np.array(tmp)  # Находим решение методом Ньютона
 
@@ -606,7 +575,7 @@ for qi in range(0, MAX + 1):
         XkPred = np.array(Coef)
 
         kol_iter = kol_iter + 1
-        if kol_iter > 15:
+        if kol_iter > 16:
             delta = 0
 
     print("kol_iter=", kol_iter, "delta=", delta)
@@ -640,7 +609,7 @@ plt.xlabel("W,м")
 plt.ylabel("q,МПа")
 plt.title('График прогиба W')
 print(datetime.now() - start_time)
+print(datetime.now() - start_all)
 plt.show()
 #
 
-print(datetime.now() - start_time)
