@@ -17,30 +17,29 @@ start_time = datetime.now()
 n = 1
 N = n ** 2
 
+x = Symbol('x')
+y = Symbol('y')
+q = Symbol('q')
+i = Symbol('i')
+aa = Symbol('aa')
+bb = Symbol('bb')
+kx = Symbol('kx')
+ky = Symbol('ky')
+E1 = Symbol('E1')
+E2 = Symbol('E2')
+k = Symbol('k')
+r = Symbol('r')
+z = Symbol('z')
+mu12 = Symbol('mu12')
+mu21 = Symbol('mu21')
+h = Symbol('h')
+G12 = Symbol('G12')
+G13 = Symbol('G13')
+G23 = Symbol('G23')
+A = Symbol('A')
+B = Symbol('B')
 
 def create_functional(n):
-    x = Symbol('x')
-    y = Symbol('y')
-    q = Symbol('q')
-    i = Symbol('i')
-    aa = Symbol('aa')
-    bb = Symbol('bb')
-    kx = Symbol('kx')
-    ky = Symbol('ky')
-    E1 = Symbol('E1')
-    E2 = Symbol('E2')
-    k = Symbol('k')
-    r = Symbol('r')
-    z = Symbol('z')
-    mu12 = Symbol('mu12')
-    mu21 = Symbol('mu21')
-    h = Symbol('h')
-    G12 = Symbol('G12')
-    G13 = Symbol('G13')
-    G23 = Symbol('G23')
-    A = Symbol('A')
-    B = Symbol('B')
-
     f = 6 * (1 / 4 - i ** 2 / h ** 2)
 
     X1 = sin(2 * i * pi * x / aa)
@@ -165,7 +164,7 @@ Es, SN, q, W = create_functional(n)
 
 print("functional created", datetime.now() - start_time)
 
-# print("Es", Es)
+print("Es", Es)
 
 Jacobi2 = np.array([0] * 5 * N)
 
@@ -203,6 +202,15 @@ Buf = np.zeros((5 * N), dtype=float)
 dict_coef = dict(zip(SN, list(Coef)))
 dict_coef.update({q: 0.})
 
+constants = x, y, aa, bb, kx, ky, E1, E2, k, r, z, mu12, mu21, h, G12, G13, G23, A, B
+
+lambda_deter = lambdify([*dict_coef.keys(), *constants], Deter)
+print("Deter", Deter)
+lambda_jacobi = lambdify([*dict_coef.keys(), *constants], Jacobi)
+print("Jacobi", Jacobi)
+
+print("preparations is done", datetime.now() - start_time)
+
 # Computing is beginning
 # ─────────────────────────────────────────────────────
 h = 0.09
@@ -233,13 +241,6 @@ epsillon = 1 * 10 ** (-5)
 delq = 0.1
 MAX = 33
 Q_y = []
-
-lambda_deter = lambdify(dict_coef.keys(), Deter)
-print("Deter", Deter)
-lambda_jacobi = lambdify(dict_coef.keys(), Jacobi)
-print("Jacobi", Jacobi)
-
-print("preparations is done", datetime.now() - start_time)
 
 for qi in range(0, MAX + 1):
     qq = round(delq * qi, 2)  # Увеличиваем нагрузку
