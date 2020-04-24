@@ -1,7 +1,7 @@
 import sys
 from datetime import datetime
 from typing import Union
-
+import scipy.integrate as integrat
 import matplotlib.pyplot as plt
 import numpy as np
 import symengine as sm
@@ -141,6 +141,26 @@ def create_functional(n):
 
     print("Qy")
 
+    def create_variables(n: Num, symbol: sp.Symbol, limit: Num) -> list:
+        variables = []
+        for j in range(1, n + 1):
+            for st in range(4, 0, -1):
+                variables.append(
+                    str(sin(2 * j * sp.UnevaluatedExpr(symbol) * sp.UnevaluatedExpr(Symbol('pi')) / limit) ** st))
+                variables.append(
+                    str(cos(2 * j * sp.UnevaluatedExpr(symbol) * sp.UnevaluatedExpr(Symbol('pi')) / limit) ** st))
+                variables.append(
+                    str(sin((2 * j - 1) * sp.UnevaluatedExpr(symbol) * sp.UnevaluatedExpr(Symbol('pi')) / limit) ** st))
+                variables.append(
+                    str(cos((2 * j - 1) * sp.UnevaluatedExpr(symbol) * sp.UnevaluatedExpr(Symbol('pi')) / limit) ** st))
+        return variables
+
+    variable_x = create_variables(n, x, aa)
+    variable_y = create_variables(n, y, bb)
+
+
+    variable_x = create_variables(n, x, aa)
+    variable_y = create_variables(n, y, bb)
     Epp1 =sm.expand(Nx * ex + Ny * ey)
     Epp3 =sm.expand( Epp1 + S(1) / 2 * (Nxy + Nyx) * gxy)
     Epp4 =sm.expand( Epp3 + Mx * varkappa1 + My * varkappa2)
@@ -149,20 +169,102 @@ def create_functional(n):
     Epp8 =sm.expand( Epp7 + Qy * (Psiy - Theta2))
     AllEpp = Epp8
     EPp = AllEpp
+
     Epp = EPp.args
     EP = Epp
-    print(EP)
-    allin = 0
+
+    dict_x = {}
+    dict_y = {}
+
+    int_x = open('out_x1.txt')
+    with int_x as inp:
+        for j in inp.readlines():
+            key, val = j.strip().split(':')
+            val = val.strip(' ')
+            dict_x[key] = val
+    int_x.close()
+
+    int_y = open('out_y1.txt')
+    with int_y as inp:
+        for j in inp.readlines():
+            key, val = j.strip().split(':')
+            dict_y[key] = val.strip(' ')
+    int_y.close()
+
+    def replace_by_dict(ep: [str], variables: [str], dictionary: dict, a: Num, b: Num, x: sp.Symbol, lame: Num,
+                        operator: str = '') -> None:
+        for index, elem in enumerate(ep):
+            zamena = ''
+            # print(index)
+            # put the polynom's members in the right order
+            for zz in variables:
+                if elem.find(zz):
+                    j = elem.find(zz)
+                    if j < 0:
+                        continue
+                    if elem[:j] == '*':
+                        elem = elem[:j - 1] + '' + elem[j - 1 + len(zz) + 1:]
+                    else:
+                        elem = elem[:j] + '' + elem[j + len(zz) + 1:]
+                    zamena += '*' + zz
+                    ep[index] = elem
+                continue
+            if zamena[1:] in dictionary:
+
+                result = dictionary.get(zamena[1:])
+
+                if elem[-1] == '*':
+                    ep[index] = elem + '' + str(result)
+                else:
+                    ep[index] = elem + '*' + str(result)
+
+            else:
+                zam_x = sm.expand(zamena[1:])
+                if x == 'x':
+                    result = integrate(zam_x * lame, (x, a, b))
+                else:
+                    result = integrate(zam_x * lame, (x, a, b))
+                dictionary.update({zamena[1:]: result})
+
+                if elem[-1] == '*':
+                    ep[index] = elem + '' + str(result)
+                else:
+                    ep[index] = elem + '*' + str(result)
+
+    allin = []
     for el in EP:
+        allin.append(str(sm.expand(el)))
 
-        el1=sm.expand(el)
-        print('zz')
-        allin += S(1) / 2 * integrate(integrate(el1*A*B, (y, 0, aa)), (x, 0, bb))
+    replace_by_dict(allin, variable_x, dict_x, 0, 5.4, x, A)
 
+    print("Время раскрытия скобок")
+    print(datetime.now() - start_time)
+    int_x = open('out_x1.txt', 'w')
+    with int_x as out:
+        for key, val in dict_x.items():
+            out.write('{}:{}\n'.format(key, val))
 
+    replace_by_dict(allin, variable_y, dict_y, 0, 5.4, y, B)
+
+    print("Время раскрытия скобок")
+    print(datetime.now() - start_time)
+
+    int_y = open('out_y1.txt', 'w')
+    with int_y as out:
+        for key, val in dict_y.items():
+            out.write('{}:{}\n'.format(key, val))
+
+    int_x.close()
+    int_y.close()
+
+    ALLFun = '0'
+    # print("Время раскрытия скобок")
+    # print(datetime.now() - start_time)
+    # for ii in allin:
+    #     ALLFun += ii
     AA = integrate(integrate((Px * U + Py * V + W * q) * A * B, (y, 0, aa)), (x, 0, bb))
-
-    Es = allin - AA
+    print(type(AA))
+    Es =0
     return Es, SN, q, W
 
 
@@ -171,139 +273,139 @@ Es, SN, q, W = create_functional(n)
 print("functional created", datetime.now() - start_time)
 
 print("Es", Es)
-
-Jacobi2 = np.array([0] * 5 * N)
-
-Jacobi = []
-
-for i in SN:
-    Jacobi.append(Es.diff(i))
-print(Jacobi)
-Deter = []
-
-for dpU in Jacobi:
-    lineOfHessian = []
-    for symb in SN:
-        lineOfHessian.append(dpU.diff(symb))
-    Deter.append(lineOfHessian)
-
-Jacobi = Matrix(Jacobi)
-Deter = Matrix(Deter)
-
-Coef = np.zeros(len(SN), dtype=np.float)
-
-XkPred = np.array(Coef)
-
-MasRes = []
-res2 = []
-
-WC = []
-WCC = []
-wcWW = []
-WC2 = []
-
-BufV = np.zeros((5 * N), dtype=float)
-Buf = np.zeros((5 * N), dtype=float)
-
-dict_coef = dict(zip(SN, list(Coef)))
-dict_coef.update({q: 0.})
-
-constants = x, y, aa, bb, kx, ky, E1, E2, k, r, z, mu12, mu21, h, G12, G13, G23, A, B
-
-lambda_deter = lambdify([*dict_coef.keys(), *constants], Deter)
-print("Deter", Deter)
-lambda_jacobi = lambdify([*dict_coef.keys(), *constants], Jacobi)
-print("Jacobi", Jacobi)
-
-print("preparations is done", datetime.now() - start_time)
-
-# Computing is beginning
-# ─────────────────────────────────────────────────────
-h = 0.09
-print(h)
-r = 225 * h
-A = 1
-B = 1
-aa1 = 0
-aa = round(60 * h, 2)
-bb = round(60 * h, 2)
-h = 0.09
-E1 = 2.1 * 10 ** 5
-E2 = 2.1 * 10 ** 5
-kx = 1 / r
-ky = 1 / r
-z = -(1 / 2) * h
-r = 225 * h
-k = 5 / 6
-mu12 = 0.3
-mu21 = 0.3
-G12 = 0.33 * 10 ** 5
-G13 = 0.33 * 10 ** 5
-G23 = 0.33 * 10 ** 5
-x_center = (aa + aa1) / 2
-x_quarter = (aa + aa1) / 4
-y_center = bb / 2
-y_quarter = bb / 4
-epsillon = 1 * 10 ** (-5)
-delq = 0.1
-MAX = 33
-x = x_center
-y = y_center
-Q_y = []
-
-
-
-for qi in range(0, MAX + 1):
-    qq = round(delq * qi, 2)  # Увеличиваем нагрузку
-    dict_coef.update({q: qq})
-    print('Увеличиваем нагрузку qq={: f}'.format(qq), " коэффициенты: ", end="")
-    delta = 1
-    kol_iter = 0
-    print(dict_coef)
-    while delta > epsillon or kol_iter <= 15:
-        dict_coef.update(zip(SN, list(Coef)))
-
-        dict_values = dict_coef.values()
-        Deter1 = lambda_deter(*dict_values)
-        Jacobi1 = lambda_jacobi(*dict_values)
-
-        Rans = np.dot(np.array(la.inv(Deter1)), Jacobi1).reshape(Coef.shape)
-        tmp = Coef - Rans
-        Coef = np.array(tmp)  # Находим решение методом Ньютона
-
-        delta = np.sum(np.abs(Coef - XkPred)) / len(Coef)  # ??
-
-        XkPred = np.array(Coef)
-
-        kol_iter += 1
-
-    print("kol_iter=", kol_iter, "delta=", delta)
-    wc1 = W
-    Xk_new = list(Coef)
-    # масив значений функции W c подставленными коэф. с в завимости от q
-    wc11 = wc1
-    wc = wc11
-    WC.append(wc)
-    # Q_y.append(qq)
-    # wc2 = W
-    # Xk_new = list(Coef)
-    # for wi in range(2 * N, 3 * N):
-    #     wc2 = wc2.subs(SN[wi], Coef[wi])
-    # # масив значений функции W c подставленными коэф. с в завимости от q
-    # wc22 = wc2.subs(x, x_quarter)
-    # wc23 = wc22.subs(y, y_quarter)
-    # WC2.append(wc23)
-
-print("answer calculated", datetime.now() - start_time)
-
-fig = plt.figure(num=1, figsize=(8, 6))
-plt.plot(WC, Q_y, color='r', linestyle='--', marker='o', markersize=3, label='W((a+a1)/2,b/2)')
-# plt.plot(WC2, Q_y, color='b', linestyle='--', marker='o', markersize=3, label='W((a+a1)/4,b/4)')
-plt.legend(loc='upper left')
-grid1 = plt.grid(True)
-plt.xlabel("W,м")
-plt.ylabel("q,МПа")
-plt.title('График прогиба W')
-plt.show()
-
-print(datetime.now() - start_time)
+#
+# Jacobi2 = np.array([0] * 5 * N)
+#
+# Jacobi = []
+#
+# for i in SN:
+#     Jacobi.append(Es.diff(i))
+# print(Jacobi)
+# Deter = []
+#
+# for dpU in Jacobi:
+#     lineOfHessian = []
+#     for symb in SN:
+#         lineOfHessian.append(dpU.diff(symb))
+#     Deter.append(lineOfHessian)
+#
+# Jacobi = Matrix(Jacobi)
+# Deter = Matrix(Deter)
+#
+# Coef = np.zeros(len(SN), dtype=np.float)
+#
+# XkPred = np.array(Coef)
+#
+# MasRes = []
+# res2 = []
+#
+# WC = []
+# WCC = []
+# wcWW = []
+# WC2 = []
+#
+# BufV = np.zeros((5 * N), dtype=float)
+# Buf = np.zeros((5 * N), dtype=float)
+#
+# dict_coef = dict(zip(SN, list(Coef)))
+# dict_coef.update({q: 0.})
+#
+# constants = x, y, aa, bb, kx, ky, E1, E2, k, r, z, mu12, mu21, h, G12, G13, G23, A, B
+#
+# lambda_deter = lambdify([*dict_coef.keys(), *constants], Deter)
+# print("Deter", Deter)
+# lambda_jacobi = lambdify([*dict_coef.keys(), *constants], Jacobi)
+# print("Jacobi", Jacobi)
+#
+# print("preparations is done", datetime.now() - start_time)
+#
+# # Computing is beginning
+# # ─────────────────────────────────────────────────────
+# h = 0.09
+# print(h)
+# r = 225 * h
+# A = 1
+# B = 1
+# aa1 = 0
+# aa = round(60 * h, 2)
+# bb = round(60 * h, 2)
+# h = 0.09
+# E1 = 2.1 * 10 ** 5
+# E2 = 2.1 * 10 ** 5
+# kx = 1 / r
+# ky = 1 / r
+# z = -(1 / 2) * h
+# r = 225 * h
+# k = 5 / 6
+# mu12 = 0.3
+# mu21 = 0.3
+# G12 = 0.33 * 10 ** 5
+# G13 = 0.33 * 10 ** 5
+# G23 = 0.33 * 10 ** 5
+# x_center = (aa + aa1) / 2
+# x_quarter = (aa + aa1) / 4
+# y_center = bb / 2
+# y_quarter = bb / 4
+# epsillon = 1 * 10 ** (-5)
+# delq = 0.1
+# MAX = 33
+# x = x_center
+# y = y_center
+# Q_y = []
+#
+# constants1 = x, y, aa, bb, kx, ky, E1, E2, k, r, z, mu12, mu21, h, G12, G13, G23, A, B
+#
+# for qi in range(0, MAX + 1):
+#     qq = round(delq * qi, 2)  # Увеличиваем нагрузку
+#     dict_coef.update({q: qq})
+#     print('Увеличиваем нагрузку qq={: f}'.format(qq), " коэффициенты: ", end="")
+#     delta = 1
+#     kol_iter = 0
+#     print(dict_coef)
+#     while delta > epsillon and kol_iter <= 15:
+#         dict_coef.update(zip(SN, list(Coef)))
+#
+#         dict_values = dict_coef.values()
+#         Deter1 = lambda_deter(*dict_values,*constants1)
+#         Jacobi1 = lambda_jacobi(*dict_values,*constants1)
+#
+#         Rans = np.dot(np.array(la.inv(Deter1)), Jacobi1).reshape(Coef.shape)
+#         tmp = Coef - Rans
+#         Coef = np.array(tmp)  # Находим решение методом Ньютона
+#
+#         delta = np.sum(np.abs(Coef - XkPred)) / len(Coef)  # ??
+#
+#         XkPred = np.array(Coef)
+#
+#         kol_iter += 1
+#
+#     print("kol_iter=", kol_iter, "delta=", delta)
+#     wc1 = W
+#     Xk_new = list(Coef)
+#     # масив значений функции W c подставленными коэф. с в завимости от q
+#     wc11 = wc1
+#     wc = wc11
+#     WC.append(wc)
+#     Q_y.append(qq)
+#     # wc2 = W
+#     # Xk_new = list(Coef)
+#     # for wi in range(2 * N, 3 * N):
+#     #     wc2 = wc2.subs(SN[wi], Coef[wi])
+#     # # масив значений функции W c подставленными коэф. с в завимости от q
+#     # wc22 = wc2.subs(x, x_quarter)
+#     # wc23 = wc22.subs(y, y_quarter)
+#     # WC2.append(wc23)
+#
+# print("answer calculated", datetime.now() - start_time)
+#
+# fig = plt.figure(num=1, figsize=(8, 6))
+# plt.plot(WC, Q_y, color='r', linestyle='--', marker='o', markersize=3, label='W((a+a1)/2,b/2)')
+# # plt.plot(WC2, Q_y, color='b', linestyle='--', marker='o', markersize=3, label='W((a+a1)/4,b/4)')
+# plt.legend(loc='upper left')
+# grid1 = plt.grid(True)
+# plt.xlabel("W,м")
+# plt.ylabel("q,МПа")
+# plt.title('График прогиба W')
+# plt.show()
+#
+# print(datetime.now() - start_time)
