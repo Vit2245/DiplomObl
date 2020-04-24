@@ -240,6 +240,8 @@ y_quarter = bb / 4
 epsillon = 1 * 10 ** (-5)
 delq = 0.1
 MAX = 33
+x = x_center
+y = y_center
 Q_y = []
 
 for qi in range(0, MAX + 1):
@@ -269,27 +271,25 @@ for qi in range(0, MAX + 1):
     print("kol_iter=", kol_iter, "delta=", delta)
     wc1 = W
     Xk_new = list(Coef)
-    for wi in range(2 * N, 3 * N):
-        wc1 = wc1.subs(SN[wi], Coef[wi])
     # масив значений функции W c подставленными коэф. с в завимости от q
-    wc11 = wc1.subs(x, x_center)
-    wc = wc11.subs(y, y_center)
+    wc11 = wc1
+    wc = wc11
     WC.append(wc)
-    Q_y.append(qq)
-    wc2 = W
-    Xk_new = list(Coef)
-    for wi in range(2 * N, 3 * N):
-        wc2 = wc2.subs(SN[wi], Coef[wi])
-    # масив значений функции W c подставленными коэф. с в завимости от q
-    wc22 = wc2.subs(x, x_quarter)
-    wc23 = wc22.subs(y, y_quarter)
-    WC2.append(wc23)
+    # Q_y.append(qq)
+    # wc2 = W
+    # Xk_new = list(Coef)
+    # for wi in range(2 * N, 3 * N):
+    #     wc2 = wc2.subs(SN[wi], Coef[wi])
+    # # масив значений функции W c подставленными коэф. с в завимости от q
+    # wc22 = wc2.subs(x, x_quarter)
+    # wc23 = wc22.subs(y, y_quarter)
+    # WC2.append(wc23)
 
 print("answer calculated", datetime.now() - start_time)
 
 fig = plt.figure(num=1, figsize=(8, 6))
 plt.plot(WC, Q_y, color='r', linestyle='--', marker='o', markersize=3, label='W((a+a1)/2,b/2)')
-plt.plot(WC2, Q_y, color='b', linestyle='--', marker='o', markersize=3, label='W((a+a1)/4,b/4)')
+# plt.plot(WC2, Q_y, color='b', linestyle='--', marker='o', markersize=3, label='W((a+a1)/4,b/4)')
 plt.legend(loc='upper left')
 grid1 = plt.grid(True)
 plt.xlabel("W,м")
