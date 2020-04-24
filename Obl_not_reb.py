@@ -448,18 +448,14 @@ for dpU in Jacobi:
 print("Время вторая производная")
 print(datetime.now() - start_time2)
 
-# start_time = datetime.now()
-# Jacobi1 = sp.Matrix(Jacobi)
-# Deter1 = sp.Matrix(Deter)
-# print("Время матрицы")
-# print(datetime.now() - start_time)
+
 
 print('1')
 epsillon = 1 * 10 ** (-5)
 print('2')
 print('Начальный нулевой вектор ... ')
 Coef = np.zeros(len(SN), dtype=np.float)
-# print(Coef)
+
 XkPred = np.array(Coef)
 
 MasRes = []
@@ -517,8 +513,7 @@ for qi in range(0, MAX + 1):
     Xk_new = list(Coef)
     for wi in range(2 * N, 3 * N):
         wc1 = wc1.subs(SN[wi], Coef[wi])
-    # wc1=wc1
-    # wcWW.append(wc1)  # масив значений функции W c подставленными коэф. с в завимости от q
+
     wc11 = wc1.subs(x, (aa + aa1) / 2)
     wc = wc11.subs(y, bb / 2)
     WC.append(wc)
@@ -527,8 +522,7 @@ for qi in range(0, MAX + 1):
     Xk_new = list(Coef)
     for wi in range(2 * N, 3 * N):
         wc2 = wc2.subs(SN[wi], Coef[wi])
-    # wc1=wc1
-    # wcWW.append(wc1)  # масив значений функции W c подставленными коэф. с в завимости от q
+
     wc22 = wc2.subs(x, (aa + aa1) / 4)
     wc23 = wc22.subs(y, bb / 4)
     WC2.append(wc23)
