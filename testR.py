@@ -9,6 +9,7 @@ import scipy.integrate as integrate
 from sympy import Symbol, pi, sin, cos, symbols, diff, Matrix, lambdify, S, integrate
 import sympy as sp
 from numpy import linalg as la
+from sympy.parsing.sympy_parser import parse_expr
 
 sys.setrecursionlimit(10 ** 6)
 Num = Union[int, float]
@@ -221,9 +222,9 @@ def create_functional(n):
             else:
                 zam_x = sm.expand(zamena[1:])
                 if x == 'x':
-                    result = integrate(zam_x * lame, (x, a, b))
+                    result =1/2* integrate(zam_x * lame, (x))
                 else:
-                    result = integrate(zam_x * lame, (x, a, b))
+                    result =1/2* integrate(zam_x * lame, (x))
                 dictionary.update({zamena[1:]: result})
 
                 if elem[-1] == '*':
@@ -258,13 +259,13 @@ def create_functional(n):
     int_y.close()
 
     ALLFun = '0'
-    # print("Время раскрытия скобок")
-    # print(datetime.now() - start_time)
-    # for ii in allin:
-    #     ALLFun += ii
+    print("Время раскрытия скобок")
+    print(datetime.now() - start_time)
+    for ii in allin:
+        ALLFun += str(ii)
     AA = integrate(integrate((Px * U + Py * V + W * q) * A * B, (y, 0, aa)), (x, 0, bb))
-    print(type(AA))
-    Es =0
+    print(ALLFun)
+    Es =ALLFun+'-'+str(AA)
     return Es, SN, q, W
 
 
