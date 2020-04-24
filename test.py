@@ -21,7 +21,7 @@ Num = Union[int, float]
 
 h = 0.09
 
-n =1
+n =3
 N = np.power(n, 2)
 
 aa = round(60 * h, 2)
@@ -240,12 +240,6 @@ EPp = sm.expand(AllEpp)
 # print(EPp)
 print("Время раскрытия скобок")
 print(datetime.now() - start_time)
-# print("EPp")
-# print(EPp)
-
-# Epp = str(EPp).split('+')
-#
-# del (Epp[0])
 
 Epp=EPp.args
 EP = []
@@ -277,23 +271,21 @@ my_dict = {}
 dict_x = {}
 dict_y = {}
 
-# int_x = open('out_x.txt')
-# with int_x as inp:
-#     for i in inp.readlines():
-#         key, val = i.strip().split(':')
-#         val = val.strip(' ')
-#         dict_x[key] = val
-# int_x.close()
-#
-# # dict_symbol_x = {}
-# # dict_symbol_x = [symbols[]
-#
-# int_y = open('out_y.txt')
-# with int_y as inp:
-#     for i in inp.readlines():
-#         key, val = i.strip().split(':')
-#         dict_y[key] = val.strip(' ')
-# int_y.close()
+int_x = open('out_x.txt')
+with int_x as inp:
+    for i in inp.readlines():
+        key, val = i.strip().split(':')
+        val = val.strip(' ')
+        dict_x[key] = val
+int_x.close()
+
+
+int_y = open('out_y.txt')
+with int_y as inp:
+    for i in inp.readlines():
+        key, val = i.strip().split(':')
+        dict_y[key] = val.strip(' ')
+int_y.close()
 #
 Num = Union[int, float]
 
@@ -358,10 +350,13 @@ for i in EP:
 # print("Время раскрытия скобок")
 # print(datetime.now() - start_time)
 #
-# # with open('out_x.txt', 'w') as out:
-# #     for key, val in dict_x.items():
-# #         out.write('{}:{}\n'.format(key, val))
-# # int_x.close()
+
+int_x = open('out_x.txt''w')
+with int_x as out:
+    for key, val in dict_x.items():
+        out.write('{}:{}\n'.format(key, val))
+
+int_x.close()
 replace_by_dict(EP, variable_y, dict_y, 0, 5.4, y, '*')
 print("-----------")
 for i in EP:
@@ -382,13 +377,13 @@ for i in EP:
 print("Время раскрытия скобок")
 print(datetime.now() - start_time)
 
+int_y = open('out_y.txt''w')
+with int_y as out:
+    for key, val in dict_y.items():
+        out.write('{}:{}\n'.format(key, val))
 
-# with open('out_y.txt', 'w') as out:
-#     for key, val in dict_y.items():
-#         out.write('{}:{}\n'.format(key, val))
-#
-#
-# int_y.close()
+
+int_y.close()
 number = 0
 for el in EP:
      print(sm.expand(el))

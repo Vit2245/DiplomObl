@@ -239,9 +239,9 @@ AllEpp = Epp8
 # print(AllEpp)
 del (Epp1, Epp3, Epp4, Epp6, Epp7, Epp8)
 EPp = sm.expand(AllEpp)
-print(EPp)
-print("Время раскрытия скобок")
-print(datetime.now() - start_time)
+# print(EPp)
+# print("Время раскрытия скобок")
+# print(datetime.now() - start_time)
 # print("EPp")
 # print(EPp)
 Epp = str(EPp).split('+')
@@ -262,88 +262,113 @@ for xc in Epp:
     else:
         EP.append(Epp[0])
 
-print(len(EP))
-cc=0
-for i in EP:
+# print(len(EP))
+#
+#
+# for i in EP:
+#     print(i)
+
+
+
+def create_variables(n: Num, symbol: sp.Symbol, limit: Num) -> list:
+    variables = []
+    for i in range(1, n + 1):
+        for st in range(4, 0, -1):
+            variables.append(str(sp.sin(2 * i * round(mth.pi, 5) * symbol / limit) ** st))
+            variables.append(str(sp.cos(2 * i * round(mth.pi, 5) * symbol / limit) ** st))
+            variables.append(str(sp.sin((2 * i - 1) * round(mth.pi, 5) * symbol / limit) ** st))
+            variables.append(str(sp.cos((2 * i - 1) * round(mth.pi, 5) * symbol / limit) ** st))
+    return variables
+
+
+variable_x = create_variables(n, x, aa)
+variable_y = create_variables(n, y, bb)
+
+
+my_dict = {}
+dict_x = {}
+dict_y = {}
+
+# int_x = open('out_x.txt')
+# with int_x as inp:
+#     for i in inp.readlines():
+#         key, val = i.strip().split(':')
+#         val = val.strip(' ')
+#         dict_x[key] = val
+# int_x.close()
+#
+# # dict_symbol_x = {}
+# # dict_symbol_x = [symbols[]
+#
+# int_y = open('out_y.txt')
+# with int_y as inp:
+#     for i in inp.readlines():
+#         key, val = i.strip().split(':')
+#         dict_y[key] = val.strip(' ')
+# int_y.close()
+#
+Num = Union[int, float]
+
+
+def replace_by_dict(ep: [str], variables: [str], dictionary: dict, a: Num, b: Num, s=sp.symbols,
+                    operator: str = '') -> None:
+    for index, elem in enumerate(ep):
+        zamena = ''
+        # print(index)
+        # put the polynom's members in the right order
+        for zz in variables:
+            if elem.find(zz):
+                i = elem.find(zz)
+                if i < 0:
+                    continue
+                if elem[:i]=='*':
+                    elem = elem[:i-1] + '' + elem[i-1 + len(zz) +1:]
+                else:
+                    elem = elem[:i] + '' + elem[i  + len(zz) + 1:]
+                zamena += '*' + zz
+                ep[index] = elem
+            continue
+        if zamena[1:] in dictionary:
+            # print("нашел")
+            # print(zamena[1:])
+            result = dictionary.get(zamena[1:])
+            # print(result)
+            # print(result)
+            print(elem)
+            # ep[index] = elem[:-1] + operator + str(result)
+            if elem[:i] == '*':
+                ep[index] = elem[:-1] + 'operator1' + str(result)
+            else:
+                ep[index] = elem[:-1] + '*' + str(result)
+        else:
+            # print("не нашел")
+            zam_x = sm.expand(zamena[1:])
+            # print(zam_x)
+            # result=Quadrature.simpson(lambda xx: (zam_x*A).subs(x,xx), 0, 5.4, rtol=1e-10)
+            if s == 'x':
+                result = integrate.quad(lambda xx: (zam_x * A).subs(x, xx), a, b)[0]
+
+            else:
+                result = integrate.quad(lambda yy: (zam_x * B).subs(y, yy), a, b)[0]
+
+            dictionary.update({zamena[1:]: result})
+
+            if elem[:i] == '*':
+                ep[index] = elem[:-1] + 'operator1' + str(result)
+            else:
+                ep[index] = elem[:-1] + '*' + str(result)
+
+print("1231231231231231231231")
+#
+
+xc=EP[ 0:10]
+print(len(xc))
+for i in xc:
     print(i)
-#     cc+=sm.expand(i)
-#
-#
-# def create_variables(n: Num, symbol: sp.Symbol, limit: Num) -> list:
-#     variables = []
-#     for i in range(1, n + 1):
-#         for st in range(4, 0, -1):
-#             variables.append(str(sp.sin(2 * i * round(mth.pi, 5) * symbol / limit) ** st))
-#             variables.append(str(sp.cos(2 * i * round(mth.pi, 5) * symbol / limit) ** st))
-#             variables.append(str(sp.sin((2 * i - 1) * round(mth.pi, 5) * symbol / limit) ** st))
-#             variables.append(str(sp.cos((2 * i - 1) * round(mth.pi, 5) * symbol / limit) ** st))
-#     return variables
-#
-#
-# variable_x = create_variables(n, x, aa)
-# variable_y = create_variables(n, y, bb)
-#
-#
-# my_dict = {}
-# dict_x = {}
-# dict_y = {}
-#
-# # int_x = open('out_x.txt')
-# # with int_x as inp:
-# #     for i in inp.readlines():
-# #         key, val = i.strip().split(':')
-# #         val = val.strip(' ')
-# #         dict_x[key] = val
-# # int_x.close()
-# #
-# # # dict_symbol_x = {}
-# # # dict_symbol_x = [symbols[]
-# #
-# # int_y = open('out_y.txt')
-# # with int_y as inp:
-# #     for i in inp.readlines():
-# #         key, val = i.strip().split(':')
-# #         dict_y[key] = val.strip(' ')
-# # int_y.close()
-# #
-# Num = Union[int, float]
-#
-#
-# def replace_by_dict(ep: [str], variables: [str], dictionary: dict, a: Num, b: Num, s=sp.symbols,
-#                     operator: str = '') -> None:
-#     for index, elem in enumerate(ep):
-#         zamena = ''
-#         # print(index)
-#         # put the polynom's members in the right order
-#         for zz in variables:
-#             if elem.find(zz):
-#                 i = elem.find(zz)
-#                 if i < 0:
-#                     continue
-#                 elem = elem[:i] + '' + elem[i + len(zz) + 1:]
-#                 zamena += '*' + zz
-#                 ep[index] = elem
-#             continue
-#         if zamena[1:] in dictionary:
-#             # print("нашел")
-#             result = dictionary.get(zamena[1:])
-#             # print(result)
-#             ep[index] = elem + operator + str(result)
-#         else:
-#             # print("не нашел")
-#             zam_x = sm.expand(zamena[1:])
-#             # print(zam_x)
-#             # result=Quadrature.simpson(lambda xx: (zam_x*A).subs(x,xx), 0, 5.4, rtol=1e-10)
-#             if s == 'x':
-#                 result = integrate.quad(lambda xx: (zam_x * A).subs(x, xx), a, b)[0]
-#             else:
-#                 result = integrate.quad(lambda yy: (zam_x * B).subs(y, yy), a, b)[0]
-#             dictionary.update({zamena[1:]: result})
-#             ep[index] = elem + operator + str(result)
-#
-#
-# replace_by_dict(EP, variable_x, dict_x, 0, 5.4, 'x')
-# print("1231231231231231231231")
+replace_by_dict(xc, variable_x, dict_x, 0, 5.4, 'x')
+print("---------------------------------")
+for ii in xc:
+    print(sm.expand(ii))
 #
 # print("Время раскрытия скобок")
 # print(datetime.now() - start_time)
@@ -352,8 +377,11 @@ for i in EP:
 # #     for key, val in dict_x.items():
 # #         out.write('{}:{}\n'.format(key, val))
 # # int_x.close()
-# replace_by_dict(EP, variable_y, dict_y, 0, 5.4, y, '*')
-#
+replace_by_dict(xc, variable_y, dict_y, 0, 5.4, y, '*')
+
+for ii in xc:
+    print(sm.expand(ii))
+# #
 #
 # # thread1 = Thread(target=Fun1, args=(EP,dict_x))
 # # thread2 = Thread(target=Fun2, args=(EP,dict_y))
