@@ -26,37 +26,37 @@ q = Symbol('q')
 i = Symbol('i')
 aa = Symbol('aa')
 bb = Symbol('bb')
-kx = Symbol('kx')
-ky = Symbol('ky')
-E1 = Symbol('E1')
-E2 = Symbol('E2')
+k_x = Symbol('kx')
+k_y = Symbol('ky')
+E_1 = Symbol('E1')
+E_2 = Symbol('E2')
 k = Symbol('k')
 r = Symbol('r')
 z = Symbol('z')
-mu12 = Symbol('mu12')
-mu21 = Symbol('mu21')
+mu_12 = Symbol('mu12')
+mu_21 = Symbol('mu21')
 h = Symbol('h')
-G12 = Symbol('G12')
-G13 = Symbol('G13')
-G23 = Symbol('G23')
+G_12 = Symbol('G12')
+G_13 = Symbol('G13')
+G_23 = Symbol('G23')
 A = Symbol('A')
 B = Symbol('B')
 
 def create_functional(n):
     f = 6 * (1 / 4 - i ** 2 / h ** 2)
 
-    X1 = sin(2 * i * pi * x / aa)
-    X2 = sin((2 * i - 1) * pi * x / aa)
-    X3 = sin((2 * i - 1) * pi * x / aa)
-    X4 = cos((2 * i - 1) * pi * x / aa)
-    X5 = sin((2 * i - 1) * pi * x / aa)
-    Y1 = sin((2 * i - 1) * pi * y / bb)
-    Y2 = sin(2 * i * pi * y / bb)
-    Y3 = sin((2 * i - 1) * pi * y / bb)
-    Y4 = sin((2 * i - 1) * pi * y / bb)
-    Y5 = cos((2 * i - 1) * pi * y / bb)
+    X_1 = sin(2 * i * pi * x / aa)
+    X_2 = sin((2 * i - 1) * pi * x / aa)
+    X_3 = sin((2 * i - 1) * pi * x / aa)
+    X_4 = cos((2 * i - 1) * pi * x / aa)
+    X_5 = sin((2 * i - 1) * pi * x / aa)
+    Y_1 = sin((2 * i - 1) * pi * y / bb)
+    Y_2 = sin(2 * i * pi * y / bb)
+    Y_3 = sin((2 * i - 1) * pi * y / bb)
+    Y_4 = sin((2 * i - 1) * pi * y / bb)
+    Y_5 = cos((2 * i - 1) * pi * y / bb)
 
-    # print_latex(X1, X2, X3, X4, X5, Y1, Y2, Y3, Y4, Y5)
+    # print_latex(X_1, X_2, X_3, X_4, X_5, Y_1, Y_2, Y_3, Y_4, Y_5)
 
     U = 0
     V = 0
@@ -71,34 +71,34 @@ def create_functional(n):
     psiy = [[None] * n for _ in range(n)]
 
     for m in range(n):
-        for k in range(n):
-            u[m][k] = (symbols(f'u{m + 1}{k + 1}'))
-            v[m][k] = (symbols(f'v{m + 1}{k + 1}'))
-            w[m][k] = (symbols(f'w{m + 1}{k + 1}'))
-            psix[m][k] = (symbols(f'psix{m + 1}{k + 1}'))
-            psiy[m][k] = (symbols(f'psiy{m + 1}{k + 1}'))
+        for g in range(n):
+            u[m][g] = (symbols(f'u{m + 1}{g + 1}'))
+            v[m][g] = (symbols(f'v{m + 1}{g + 1}'))
+            w[m][g] = (symbols(f'w{m + 1}{g + 1}'))
+            psix[m][g] = (symbols(f'psix{m + 1}{g + 1}'))
+            psiy[m][g] = (symbols(f'psiy{m + 1}{g + 1}'))
 
     SN = []
     for line in u + v + w + psix + psiy:
         SN += line
 
     for m in range(n):
-        for k in range(n):
-            U += u[m][k] * X1.subs(i, m + 1) * Y1.subs(i, k + 1)
-            V += v[m][k] * X2.subs(i, m + 1) * Y2.subs(i, k + 1)
-            W += w[m][k] * X3.subs(i, m + 1) * Y3.subs(i, k + 1)
-            Psix += psix[m][k] * X4.subs(i, m + 1) * Y4.subs(i, k + 1)
-            Psiy += psiy[m][k] * X5.subs(i, m + 1) * Y5.subs(i, k + 1)
+        for g in range(n):
+            U += u[m][g] * X_1.subs(i, m + 1) * Y_1.subs(i, g + 1)
+            V += v[m][g] * X_2.subs(i, m + 1) * Y_2.subs(i, g + 1)
+            W += w[m][g] * X_3.subs(i, m + 1) * Y_3.subs(i, g + 1)
+            Psix += psix[m][g] * X_4.subs(i, m + 1) * Y_4.subs(i, g + 1)
+            Psiy += psiy[m][g] * X_5.subs(i, m + 1) * Y_5.subs(i, g + 1)
 
     # print_latex(U, V, W, Psix, Psiy)
 
-    Theta1 = -(diff(W, x)) / A - kx * U
+    Theta1 = -(diff(W, x)) / A - k_x * U
 
-    Theta2 = -(diff(W, y)) / B - ky * V
+    Theta2 = -(diff(W, y)) / B - k_y * V
 
-    ex = (diff(U, x)) / A + (diff(A, y)) * V / (A * B) - kx * W + (S(1) / 2) * Theta1 ** 2
+    ex = (diff(U, x)) / A + (diff(A, y)) * V / (A * B) - k_x * W + (S(1) / 2) * Theta1 ** 2
 
-    ey = (diff(V, y)) / B + (diff(B, x)) * U / (A * B) - ky * W + (S(1) / 2) * Theta2 ** 2
+    ey = (diff(V, y)) / B + (diff(B, x)) * U / (A * B) - k_y * W + (S(1) / 2) * Theta2 ** 2
 
     gxy = (diff(V, x)) / A + (diff(U, y)) / B - (diff(A, y)) * U / (A * B) - (diff(B, x) * V / (
             A * B) + Theta1 * Theta2)
@@ -106,51 +106,51 @@ def create_functional(n):
     gxz = k * (f.subs(i, z)) * (Psix - Theta1)
     gyz = k * (f.subs(i, z)) * (Psiy - Theta2)
 
-    varkappa1 = (diff(Psix, x)) / A + (diff(A, y)) * Psiy / (A * B)
-    varkappa2 = (diff(Psiy, y)) / B + (diff(B, x)) * Psix / (A * B)
-    varkappa12 = S(1) / 2 * (
+    kappa1 = (diff(Psix, x)) / A + (diff(A, y)) * Psiy / (A * B)
+    kappa2 = (diff(Psiy, y)) / B + (diff(B, x)) * Psix / (A * B)
+    kappa12 = S(1) / 2 * (
             (diff(Psiy, x)) / A + (diff(Psix, y)) / B - ((diff(A, y)) * Psix + (diff(B, x)) * Psiy) / (
             A * B))
 
     print("#Mx")
 
-    Mx = (S(1) / 12) * E1 * h ** 3 * (mu21 * varkappa2 + varkappa1) / (1 - mu12 * mu21)
+    Mx = (S(1) / 12) * E_1 * h ** 3 * (mu_21 * kappa2 + kappa1) / (1 - mu_12 * mu_21)
 
     print("#My")
 
-    My = (S(1) / 12) * E2 * h ** 3 * (mu12 * varkappa1 + varkappa2) / (1 - mu12 * mu21)
+    My = (S(1) / 12) * E_2 * h ** 3 * (mu_12 * kappa1 + kappa2) / (1 - mu_12 * mu_21)
 
     print("#Mxy")
-    Mxy = (S(1) / 6) * G12 * h ** 3 * varkappa12
+    Mxy = (S(1) / 6) * G_12 * h ** 3 * kappa12
 
     print("#Myx")
-    Myx = (S(1) / 6) * G12 * h ** 3 * varkappa12
+    Myx = (S(1) / 6) * G_12 * h ** 3 * kappa12
 
     print("#Nx")
-    Nx = (E1 * h / (1 - mu12 * mu21)) * (ex + mu21 * ey)
+    Nx = (E_1 * h / (1 - mu_12 * mu_21)) * (ex + mu_21 * ey)
 
     print("#Ny")
-    Ny = (E2 * h / (1 - mu12 * mu21)) * (ey + mu12 * ex)
+    Ny = (E_2 * h / (1 - mu_12 * mu_21)) * (ey + mu_12 * ex)
 
-    Nxy = G12 * h * gxy
+    Nxy = G_12 * h * gxy
     print("Nxy")
 
-    Nyx = G12 * h * gxy
+    Nyx = G_12 * h * gxy
     print("Nyx")
 
     Px = 0
     Py = 0
-    Qx = G13 * k * h * (Psix - Theta1)
+    Qx = G_13 * k * h * (Psix - Theta1)
     print("Qx")
 
-    Qy = G23 * k * h * (Psiy - Theta2)
+    Qy = G_23 * k * h * (Psiy - Theta2)
 
     print("Qy")
 
     Epp1 = Nx * ex + Ny * ey
     Epp3 = Epp1 + S(1) / 2 * (Nxy + Nyx) * gxy
-    Epp4 = Epp3 + Mx * varkappa1 + My * varkappa2
-    Epp6 = Epp4 + (Mxy + Myx) * varkappa12
+    Epp4 = Epp3 + Mx * kappa1 + My * kappa2
+    Epp6 = Epp4 + (Mxy + Myx) * kappa12
     Epp7 = Epp6 + Qx * (Psix - Theta1)
     Epp8 = Epp7 + Qy * (Psiy - Theta2)
     EP = S(1) / 2 * integrate(integrate(Epp8 * A * B, (y, 0, aa)), (x, 0, bb))
@@ -159,7 +159,6 @@ def create_functional(n):
     Es = EP - AA
     print_latex(Es)
     return Es, SN, W
-
 
 Es, SN, W = create_functional(n)
 
@@ -174,16 +173,16 @@ Jacobi = []
 for i in SN:
     Jacobi.append(Es.diff(i))
 
-Deter = []
+Hessian = []
 
 for dpU in Jacobi:
     lineOfHessian = []
     for symb in SN:
         lineOfHessian.append(dpU.diff(symb))
-    Deter.append(lineOfHessian)
+    Hessian.append(lineOfHessian)
 
 Jacobi = Matrix(Jacobi)
-Deter = Matrix(Deter)
+Hessian = Matrix(Hessian)
 
 Coef = np.zeros(len(SN), dtype=np.float)
 
@@ -203,10 +202,10 @@ Buf = np.zeros((5 * N), dtype=float)
 dict_coef = dict(zip(SN, list(Coef)))
 dict_coef.update({q: 0.})
 
-constants = x, y, aa, bb, kx, ky, E1, E2, k, r, z, mu12, mu21, h, G12, G13, G23, A, B
+constants = x, y, aa, bb, k_x, k_y, E_1, E_2, k, r, z, mu_12, mu_21, h, G_12, G_13, G_23, A, B
 
-lambda_deter = lambdify([*dict_coef.keys(), *constants], Deter)
-print("Deter", Deter)
+lambda_hessian = lambdify([*dict_coef.keys(), *constants], Hessian)
+print("Hessian", Hessian)
 lambda_jacobi = lambdify([*dict_coef.keys(), *constants], Jacobi)
 print("Jacobi", Jacobi)
 
@@ -222,18 +221,18 @@ aa1 = 0
 aa = round(60 * h, 2)
 bb = round(60 * h, 2)
 h = 0.09
-E1 = 2.1 * 10 ** 5
-E2 = 2.1 * 10 ** 5
-kx = 1 / r
-ky = 1 / r
+E_1 = 2.1 * 10 ** 5
+E_2 = 2.1 * 10 ** 5
+k_x = 1 / r
+k_y = 1 / r
 z = -(1 / 2) * h
 r = 225 * h
 k = 5 / 6
-mu12 = 0.3
-mu21 = 0.3
-G12 = 0.33 * 10 ** 5
-G13 = 0.33 * 10 ** 5
-G23 = 0.33 * 10 ** 5
+mu_12 = 0.3
+mu_21 = 0.3
+G_12 = 0.33 * 10 ** 5
+G_13 = 0.33 * 10 ** 5
+G_23 = 0.33 * 10 ** 5
 x_center = (aa + aa1) / 2
 x_quarter = (aa + aa1) / 4
 y_center = bb / 2
@@ -244,7 +243,7 @@ MAX = 33
 x = x_center
 y = y_center
 
-numbers = x, y, aa, bb, kx, ky, E1, E2, k, r, z, mu12, mu21, h, G12, G13, G23, A, B
+numbers = x, y, aa, bb, k_x, k_y, E_1, E_2, k, r, z, mu_12, mu_21, h, G_12, G_13, G_23, A, B
 
 Q_y = []
 
@@ -259,10 +258,10 @@ for qi in range(0, MAX + 1):
         dict_coef.update(zip(SN, list(Coef)))
 
         dict_values = dict_coef.values()
-        Deter1 = lambda_deter(*dict_values, *numbers)
+        Hessian1 = lambda_hessian(*dict_values, *numbers)
         Jacobi1 = lambda_jacobi(*dict_values, *numbers)
 
-        Rans = np.dot(np.array(la.inv(Deter1)), Jacobi1).reshape(Coef.shape)
+        Rans = np.dot(np.array(la.inv(Hessian1)), Jacobi1).reshape(Coef.shape)
         tmp = Coef - Rans
         Coef = np.array(tmp)  # Находим решение методом Ньютона
 
