@@ -1,19 +1,38 @@
 import sys
 from datetime import datetime
+from os import replace
 from typing import Union
 
 import matplotlib.pyplot as plt
 import numpy as np
 
 import scipy.integrate as integrate
-from sympy import Symbol, pi, sin, cos, symbols, diff, Matrix, lambdify, S, integrate, latex
+from sympy import Symbol, pi, sin, cos, symbols, diff, Matrix, lambdify, S, integrate, latex, Integral, init_printing
 from numpy import linalg as la
+from sympy.integrals.trigonometry import trigintegrate
 
 sys.setrecursionlimit(10 ** 6)
 Num = Union[int, float]
 
+init_printing()
+
+
 def print_latex(*args):
     print(*[latex(func) + '\n' for func in args])
+
+
+def output_latex(path: str, *args):
+    with open(path, 'w') as file:
+        file.write(
+            '\\documentclass{article}\n\\usepackage{breqn}\n\\usepackage[margin=0.1in]{geometry}\n\\begin{document}\n\\begin{dmath}\n')
+        file.write(str(*[latex(func) + '\n ' for func in args]).replace('psi', '\\Psi^'))
+        file.write('\\end{dmath}\n\\end{document}')
+
+
+# def scipy_integrate(functional, definitions):
+#     # like: scipy_integrate(Es, (x, 0, aa))
+#     return integrate.quad(functional, definitions[1], definitions[2])
+
 
 start_time = datetime.now()
 
@@ -41,6 +60,7 @@ G_13 = Symbol('G13')
 G_23 = Symbol('G23')
 A = Symbol('A')
 B = Symbol('B')
+
 
 def create_functional(n):
     f = 6 * (1 / 4 - i ** 2 / h ** 2)
@@ -153,25 +173,48 @@ def create_functional(n):
     Epp6 = Epp4 + (Mxy + Myx) * kappa12
     Epp7 = Epp6 + Qx * (Psix - Theta1)
     Epp8 = Epp7 + Qy * (Psiy - Theta2)
-    EP = S(1) / 2 * integrate(integrate(Epp8 * A * B, (y, 0, aa)), (x, 0, bb))
-    AA = integrate(integrate((Px * U + Py * V + W * q) * A * B, (y, 0, aa)), (x, 0, bb))
+    EP = S(1) / 2 * Epp8
+    AA = Px * U + Py * V + W * q
 
     Es = EP - AA
-    print_latex(Es)
     return Es, SN, W
+
 
 Es, SN, W = create_functional(n)
 
-print("functional created", datetime.now() - start_time)
+values = {
+    aa: round(60 * 0.09, 2),
+    bb: round(60 * 0.09, 2),
+    k_x: 1 / 225 * 0.09,
+    k_y: 1 / 225 * 0.09,
+    E_1: 2.1 * 10 ** 5,
+    E_2: 2.1 * 10 ** 5,
+    k: 5 / 6,
+    r: 225 * 0.09,
+    z: -(1 / 2) * 0.09,
+    mu_12: 0.3,
+    mu_21: 0.3,
+    h: 0.09,
+    G_12: 0.33 * 10 ** 5,
+    G_13: 0.33 * 10 ** 5,
+    G_23: 0.33 * 10 ** 5,
+    A: 1.,
+    B: 1.
+}
 
-print("Es", Es)
+Es = Es.subs(values)
+Es_integrated_x = Integral(Es, (x, 0, values[aa]))
+Es_integrated_y = Integral(Es_integrated_x, (y, 0, values[bb]))
+Es_integrated = Es_integrated_y
+
+print("functional created", datetime.now() - start_time)
 
 Jacobi2 = np.array([0] * 5 * N)
 
 Jacobi = []
 
 for i in SN:
-    Jacobi.append(Es.diff(i))
+    Jacobi.append(Es_integrated.diff(i))
 
 Hessian = []
 
@@ -196,70 +239,43 @@ WCC = []
 wcWW = []
 WC2 = []
 
-BufV = np.zeros((5 * N), dtype=float)
+cBufV = np.zeros((5 * N), dtype=float)
 Buf = np.zeros((5 * N), dtype=float)
 
 dict_coef = dict(zip(SN, list(Coef)))
 dict_coef.update({q: 0.})
 
-constants = x, y, aa, bb, k_x, k_y, E_1, E_2, k, r, z, mu_12, mu_21, h, G_12, G_13, G_23, A, B
-
-lambda_hessian = lambdify([*dict_coef.keys(), *constants], Hessian)
-print("Hessian", Hessian)
-lambda_jacobi = lambdify([*dict_coef.keys(), *constants], Jacobi)
-print("Jacobi", Jacobi)
+lambda_hessian = lambdify([*dict_coef.keys()], Hessian, modules=['numpy', {'Integral': Integral}])
+lambda_jacobi = lambdify([*dict_coef.keys()], Jacobi, modules=['numpy', {'Integral': Integral}])
 
 print("preparations is done", datetime.now() - start_time)
 
-# Computing is beginning
-# ─────────────────────────────────────────────────────
-h = 0.09
-r = 225 * h
-A = 1
-B = 1
+# # Computing is beginning
+# # ─────────────────────────────────────────────────────
 aa1 = 0
-aa = round(60 * h, 2)
-bb = round(60 * h, 2)
-h = 0.09
-E_1 = 2.1 * 10 ** 5
-E_2 = 2.1 * 10 ** 5
-k_x = 1 / r
-k_y = 1 / r
-z = -(1 / 2) * h
-r = 225 * h
-k = 5 / 6
-mu_12 = 0.3
-mu_21 = 0.3
-G_12 = 0.33 * 10 ** 5
-G_13 = 0.33 * 10 ** 5
-G_23 = 0.33 * 10 ** 5
-x_center = (aa + aa1) / 2
-x_quarter = (aa + aa1) / 4
-y_center = bb / 2
-y_quarter = bb / 4
-epsillon = 1 * 10 ** (-5)
-delq = 0.1
+x_center = (values[aa] + aa1) / 2
+x_quarter = (values[aa] + aa1) / 4
+y_center = values[bb] / 2
+y_quarter = values[bb] / 4
+epsilon = 1 * 10 ** (-5)
+delta_q = 0.1
 MAX = 33
-x = x_center
-y = y_center
-
-numbers = x, y, aa, bb, k_x, k_y, E_1, E_2, k, r, z, mu_12, mu_21, h, G_12, G_13, G_23, A, B
 
 Q_y = []
 
 for qi in range(0, MAX + 1):
-    qq = round(delq * qi, 2)  # Увеличиваем нагрузку
+    qq = round(delta_q * qi, 2)  # Увеличиваем нагрузку
     dict_coef.update({q: qq})
     print('Увеличиваем нагрузку qq={: f}'.format(qq), " коэффициенты: ", end="")
     delta = 1
     kol_iter = 0
     print(dict_coef)
-    while delta > epsillon or kol_iter <= 15:
+    while delta > epsilon or kol_iter <= 15:
         dict_coef.update(zip(SN, list(Coef)))
 
         dict_values = dict_coef.values()
-        Hessian1 = lambda_hessian(*dict_values, *numbers)
-        Jacobi1 = lambda_jacobi(*dict_values, *numbers)
+        Hessian1 = lambda_hessian(*dict_values)
+        Jacobi1 = lambda_jacobi(*dict_values)
 
         Rans = np.dot(np.array(la.inv(Hessian1)), Jacobi1).reshape(Coef.shape)
         tmp = Coef - Rans
@@ -274,19 +290,21 @@ for qi in range(0, MAX + 1):
     print("kol_iter=", kol_iter, "delta=", delta)
     wc1 = W
     Xk_new = list(Coef)
+    for wi in range(2 * N, 3 * N):
+        wc1 = wc1.subs(SN[wi], Coef[wi])
     # масив значений функции W c подставленными коэф. с в завимости от q
-    wc11 = wc1
-    wc = wc11
+    wc11 = wc1.subs(x, x_center)
+    wc = wc11.subs(y, y_center)
     WC.append(wc)
-    # Q_y.append(qq)
-    # wc2 = W
-    # Xk_new = list(Coef)
-    # for wi in range(2 * N, 3 * N):
-    #     wc2 = wc2.subs(SN[wi], Coef[wi])
-    # # масив значений функции W c подставленными коэф. с в завимости от q
-    # wc22 = wc2.subs(x, x_quarter)
-    # wc23 = wc22.subs(y, y_quarter)
-    # WC2.append(wc23)
+    Q_y.append(qq)
+    wc2 = W
+    Xk_new = list(Coef)
+    for wi in range(2 * N, 3 * N):
+        wc2 = wc2.subs(SN[wi], Coef[wi])
+    # масив значений функции W c подставленными коэф. с в завимости от q
+    wc22 = wc2.subs(x, x_quarter)
+    wc23 = wc22.subs(y, y_quarter)
+    WC2.append(wc23)
 
 print("answer calculated", datetime.now() - start_time)
 
