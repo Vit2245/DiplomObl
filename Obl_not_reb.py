@@ -7,8 +7,9 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 import scipy.integrate as integrate
-from sympy import Symbol, pi, sin, cos, symbols, diff, Matrix, lambdify, S, integrate, latex, Integral, init_printing, \
-    Derivative
+from symengine import expand, lambdify as lambdify_se
+from sympy import Symbol, pi, sin, cos, symbols, diff, Matrix, S, integrate, latex, Integral, init_printing, \
+    Derivative, cse, lambdify, Poly, separatevars, collect, expand_power_base
 from numpy import linalg as la
 from sympy.integrals.trigonometry import trigintegrate
 
@@ -217,7 +218,18 @@ values = {
 Es_lambda_values = lambdify(values.keys(), Es, 'sympy')
 Es = Es_lambda_values(*values.values())
 
-stop_watch.remark('replacing done')
+stop_watch.remark('replacing is done')
+
+Es = expand(Es)
+
+stop_watch.remark('expanding is done')
+
+# Es = expand_power_base(collect(Es, [x, y]), force=True)
+# print(Es)
+#
+# stop_watch.remark('separating is done')
+
+
 
 Es_integrated_x = Integral(Es, (x, 0, values[aa]))
 Es_integrated = Integral(Es_integrated_x, (y, 0, values[bb]))
