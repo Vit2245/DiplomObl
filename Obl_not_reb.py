@@ -7,7 +7,8 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 import scipy.integrate as integrate
-from sympy import Symbol, pi, sin, cos, symbols, diff, Matrix, lambdify, S, integrate, latex, Integral, init_printing
+from sympy import Symbol, pi, sin, cos, symbols, diff, Matrix, lambdify, S, integrate, latex, Integral, init_printing, \
+    Derivative
 from numpy import linalg as la
 from sympy.integrals.trigonometry import trigintegrate
 
@@ -213,24 +214,25 @@ values = {
     B: 1.
 }
 
-Es = Es.subs(values)
+Es_lambda_values = lambdify(values.keys(), Es, 'sympy')
+Es = Es_lambda_values(*values.values())
+
+stop_watch.remark('replacing done')
+
 Es_integrated_x = Integral(Es, (x, 0, values[aa]))
-Es_integrated_y = Integral(Es_integrated_x, (y, 0, values[bb]))
-Es_integrated = Es_integrated_y
+Es_integrated = Integral(Es_integrated_x, (y, 0, values[bb]))
 
 stop_watch.remark('functional created')
 
 Jacobi = []
-
 for i in SN:
-    Jacobi.append(Es_integrated.diff(i))
+    Jacobi.append(diff(Es_integrated, i))
 
 Hessian = []
-
 for dpU in Jacobi:
     lineOfHessian = []
     for symb in SN:
-        lineOfHessian.append(dpU.diff(symb))
+        lineOfHessian.append(diff(dpU, symb))
     Hessian.append(lineOfHessian)
 
 stop_watch.remark('Jacobi and Hessian created (without integrating)')
@@ -241,27 +243,25 @@ Hessian = Matrix(Hessian)
 stop_watch.remark('matrices created')
 
 Coef = np.zeros(len(SN), dtype=np.float)
-
 XkPred = np.array(Coef)
 
 MasRes = []
 res2 = []
-
 WC = []
 WCC = []
 wcWW = []
 WC2 = []
-
 cBufV = np.zeros((5 * N), dtype=float)
 Buf = np.zeros((5 * N), dtype=float)
-
 dict_coef = dict(zip(SN, list(Coef)))
 dict_coef.update({q: 0.})
 
-lambda_hessian = lambdify([*dict_coef.keys()], Hessian, modules=['numpy', {'Integral': Integral}])
-lambda_jacobi = lambdify([*dict_coef.keys()], Jacobi, modules=['numpy', {'Integral': Integral}])
+print(Jacobi)
 
-print("preparations is done", datetime.now() - start_time)
+lambda_hessian = lambdify(dict_coef.keys(), Hessian, 'sympy')
+lambda_jacobi = lambdify(dict_coef.keys(), Jacobi, 'sympy')
+
+stop_watch.remark('preparations is done')
 
 # # Computing is beginning
 # # ─────────────────────────────────────────────────────
@@ -283,14 +283,16 @@ for qi in range(0, MAX + 1):
     delta = 1
     kol_iter = 0
     print(dict_coef)
-    while delta > epsilon or kol_iter <= 15:
+    while delta > epsilon and kol_iter <= 15:
         dict_coef.update(zip(SN, list(Coef)))
 
         dict_values = dict_coef.values()
-        Hessian1 = lambda_hessian(*dict_values)
-        Jacobi1 = lambda_jacobi(*dict_values)
+        Hessian = lambda_hessian(*dict_values)
+        Jacobi = lambda_jacobi(*dict_values)
 
-        Rans = np.dot(np.array(la.inv(Hessian1)), Jacobi1).reshape(Coef.shape)
+        print(Jacobi)
+
+        Rans = np.dot(np.array(la.inv(Hessian)), Jacobi).reshape(Coef.shape)
         tmp = Coef - Rans
         Coef = np.array(tmp)  # Находим решение методом Ньютона
 
