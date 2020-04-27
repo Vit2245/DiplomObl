@@ -21,7 +21,7 @@ start_time = datetime.now()
 Num = Union[int, float]
 
 
-n = 1
+n = 3
 N = np.power(n, 2)
 h = 0.09
 aa = round(60 * h, 2)
@@ -505,13 +505,6 @@ print(datetime.now() - start_timeS)
 
 
 
-p=0
-start_timeS = datetime.now()
-
-p += reduce((lambda x, y: x + y), itt)
-
-print("Время сумма3")
-print(datetime.now() - start_timeS)
 product=sm.expand(product)
 print(product)
 number = 0
@@ -540,8 +533,8 @@ print(datetime.now() - start_all)
 start_time1 = datetime.now()
 Jacobi = []
 for i in SN:
-    Jacobi.append(sm.diff(Es, i))
-print(Jacobi)
+    Jacobi.append(sp.diff(Es, i))
+print(type(Jacobi[0]))
 print("Время первая производная")
 print(datetime.now() - start_time1)
 print('Всего прошло времени')
@@ -554,7 +547,7 @@ for dpU in Jacobi:
         lineOfHessian.append(sp.diff(dpU, symb))
     Deter.append(lineOfHessian)
 
-
+print(type(Deter[0][0]))
 print("Время вторая производная")
 print(datetime.now() - start_time2)
 
@@ -596,71 +589,69 @@ print(datetime.now() - start_time)
 
 
 
-start_time = datetime.now()
-lambda_jacobi = sp.lambdify(dict_coef.keys(), Jacobi)
-print(lambda_jacobi)
-print("Время матрицы")
-print(datetime.now() - start_time)
-
-
-
-
-
-print('Всего прошло времени')
-print(datetime.now() - start_all)
-start_time2 = datetime.now()
-for qi in range(0, MAX + 1):
-    qq = round(delq * qi, 2)  # Увеличиваем нагрузку
-    dict_coef.update({q: qq})
-    # print('Увеличиваем нагрузку qq={: f}'.format(qq), " коэффициенты: ", end="")
-    delta = 1
-    kol_iter = 0
-    # print(dict_coef)
-    while delta > epsillon:
-        dict_coef.update(zip(SN, list(Coef)))
-        dict_values = dict_coef.values()
-        Deter2 = lambda_deter(*dict_values)
-        Jacobi2 = lambda_jacobi(*dict_values)
-        Rans = np.dot(np.array(la.inv(Deter2)), Jacobi2).reshape(Coef.shape)
-        tmp = Coef - Rans
-        Coef = np.array(tmp)  # Находим решение методом Ньютона
-        delta = np.sum(np.abs(Coef - XkPred)) / len(Coef)  # ??
-        XkPred = np.array(Coef)
-        kol_iter = kol_iter + 1
-        if kol_iter > 22:
-            delta = 0
-
-    # print("kol_iter=", kol_iter, "delta=", delta)
-    wc1 = W
-    Xk_new = list(Coef)
-    for wi in range(2 * N, 3 * N):
-        wc1 = wc1.subs(SN[wi], Coef[wi])
-
-    wc11 = wc1.subs(x, (aa + aa1) / 2)
-    wc = wc11.subs(y, bb / 2)
-    WC.append(wc)
-    Q_y.append(qq)
-    wc2 = W
-    Xk_new = list(Coef)
-    for wi in range(2 * N, 3 * N):
-        wc2 = wc2.subs(SN[wi], Coef[wi])
-
-    wc22 = wc2.subs(x, (aa + aa1) / 4)
-    wc23 = wc22.subs(y, bb / 4)
-    WC2.append(wc23)
-
-print(datetime.now() - start_time2)
-fig = plt.figure(num=1, figsize=(8, 6))
-plt.plot(WC, Q_y, color='r', linestyle='--', marker='o', markersize=3, label='W((a+a1)/2,b/2)')
-plt.plot(WC2, Q_y, color='b', linestyle='--', marker='o', markersize=3, label='W((a+a1)/4,b/4)')
-plt.legend(loc='upper left')
-grid1 = plt.grid(True)
-plt.xlabel("W,м")
-plt.ylabel("q,МПа")
-plt.title('График прогиба W n = '+str(n))
-print(datetime.now() - start_time2)
-print('Всего прошло времени')
-print(datetime.now() - start_all)
-plt.show()
-# #
-
+# start_time = datetime.now()
+# lambda_jacobi = sp.lambdify(dict_coef.keys(), Jacobi)
+# print(lambda_jacobi)
+# print("Время матрицы")
+# print(datetime.now() - start_time)
+#
+#
+#
+#
+#
+# print('Всего прошло времени')
+# print(datetime.now() - start_all)
+# start_time2 = datetime.now()
+# for qi in range(0, MAX + 1):
+#     qq = round(delq * qi, 2)  # Увеличиваем нагрузку
+#     dict_coef.update({q: qq})
+#     # print('Увеличиваем нагрузку qq={: f}'.format(qq), " коэффициенты: ", end="")
+#     delta = 1
+#     kol_iter = 0
+#     # print(dict_coef)
+#     while delta > epsillon:
+#         dict_coef.update(zip(SN, list(Coef)))
+#         dict_values = dict_coef.values()
+#         Deter2 = lambda_deter(*dict_values)
+#         Jacobi2 = lambda_jacobi(*dict_values)
+#         Rans = np.dot(np.array(la.inv(Deter2)), Jacobi2).reshape(Coef.shape)
+#         tmp = Coef - Rans
+#         Coef = np.array(tmp)  # Находим решение методом Ньютона
+#         delta = np.sum(np.abs(Coef - XkPred)) / len(Coef)  # ??
+#         XkPred = np.array(Coef)
+#         kol_iter = kol_iter + 1
+#         if kol_iter > 22:
+#             delta = 0
+#
+#     # print("kol_iter=", kol_iter, "delta=", delta)
+#     wc1 = W
+#     Xk_new = list(Coef)
+#     for wi in range(2 * N, 3 * N):
+#         wc1 = wc1.subs(SN[wi], Coef[wi])
+#
+#     wc11 = wc1.subs(x, (aa + aa1) / 2)
+#     wc = wc11.subs(y, bb / 2)
+#     WC.append(wc)
+#     Q_y.append(qq)
+#     wc2 = W
+#     Xk_new = list(Coef)
+#     for wi in range(2 * N, 3 * N):
+#         wc2 = wc2.subs(SN[wi], Coef[wi])
+#
+#     wc22 = wc2.subs(x, (aa + aa1) / 4)
+#     wc23 = wc22.subs(y, bb / 4)
+#     WC2.append(wc23)
+#
+# print(datetime.now() - start_time2)
+# fig = plt.figure(num=1, figsize=(8, 6))
+# plt.plot(WC, Q_y, color='r', linestyle='--', marker='o', markersize=3, label='W((a+a1)/2,b/2)')
+# plt.plot(WC2, Q_y, color='b', linestyle='--', marker='o', markersize=3, label='W((a+a1)/4,b/4)')
+# plt.legend(loc='upper left')
+# grid1 = plt.grid(True)
+# plt.xlabel("W,м")
+# plt.ylabel("q,МПа")
+# plt.title('График прогиба W n = '+str(n))
+# print(datetime.now() - start_time2)
+# print('Всего прошло времени')
+# print(datetime.now() - start_all)
+# plt.show()
