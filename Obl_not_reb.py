@@ -17,6 +17,17 @@ Num = Union[int, float]
 init_printing()
 
 
+class StopWatch:
+    def __init__(self):
+        self.start_time = datetime.now()
+
+    def lap(self):
+        return datetime.now() - self.start_time
+    
+    def remark(self, comment: str):
+        print(comment + ':', self.lap())
+
+
 def print_latex(*args):
     print(*[latex(func) + '\n' for func in args])
 
@@ -34,7 +45,7 @@ def output_latex(path: str, *args):
 #     return integrate.quad(functional, definitions[1], definitions[2])
 
 
-start_time = datetime.now()
+stop_watch = StopWatch()
 
 n = 1
 N = n ** 2
@@ -207,9 +218,7 @@ Es_integrated_x = Integral(Es, (x, 0, values[aa]))
 Es_integrated_y = Integral(Es_integrated_x, (y, 0, values[bb]))
 Es_integrated = Es_integrated_y
 
-print("functional created", datetime.now() - start_time)
-
-Jacobi2 = np.array([0] * 5 * N)
+stop_watch.remark('functional created')
 
 Jacobi = []
 
@@ -224,8 +233,12 @@ for dpU in Jacobi:
         lineOfHessian.append(dpU.diff(symb))
     Hessian.append(lineOfHessian)
 
+stop_watch.remark('Jacobi and Hessian created (without integrating)')
+
 Jacobi = Matrix(Jacobi)
 Hessian = Matrix(Hessian)
+
+stop_watch.remark('matrices created')
 
 Coef = np.zeros(len(SN), dtype=np.float)
 
@@ -306,7 +319,7 @@ for qi in range(0, MAX + 1):
     wc23 = wc22.subs(y, y_quarter)
     WC2.append(wc23)
 
-print("answer calculated", datetime.now() - start_time)
+stop_watch.remark('answer calculated')
 
 fig = plt.figure(num=1, figsize=(8, 6))
 plt.plot(WC, Q_y, color='r', linestyle='--', marker='o', markersize=3, label='W((a+a1)/2,b/2)')
@@ -318,4 +331,4 @@ plt.ylabel("q,МПа")
 plt.title('График прогиба W')
 plt.show()
 
-print(datetime.now() - start_time)
+stop_watch.remark('full time:')
