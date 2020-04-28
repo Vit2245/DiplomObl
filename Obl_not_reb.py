@@ -209,7 +209,7 @@ Es_int = [Mul(*[nested_arg for nested_arg in arg.args if nested_arg.has(x) or ne
 
 remark('Integrals have been separated')
 
-Int_lambdas = [lambdify(x, term, modules=[{'sympy.core.mul.Mul': prod}, cupy]) for term in Es_int]
+Int_lambdas = [lambdify((x, y), term, modules=[{'sympy.core.mul.Mul': prod}, cupy]) for term in Es_int]
 
 remark('lambdas for integrals have been created')
 
