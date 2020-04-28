@@ -3,10 +3,13 @@ from datetime import datetime
 from os import replace
 from typing import Union
 
+import cupy
 import matplotlib.pyplot as plt
 import numpy as np
+import scipy
 
 import scipy.integrate as integrate
+from cupy.internal import prod
 from symengine import expand, lambdify as lambdify_se
 from sympy import Symbol, pi, sin, cos, symbols, diff, Matrix, S, integrate, latex, Integral, init_printing, \
     Derivative, cse, lambdify, Poly, separatevars, collect, expand_power_base, Mul, Add
@@ -25,7 +28,7 @@ class StopWatch:
 
     def lap(self):
         return datetime.now() - self.start_time
-    
+
     def remark(self, comment: str):
         print(comment + ':', self.lap())
 
@@ -40,11 +43,6 @@ def output_latex(path: str, *args):
             '\\documentclass{article}\n\\usepackage{breqn}\n\\usepackage[margin=0.1in]{geometry}\n\\begin{document}\n\\begin{dmath}\n')
         file.write(str(*[latex(func) + '\n ' for func in args]).replace('psi', '\\Psi^'))
         file.write('\\end{dmath}\n\\end{document}')
-
-
-# def scipy_integrate(functional, definitions):
-#     # like: scipy_integrate(Es, (x, 0, aa))
-#     return integrate.quad(functional, definitions[1], definitions[2])
 
 
 stop_watch = StopWatch()
@@ -90,8 +88,6 @@ def create_functional(n):
     Y_4 = sin((2 * i - 1) * pi * y / bb)
     Y_5 = cos((2 * i - 1) * pi * y / bb)
 
-    # print_latex(X_1, X_2, X_3, X_4, X_5, Y_1, Y_2, Y_3, Y_4, Y_5)
-
     U = 0
     V = 0
     W = 0
@@ -124,8 +120,6 @@ def create_functional(n):
             Psix += psix[m][g] * X_4.subs(i, m + 1) * Y_4.subs(i, g + 1)
             Psiy += psiy[m][g] * X_5.subs(i, m + 1) * Y_5.subs(i, g + 1)
 
-    # print_latex(U, V, W, Psix, Psiy)
-
     Theta1 = -(diff(W, x)) / A - k_x * U
 
     Theta2 = -(diff(W, y)) / B - k_y * V
@@ -146,40 +140,20 @@ def create_functional(n):
             (diff(Psiy, x)) / A + (diff(Psix, y)) / B - ((diff(A, y)) * Psix + (diff(B, x)) * Psiy) / (
             A * B))
 
-    print("#Mx")
-
     Mx = (S(1) / 12) * E_1 * h ** 3 * (mu_21 * kappa2 + kappa1) / (1 - mu_12 * mu_21)
-
-    print("#My")
-
     My = (S(1) / 12) * E_2 * h ** 3 * (mu_12 * kappa1 + kappa2) / (1 - mu_12 * mu_21)
-
-    print("#Mxy")
     Mxy = (S(1) / 6) * G_12 * h ** 3 * kappa12
-
-    print("#Myx")
     Myx = (S(1) / 6) * G_12 * h ** 3 * kappa12
-
-    print("#Nx")
     Nx = (E_1 * h / (1 - mu_12 * mu_21)) * (ex + mu_21 * ey)
-
-    print("#Ny")
     Ny = (E_2 * h / (1 - mu_12 * mu_21)) * (ey + mu_12 * ex)
-
     Nxy = G_12 * h * gxy
-    print("Nxy")
-
     Nyx = G_12 * h * gxy
-    print("Nyx")
 
     Px = 0
     Py = 0
+
     Qx = G_13 * k * h * (Psix - Theta1)
-    print("Qx")
-
     Qy = G_23 * k * h * (Psiy - Theta2)
-
-    print("Qy")
 
     Epp1 = Nx * ex + Ny * ey
     Epp3 = Epp1 + S(1) / 2 * (Nxy + Nyx) * gxy
@@ -191,6 +165,7 @@ def create_functional(n):
     AA = Px * U + Py * V + W * q
 
     Es = EP - AA
+
     return Es, SN, W
 
 
