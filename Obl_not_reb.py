@@ -9,7 +9,7 @@ import numpy as np
 import scipy.integrate as integrate
 from symengine import expand, lambdify as lambdify_se
 from sympy import Symbol, pi, sin, cos, symbols, diff, Matrix, S, integrate, latex, Integral, init_printing, \
-    Derivative, cse, lambdify, Poly, separatevars, collect, expand_power_base
+    Derivative, cse, lambdify, Poly, separatevars, collect, expand_power_base, Mul, Add
 from numpy import linalg as la
 from sympy.integrals.trigonometry import trigintegrate
 
@@ -225,10 +225,8 @@ Es = expand(Es)
 
 remark('expanding is done')
 
-# Es = expand_power_base(collect(Es, [x, y]), force=True)
-# print(Es)
-#
-# stop_watch.remark('separating is done')
+Es_diff = Add(*[Mul(*arg.args[:-2]) for arg in Es.args])
+Es_int = Add(*[Mul(*arg.args[-2:]) for arg in Es.args])
 
 remark('Derivatives and Integrals have been separated')
 
@@ -253,7 +251,7 @@ remark('Jacobi and Hessian created (without integrating)')
 Jacobi = Matrix(Jacobi)
 Hessian = Matrix(Hessian)
 
-stop_watch.remark('matrices created')
+remark('matrices created')
 
 Coef = np.zeros(len(SN), dtype=np.float)
 XkPred = np.array(Coef)
