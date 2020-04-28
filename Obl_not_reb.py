@@ -1,22 +1,18 @@
 import sys
 from datetime import datetime
-from os import replace
 from typing import Union
 
 import cupy
 import matplotlib.pyplot as plt
 import numpy as np
 import scipy
-
 import scipy.integrate as integrate
 import sympy
 from cupy.internal import prod
 from scipy.linalg import inv
-from symengine import expand, lambdify as lambdify_se
-from sympy import Symbol, pi, sin, cos, symbols, diff, Matrix, S, integrate, latex, Integral, init_printing, \
-    Derivative, cse, lambdify, Poly, separatevars, collect, expand_power_base, Mul, Add
-from numpy import linalg as la
-from sympy.integrals.trigonometry import trigintegrate
+from symengine import expand
+from sympy import Symbol, pi, sin, cos, symbols, diff, S, latex, init_printing, \
+    lambdify, Mul, Add
 
 sys.setrecursionlimit(10 ** 6)
 Num = Union[int, float]
@@ -209,28 +205,20 @@ Es_diff = [Mul(*[nested_arg for nested_arg in arg.args if not nested_arg.has(x, 
 
 remark('Derivatives have been separated')
 
-Es_int_x = [Mul(*[nested_arg for nested_arg in arg.args if nested_arg.has(x)]) for arg in Es.args]
-Es_int_y = [Mul(*[nested_arg for nested_arg in arg.args if nested_arg.has(y)]) for arg in Es.args]
+Es_int = [Mul(*[nested_arg for nested_arg in arg.args if nested_arg.has(x) or nested_arg.has(y)]) for arg in Es.args]
 
 remark('Integrals have been separated')
 
-Int_x_lambdas = [lambdify(x, term, modules=[{'sympy.core.mul.Mul': prod}, cupy]) for term in Es_int_x]
+Int_lambdas = [lambdify(x, term, modules=[{'sympy.core.mul.Mul': prod}, cupy]) for term in Es_int]
 
-remark('lambdas by x have been created')
+remark('lambdas for integrals have been created')
 
-Int_y_lambdas = [lambdify(y, term, modules=[{'sympy.core.mul.Mul': prod}, cupy]) for term in Es_int_y]
+Integral_part = [scipy.integrate.dblquad(int_lambda, 0, values[aa], lambda j: 0, lambda j: values[bb])[0] for int_lambda
+                 in Int_lambdas]
 
-remark('lambdas by y have been created')
+remark('integrals have been created')
 
-Integral_x = [scipy.integrate.quad(lambda_x, 0, values[aa])[0] for lambda_x in Int_x_lambdas]
-
-remark('integrals by x have been created')
-
-Integral_y = [scipy.integrate.quad(lambda_y, 0, values[bb])[0] for lambda_y in Int_y_lambdas]
-
-remark('integrals by y have been created')
-
-Diff_sum = Add(*[Mul(term, Integral_x[i], Integral_y[i]) for i, term in enumerate(Es_diff)])
+Diff_sum = Add(*[Mul(term, Integral_part[i]) for i, term in enumerate(Es_diff)])
 
 remark('General differential function created')
 
