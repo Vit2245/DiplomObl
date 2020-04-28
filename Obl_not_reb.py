@@ -50,7 +50,7 @@ def output_latex(path: str, *args):
 stop_watch = StopWatch()
 remark = stop_watch.remark
 
-n = 1
+n = 2
 N = n ** 2
 
 x = Symbol('x')
@@ -225,13 +225,14 @@ Es = expand(Es)
 
 remark('expanding is done')
 
-Es_diff = [Mul(*arg.args[:-2]) for arg in Es.args]
-Es_int = [Mul(*arg.args[-2:]) for arg in Es.args]
+Es_diff = [Mul(*[nested_arg for nested_arg in arg.args if not nested_arg.has(x, y)]) for arg in Es.args]
+
+remark('Derivatives have been separated')
+
+Es_int_x = [Mul(*[nested_arg for nested_arg in arg.args if nested_arg.has(x)]) for arg in Es.args]
+Es_int_y = [Mul(*[nested_arg for nested_arg in arg.args if nested_arg.has(y)]) for arg in Es.args]
 
 remark('Derivatives and Integrals have been separated')
-
-Es_int_x = [Mul(*[nested_arg for nested_arg in arg.args if nested_arg.has(x)]) for arg in Es_int]
-Es_int_y = [Mul(*[nested_arg for nested_arg in arg.args if nested_arg.has(y)]) for arg in Es_int]
 
 remark('functional created')
 
