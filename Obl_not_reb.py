@@ -234,9 +234,12 @@ Es_int_y = [Mul(*[nested_arg for nested_arg in arg.args if nested_arg.has(y)]) f
 
 remark('Derivatives and Integrals have been separated')
 
-remark('functional created')
+Int_x_lambdas = [lambdify(term, x, 'sympy') for term in Es_int_x]
 
-Int_lambdas = [lambdify(term, x) for term in Es_int_x]
+remark('lambdas by x created')
+
+Int_y_lambdas = [lambdify(term, y) for term in Es_int_x]
+
 Jacobi = []
 for i in SN:
     Jacobi.append(diff(Es_integrated, i))
