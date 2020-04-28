@@ -2,13 +2,12 @@ import sys
 from datetime import datetime
 from typing import Union
 
-import cupy
 import matplotlib.pyplot as plt
+import numpy
 import numpy as np
 import scipy
 import scipy.integrate as integrate
 import sympy
-from cupy.internal import prod
 from scipy.linalg import inv
 from symengine import expand
 from sympy import Symbol, pi, sin, cos, symbols, diff, S, latex, init_printing, \
@@ -209,7 +208,7 @@ Es_int = [Mul(*[nested_arg for nested_arg in arg.args if nested_arg.has(x) or ne
 
 remark('Integrals have been separated')
 
-Int_lambdas = [lambdify((x, y), term, modules=[{'sympy.core.mul.Mul': prod}, cupy]) for term in Es_int]
+Int_lambdas = [lambdify((x, y), term, modules=[{'sympy.core.mul.Mul': numpy.prod}, numpy]) for term in Es_int]
 
 remark('lambdas for integrals have been created')
 
@@ -251,8 +250,8 @@ Buf = np.zeros((5 * N), dtype=float)
 dict_coef = dict(zip(SN, list(Coef)))
 dict_coef.update({q: 0.})
 
-lambda_hessian = lambdify(dict_coef.keys(), Hessian, cupy)
-lambda_jacobi = lambdify(dict_coef.keys(), Jacobi, cupy)
+lambda_hessian = lambdify(dict_coef.keys(), Hessian, numpy)
+lambda_jacobi = lambdify(dict_coef.keys(), Jacobi, numpy)
 
 remark('preparations were done')
 
