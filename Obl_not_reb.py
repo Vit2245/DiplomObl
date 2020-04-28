@@ -9,7 +9,9 @@ import numpy as np
 import scipy
 
 import scipy.integrate as integrate
+import sympy
 from cupy.internal import prod
+from scipy.linalg import inv
 from symengine import expand, lambdify as lambdify_se
 from sympy import Symbol, pi, sin, cos, symbols, diff, Matrix, S, integrate, latex, Integral, init_printing, \
     Derivative, cse, lambdify, Poly, separatevars, collect, expand_power_base, Mul, Add
@@ -48,7 +50,7 @@ def output_latex(path: str, *args):
 stop_watch = StopWatch()
 remark = stop_watch.remark
 
-n = 2
+n = 1
 N = n ** 2
 
 x = Symbol('x')
@@ -191,7 +193,10 @@ values = {
     B: 1.
 }
 
-Es_lambda_values = lambdify(values.keys(), Es, 'sympy')
+W_lambda_values = lambdify(values.keys(), W, sympy)
+W = W_lambda_values(*values.values())
+
+Es_lambda_values = lambdify(values.keys(), Es, sympy)
 Es = Es_lambda_values(*values.values())
 
 remark('replacing is done')
@@ -225,9 +230,15 @@ Integral_y = [scipy.integrate.quad(lambda_y, 0, values[bb])[0] for lambda_y in I
 
 remark('integrals by y have been created')
 
+Diff_sum = Add(*[Mul(term, Integral_x[i], Integral_y[i]) for i, term in enumerate(Es_diff)])
+
+remark('General differential function created')
+
 Jacobi = []
 for i in SN:
-    Jacobi.append(diff(Es_integrated, i))
+    Jacobi.append(diff(Diff_sum, i))
+
+remark("Jacobi's list have been created")
 
 Hessian = []
 for dpU in Jacobi:
@@ -236,12 +247,7 @@ for dpU in Jacobi:
         lineOfHessian.append(diff(dpU, symb))
     Hessian.append(lineOfHessian)
 
-remark('Jacobi and Hessian created (without integrating)')
-
-Jacobi = Matrix(Jacobi)
-Hessian = Matrix(Hessian)
-
-remark('matrices created')
+remark('Hessian have been created')
 
 Coef = np.zeros(len(SN), dtype=np.float)
 XkPred = np.array(Coef)
@@ -257,12 +263,10 @@ Buf = np.zeros((5 * N), dtype=float)
 dict_coef = dict(zip(SN, list(Coef)))
 dict_coef.update({q: 0.})
 
-print(Jacobi)
+lambda_hessian = lambdify(dict_coef.keys(), Hessian, cupy)
+lambda_jacobi = lambdify(dict_coef.keys(), Jacobi, cupy)
 
-lambda_hessian = lambdify(dict_coef.keys(), Hessian, 'sympy')
-lambda_jacobi = lambdify(dict_coef.keys(), Jacobi, 'sympy')
-
-remark('preparations is done')
+remark('preparations were done')
 
 # # Computing is beginning
 # # ─────────────────────────────────────────────────────
@@ -280,10 +284,11 @@ Q_y = []
 for qi in range(0, MAX + 1):
     qq = round(delta_q * qi, 2)  # Увеличиваем нагрузку
     dict_coef.update({q: qq})
-    print('Увеличиваем нагрузку qq={: f}'.format(qq), " коэффициенты: ", end="")
     delta = 1
     kol_iter = 0
-    print(dict_coef)
+
+    remark(f'Увеличиваем нагрузку q={qq} коэффициенты: {dict_coef}')
+
     while delta > epsilon and kol_iter <= 15:
         dict_coef.update(zip(SN, list(Coef)))
 
@@ -291,9 +296,7 @@ for qi in range(0, MAX + 1):
         Hessian = lambda_hessian(*dict_values)
         Jacobi = lambda_jacobi(*dict_values)
 
-        print(Jacobi)
-
-        Rans = np.dot(np.array(la.inv(Hessian)), Jacobi).reshape(Coef.shape)
+        Rans = np.dot(inv(np.array(Hessian)), Jacobi).reshape(Coef.shape)
         tmp = Coef - Rans
         Coef = np.array(tmp)  # Находим решение методом Ньютона
 
@@ -326,7 +329,7 @@ remark('answer calculated')
 
 fig = plt.figure(num=1, figsize=(8, 6))
 plt.plot(WC, Q_y, color='r', linestyle='--', marker='o', markersize=3, label='W((a+a1)/2,b/2)')
-# plt.plot(WC2, Q_y, color='b', linestyle='--', marker='o', markersize=3, label='W((a+a1)/4,b/4)')
+plt.plot(WC2, Q_y, color='b', linestyle='--', marker='o', markersize=3, label='W((a+a1)/4,b/4)')
 plt.legend(loc='upper left')
 grid1 = plt.grid(True)
 plt.xlabel("W,м")
