@@ -207,13 +207,23 @@ remark('Derivatives have been separated')
 Es_int_x = [Mul(*[nested_arg for nested_arg in arg.args if nested_arg.has(x)]) for arg in Es.args]
 Es_int_y = [Mul(*[nested_arg for nested_arg in arg.args if nested_arg.has(y)]) for arg in Es.args]
 
-remark('Derivatives and Integrals have been separated')
+remark('Integrals have been separated')
 
-Int_x_lambdas = [lambdify(term, x, 'sympy') for term in Es_int_x]
+Int_x_lambdas = [lambdify(x, term, modules=[{'sympy.core.mul.Mul': prod}, cupy]) for term in Es_int_x]
 
-remark('lambdas by x created')
+remark('lambdas by x have been created')
 
-Int_y_lambdas = [lambdify(term, y) for term in Es_int_x]
+Int_y_lambdas = [lambdify(y, term, modules=[{'sympy.core.mul.Mul': prod}, cupy]) for term in Es_int_y]
+
+remark('lambdas by y have been created')
+
+Integral_x = [scipy.integrate.quad(lambda_x, 0, values[aa])[0] for lambda_x in Int_x_lambdas]
+
+remark('integrals by x have been created')
+
+Integral_y = [scipy.integrate.quad(lambda_y, 0, values[bb])[0] for lambda_y in Int_y_lambdas]
+
+remark('integrals by y have been created')
 
 Jacobi = []
 for i in SN:
