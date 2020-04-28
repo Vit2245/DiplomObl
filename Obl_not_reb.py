@@ -48,6 +48,7 @@ def output_latex(path: str, *args):
 
 
 stop_watch = StopWatch()
+remark = stop_watch.remark
 
 n = 1
 N = n ** 2
@@ -218,23 +219,23 @@ values = {
 Es_lambda_values = lambdify(values.keys(), Es, 'sympy')
 Es = Es_lambda_values(*values.values())
 
-stop_watch.remark('replacing is done')
+remark('replacing is done')
 
 Es = expand(Es)
 
-stop_watch.remark('expanding is done')
+remark('expanding is done')
 
 # Es = expand_power_base(collect(Es, [x, y]), force=True)
 # print(Es)
 #
 # stop_watch.remark('separating is done')
 
-
+remark('Derivatives and Integrals have been separated')
 
 Es_integrated_x = Integral(Es, (x, 0, values[aa]))
 Es_integrated = Integral(Es_integrated_x, (y, 0, values[bb]))
 
-stop_watch.remark('functional created')
+remark('functional created')
 
 Jacobi = []
 for i in SN:
@@ -247,7 +248,7 @@ for dpU in Jacobi:
         lineOfHessian.append(diff(dpU, symb))
     Hessian.append(lineOfHessian)
 
-stop_watch.remark('Jacobi and Hessian created (without integrating)')
+remark('Jacobi and Hessian created (without integrating)')
 
 Jacobi = Matrix(Jacobi)
 Hessian = Matrix(Hessian)
@@ -273,7 +274,7 @@ print(Jacobi)
 lambda_hessian = lambdify(dict_coef.keys(), Hessian, 'sympy')
 lambda_jacobi = lambdify(dict_coef.keys(), Jacobi, 'sympy')
 
-stop_watch.remark('preparations is done')
+remark('preparations is done')
 
 # # Computing is beginning
 # # ─────────────────────────────────────────────────────
@@ -333,7 +334,7 @@ for qi in range(0, MAX + 1):
     wc23 = wc22.subs(y, y_quarter)
     WC2.append(wc23)
 
-stop_watch.remark('answer calculated')
+remark('answer calculated')
 
 fig = plt.figure(num=1, figsize=(8, 6))
 plt.plot(WC, Q_y, color='r', linestyle='--', marker='o', markersize=3, label='W((a+a1)/2,b/2)')
@@ -345,4 +346,4 @@ plt.ylabel("q,МПа")
 plt.title('График прогиба W')
 plt.show()
 
-stop_watch.remark('full time:')
+remark('full time')
