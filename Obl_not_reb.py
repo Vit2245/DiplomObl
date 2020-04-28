@@ -227,6 +227,8 @@ remark('expanding is done')
 
 Es_diff = Add(*[Mul(*arg.args[:-2]) for arg in Es.args])
 Es_int = Add(*[Mul(*arg.args[-2:]) for arg in Es.args])
+Es_int_x = Add(*[nested_arg for arg in Es_int.args for nested_arg in arg.args if nested_arg.has(x)])
+Es_int_y = Add(*[nested_arg for arg in Es_int.args for nested_arg in arg.args if nested_arg.has(y)])
 
 remark('Derivatives and Integrals have been separated')
 
