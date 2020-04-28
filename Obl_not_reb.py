@@ -225,18 +225,17 @@ Es = expand(Es)
 
 remark('expanding is done')
 
-Es_diff = Add(*[Mul(*arg.args[:-2]) for arg in Es.args])
-Es_int = Add(*[Mul(*arg.args[-2:]) for arg in Es.args])
-Es_int_x = Add(*[nested_arg for arg in Es_int.args for nested_arg in arg.args if nested_arg.has(x)])
-Es_int_y = Add(*[nested_arg for arg in Es_int.args for nested_arg in arg.args if nested_arg.has(y)])
+Es_diff = [Mul(*arg.args[:-2]) for arg in Es.args]
+Es_int = [Mul(*arg.args[-2:]) for arg in Es.args]
 
 remark('Derivatives and Integrals have been separated')
 
-Es_integrated_x = Integral(Es, (x, 0, values[aa]))
-Es_integrated = Integral(Es_integrated_x, (y, 0, values[bb]))
+Es_int_x = [Mul(*[nested_arg for nested_arg in arg.args if nested_arg.has(x)]) for arg in Es_int]
+Es_int_y = [Mul(*[nested_arg for nested_arg in arg.args if nested_arg.has(y)]) for arg in Es_int]
 
 remark('functional created')
 
+Int_lambdas = [lambdify(term, x) for term in Es_int_x]
 Jacobi = []
 for i in SN:
     Jacobi.append(diff(Es_integrated, i))
