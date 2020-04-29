@@ -2,6 +2,7 @@ import sys
 from datetime import datetime
 from typing import Union
 
+import cupy
 import matplotlib.pyplot as plt
 import numpy
 import numpy as np
@@ -37,8 +38,9 @@ def print_latex(*args):
 def output_latex(path: str, *args):
     with open(path, 'w') as file:
         file.write(
-            '\\documentclass{article}\n\\usepackage{breqn}\n\\usepackage[margin=0.1in]{geometry}\n\\begin{document}\n\\begin{dmath}\n')
-        file.write(str(*[latex(func) + '\n ' for func in args]).replace('psi', '\\Psi^'))
+            '\\documentclass{article}\n\\usepackage{breqn}\n\\usepackage[margin=0.1in]{geometry}\n\\begin{'
+            'document}\n\\begin{dmath}\n')
+        file.write(str(*[latex(func) + '\n ' for func in args]).replace('psi', '\\psi_^'))
         file.write('\\end{dmath}\n\\end{document}')
 
 
@@ -52,44 +54,46 @@ x = Symbol('x')
 y = Symbol('y')
 q = Symbol('q')
 i = Symbol('i')
-aa = Symbol('aa')
-bb = Symbol('bb')
-k_x = Symbol('kx')
-k_y = Symbol('ky')
-E_1 = Symbol('E1')
-E_2 = Symbol('E2')
+upper_limit_x = Symbol('aa')
+upper_limit_y = Symbol('bb')
+principal_curvature_x = Symbol('kx')
+principal_curvature_y = Symbol('ky')
+young_modulus_1 = Symbol('E1')
+young_modulus_2 = Symbol('E2')
 k = Symbol('k')
 r = Symbol('r')
 z = Symbol('z')
-mu_12 = Symbol('mu12')
-mu_21 = Symbol('mu21')
+Poisson_coefficient_12 = Symbol('mu12')
+Poisson_coefficient_21 = Symbol('mu21')
 h = Symbol('h')
-G_12 = Symbol('G12')
-G_13 = Symbol('G13')
-G_23 = Symbol('G23')
-A = Symbol('A')
-B = Symbol('B')
+Shear_modulus_12 = Symbol('G12')
+Shear_modulus_13 = Symbol('G13')
+Shear_modulus_23 = Symbol('G23')
+Lame_A = Symbol('A')
+Lame_B = Symbol('B')
 
 
 def create_functional(n):
     f = 6 * (1 / 4 - i ** 2 / h ** 2)
 
-    X_1 = sin(2 * i * pi * x / aa)
-    X_2 = sin((2 * i - 1) * pi * x / aa)
-    X_3 = sin((2 * i - 1) * pi * x / aa)
-    X_4 = cos((2 * i - 1) * pi * x / aa)
-    X_5 = sin((2 * i - 1) * pi * x / aa)
-    Y_1 = sin((2 * i - 1) * pi * y / bb)
-    Y_2 = sin(2 * i * pi * y / bb)
-    Y_3 = sin((2 * i - 1) * pi * y / bb)
-    Y_4 = sin((2 * i - 1) * pi * y / bb)
-    Y_5 = cos((2 * i - 1) * pi * y / bb)
+    approximate = {x: {}, y: {}}
+
+    approximate[x][1] = sin(2 * i * pi * x / upper_limit_x)
+    approximate[x][2] = sin((2 * i - 1) * pi * x / upper_limit_x)
+    approximate[x][3] = sin((2 * i - 1) * pi * x / upper_limit_x)
+    approximate[x][4] = cos((2 * i - 1) * pi * x / upper_limit_x)
+    approximate[x][5] = sin((2 * i - 1) * pi * x / upper_limit_x)
+    approximate[y][1] = sin((2 * i - 1) * pi * y / upper_limit_y)
+    approximate[y][2] = sin(2 * i * pi * y / upper_limit_y)
+    approximate[y][3] = sin((2 * i - 1) * pi * y / upper_limit_y)
+    approximate[y][4] = sin((2 * i - 1) * pi * y / upper_limit_y)
+    approximate[y][5] = cos((2 * i - 1) * pi * y / upper_limit_y)
 
     U = 0
     V = 0
     W = 0
-    Psix = 0
-    Psiy = 0
+    psi_x = 0
+    psi_y = 0
 
     u = [[None] * n for _ in range(n)]
     v = [[None] * n for _ in range(n)]
@@ -109,56 +113,69 @@ def create_functional(n):
     for line in u + v + w + psix + psiy:
         SN += line
 
+    def fill(dim_1, dim_2, symbols_list, group, param) -> list:
+        return symbols_list[dim_1][dim_2] \
+               * approximate[x][group].subs(param, dim_1 + 1) \
+               * approximate[y][group].subs(param, dim_2 + 1)
+
     for m in range(n):
         for g in range(n):
-            U += u[m][g] * X_1.subs(i, m + 1) * Y_1.subs(i, g + 1)
-            V += v[m][g] * X_2.subs(i, m + 1) * Y_2.subs(i, g + 1)
-            W += w[m][g] * X_3.subs(i, m + 1) * Y_3.subs(i, g + 1)
-            Psix += psix[m][g] * X_4.subs(i, m + 1) * Y_4.subs(i, g + 1)
-            Psiy += psiy[m][g] * X_5.subs(i, m + 1) * Y_5.subs(i, g + 1)
+            U += fill(m, g, u, 1, i)
+            V += fill(m, g, v, 2, i)
+            W += fill(m, g, w, 3, i)
+            psi_x += fill(m, g, psix, 4, i)
+            psi_y += fill(m, g, psiy, 5, i)
 
-    Theta1 = -(diff(W, x)) / A - k_x * U
+    Theta1 = -(diff(W, x)) / Lame_A - principal_curvature_x * U
+    Theta2 = -(diff(W, y)) / Lame_B - principal_curvature_y * V
 
-    Theta2 = -(diff(W, y)) / B - k_y * V
+    ex = (diff(U, x)) / Lame_A + (diff(Lame_A, y)) * V / (Lame_A * Lame_B) - principal_curvature_x * W + (
+            S(1) / 2) * Theta1 ** 2
 
-    ex = (diff(U, x)) / A + (diff(A, y)) * V / (A * B) - k_x * W + (S(1) / 2) * Theta1 ** 2
+    ey = (diff(V, y)) / Lame_B + (diff(Lame_B, x)) * U / (Lame_A * Lame_B) - principal_curvature_y * W + (
+            S(1) / 2) * Theta2 ** 2
 
-    ey = (diff(V, y)) / B + (diff(B, x)) * U / (A * B) - k_y * W + (S(1) / 2) * Theta2 ** 2
+    gxy = (diff(V, x)) / Lame_A + (diff(U, y)) / Lame_B - (diff(Lame_A, y)) * U / (Lame_A * Lame_B) - (
+            diff(Lame_B, x) * V / (
+            Lame_A * Lame_B) + Theta1 * Theta2)
 
-    gxy = (diff(V, x)) / A + (diff(U, y)) / B - (diff(A, y)) * U / (A * B) - (diff(B, x) * V / (
-            A * B) + Theta1 * Theta2)
+    gxz = k * (f.subs(i, z)) * (psi_x - Theta1)
+    gyz = k * (f.subs(i, z)) * (psi_y - Theta2)
 
-    gxz = k * (f.subs(i, z)) * (Psix - Theta1)
-    gyz = k * (f.subs(i, z)) * (Psiy - Theta2)
-
-    kappa1 = (diff(Psix, x)) / A + (diff(A, y)) * Psiy / (A * B)
-    kappa2 = (diff(Psiy, y)) / B + (diff(B, x)) * Psix / (A * B)
+    kappa1 = (diff(psi_x, x)) / Lame_A + (diff(Lame_A, y)) * psi_y / (Lame_A * Lame_B)
+    kappa2 = (diff(psi_y, y)) / Lame_B + (diff(Lame_B, x)) * psi_x / (Lame_A * Lame_B)
     kappa12 = S(1) / 2 * (
-            (diff(Psiy, x)) / A + (diff(Psix, y)) / B - ((diff(A, y)) * Psix + (diff(B, x)) * Psiy) / (
-            A * B))
+            (diff(psi_y, x)) / Lame_A + (diff(psi_x, y)) / Lame_B - (
+            (diff(Lame_A, y)) * psi_x + (diff(Lame_B, x)) * psi_y) / (
+                    Lame_A * Lame_B))
 
-    Mx = (S(1) / 12) * E_1 * h ** 3 * (mu_21 * kappa2 + kappa1) / (1 - mu_12 * mu_21)
-    My = (S(1) / 12) * E_2 * h ** 3 * (mu_12 * kappa1 + kappa2) / (1 - mu_12 * mu_21)
-    Mxy = (S(1) / 6) * G_12 * h ** 3 * kappa12
-    Myx = (S(1) / 6) * G_12 * h ** 3 * kappa12
-    Nx = (E_1 * h / (1 - mu_12 * mu_21)) * (ex + mu_21 * ey)
-    Ny = (E_2 * h / (1 - mu_12 * mu_21)) * (ey + mu_12 * ex)
-    Nxy = G_12 * h * gxy
-    Nyx = G_12 * h * gxy
+    moment_x = (S(1) / 12) * young_modulus_1 * h ** 3 * (Poisson_coefficient_21 * kappa2 + kappa1) / (
+            1 - Poisson_coefficient_12 * Poisson_coefficient_21)
+    moment_y = (S(1) / 12) * young_modulus_2 * h ** 3 * (Poisson_coefficient_12 * kappa1 + kappa2) / (
+            1 - Poisson_coefficient_12 * Poisson_coefficient_21)
+    moment_xy = (S(1) / 6) * Shear_modulus_12 * h ** 3 * kappa12
+    moment_yx = (S(1) / 6) * Shear_modulus_12 * h ** 3 * kappa12
+    exertion_x = (young_modulus_1 * h / (1 - Poisson_coefficient_12 * Poisson_coefficient_21)) * (
+            ex + Poisson_coefficient_21 * ey)
+    exertion_y = (young_modulus_2 * h / (1 - Poisson_coefficient_12 * Poisson_coefficient_21)) * (
+            ey + Poisson_coefficient_12 * ex)
+    exertion_xy = Shear_modulus_12 * h * gxy
+    exertion_yx = Shear_modulus_12 * h * gxy
 
     Px = 0
     Py = 0
 
-    Qx = G_13 * k * h * (Psix - Theta1)
-    Qy = G_23 * k * h * (Psiy - Theta2)
+    Qx = Shear_modulus_13 * k * h * (psi_x - Theta1)
+    Qy = Shear_modulus_23 * k * h * (psi_y - Theta2)
 
-    Epp1 = Nx * ex + Ny * ey
-    Epp3 = Epp1 + S(1) / 2 * (Nxy + Nyx) * gxy
-    Epp4 = Epp3 + Mx * kappa1 + My * kappa2
-    Epp6 = Epp4 + (Mxy + Myx) * kappa12
-    Epp7 = Epp6 + Qx * (Psix - Theta1)
-    Epp8 = Epp7 + Qy * (Psiy - Theta2)
-    EP = S(1) / 2 * Epp8
+    potential_energy1 = exertion_x * ex + exertion_y * ey
+    potential_energy3 = potential_energy1 + S(1) / 2 * (exertion_xy + exertion_yx) * gxy
+    potential_energy4 = potential_energy3 + moment_x * kappa1 + moment_y * kappa2
+    potential_energy6 = potential_energy4 + (moment_xy + moment_yx) * kappa12
+    potential_energy7 = potential_energy6 + Qx * (psi_x - Theta1)
+    potential_energy8 = potential_energy7 + Qy * (psi_y - Theta2)
+
+    EP = S(1) / 2 * potential_energy8
     AA = Px * U + Py * V + W * q
 
     Es = EP - AA
@@ -169,23 +186,23 @@ def create_functional(n):
 Es, SN, W = create_functional(n)
 
 values = {
-    aa: round(60 * 0.09, 2),
-    bb: round(60 * 0.09, 2),
-    k_x: 1 / 225 * 0.09,
-    k_y: 1 / 225 * 0.09,
-    E_1: 2.1 * 10 ** 5,
-    E_2: 2.1 * 10 ** 5,
+    upper_limit_x: round(60 * 0.09, 2),
+    upper_limit_y: round(60 * 0.09, 2),
+    principal_curvature_x: 1 / 225 * 0.09,
+    principal_curvature_y: 1 / 225 * 0.09,
+    young_modulus_1: 2.1 * 10 ** 5,
+    young_modulus_2: 2.1 * 10 ** 5,
     k: 5 / 6,
     r: 225 * 0.09,
     z: -(1 / 2) * 0.09,
-    mu_12: 0.3,
-    mu_21: 0.3,
+    Poisson_coefficient_12: 0.3,
+    Poisson_coefficient_21: 0.3,
     h: 0.09,
-    G_12: 0.33 * 10 ** 5,
-    G_13: 0.33 * 10 ** 5,
-    G_23: 0.33 * 10 ** 5,
-    A: 1.,
-    B: 1.
+    Shear_modulus_12: 0.33 * 10 ** 5,
+    Shear_modulus_13: 0.33 * 10 ** 5,
+    Shear_modulus_23: 0.33 * 10 ** 5,
+    Lame_A: 1.,
+    Lame_B: 1.
 }
 
 W_lambda_values = lambdify(values.keys(), W, sympy)
@@ -200,24 +217,26 @@ Es = expand(Es)
 
 remark('expanding is done')
 
-Es_diff = [Mul(*[nested_arg for nested_arg in arg.args if not nested_arg.has(x, y)]) for arg in Es.args]
+Es_diff = [Mul(*[nested_arg for nested_arg in arg.args if not nested_arg.has(x) and not nested_arg.has(y)]) for arg in Es.args]
 
 remark('Derivatives have been separated')
 
-Es_int = [Mul(*[nested_arg for nested_arg in arg.args if nested_arg.has(x) or nested_arg.has(y)]) for arg in Es.args]
+Es_int_x = [Mul(*[nested_arg for nested_arg in arg.args if nested_arg.has(x)]) for arg in Es.args]
+Es_int_y = [Mul(*[nested_arg for nested_arg in arg.args if nested_arg.has(y)]) for arg in Es.args]
 
 remark('Integrals have been separated')
 
-Int_lambdas = [lambdify((x, y), term, modules=[{'sympy.core.mul.Mul': numpy.prod}, numpy]) for term in Es_int]
+Int_lambdas_x = [lambdify(x, term * values[Lame_A], modules=[{'Mul': cupy.prod}, cupy]) for term in Es_int_x]
+Int_lambdas_y = [lambdify(y, term * values[Lame_B], modules=[{'Mul': cupy.prod}, cupy]) for term in Es_int_y]
 
 remark('lambdas for integrals have been created')
 
-Integral_part = [scipy.integrate.dblquad(int_lambda, 0, values[aa], lambda j: 0, lambda j: values[bb])[0] for int_lambda
-                 in Int_lambdas]
+Integral_x = [scipy.integrate.quad(int_lambda, 0, values[upper_limit_x])[0] for int_lambda in Int_lambdas_x]
+Integral_y = [scipy.integrate.quad(int_lambda, 0, values[upper_limit_y])[0] for int_lambda in Int_lambdas_y]
 
 remark('integrals have been created')
 
-Diff_sum = Add(*[Mul(term, Integral_part[i]) for i, term in enumerate(Es_diff)])
+Diff_sum = Add(*[Mul(term, Integral_x[i], Integral_y[i]) for i, term in enumerate(Es_diff)])
 
 remark('General differential function created')
 
@@ -258,10 +277,10 @@ remark('preparations were done')
 # # Computing is beginning
 # # ─────────────────────────────────────────────────────
 aa1 = 0
-x_center = (values[aa] + aa1) / 2
-x_quarter = (values[aa] + aa1) / 4
-y_center = values[bb] / 2
-y_quarter = values[bb] / 4
+x_center = (values[upper_limit_x] + aa1) / 2
+x_quarter = (values[upper_limit_x] + aa1) / 4
+y_center = values[upper_limit_y] / 2
+y_quarter = values[upper_limit_y] / 4
 epsilon = 1 * 10 ** (-5)
 delta_q = 0.1
 MAX = 33
