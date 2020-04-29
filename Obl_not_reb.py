@@ -27,8 +27,8 @@ class StopWatch:
     def lap(self):
         return datetime.now() - self.start_time
 
-    def remark(self, comment: str):
-        print(comment + ':', self.lap())
+    def remark(self, comment: str, *args, **kwargs):
+        print(comment, ':', self.lap(), *args, **kwargs)
 
 
 def print_latex(*args):
@@ -285,6 +285,7 @@ y_quarter = values[upper_limit_y] / 4
 epsilon = 1 * 10 ** (-5)
 delta_q = 0.1
 MAX = 40
+MAX_ITERATION_COUNT = 150
 
 Q_y = []
 
@@ -294,9 +295,9 @@ for qi in range(0, MAX + 1):
     delta = 1
     kol_iter = 0
 
-    remark(f'Увеличиваем нагрузку q={qq} коэффициенты: {dict_coef}')
+    remark(f'Increases the load q={qq}', end='\t')
 
-    while delta > epsilon and kol_iter <= 15:
+    while delta > epsilon and kol_iter <= MAX_ITERATION_COUNT:
         dict_coef.update(zip(SN, list(Coef)))
 
         dict_values = dict_coef.values()
@@ -313,7 +314,7 @@ for qi in range(0, MAX + 1):
 
         kol_iter += 1
 
-    print("kol_iter=", kol_iter, "delta=", delta)
+    print("iterations count =", kol_iter, "delta =", delta)
     wc1 = W
     Xk_new = list(Coef)
     for wi in range(2 * N, 3 * N):
