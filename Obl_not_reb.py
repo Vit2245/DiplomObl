@@ -188,8 +188,8 @@ Es, SN, W = create_functional(n)
 values = {
     upper_limit_x: round(60 * 0.09, 2),
     upper_limit_y: round(60 * 0.09, 2),
-    principal_curvature_x: 1 / 225 * 0.09,
-    principal_curvature_y: 1 / 225 * 0.09,
+    principal_curvature_x: 1 / (225 * 0.09),
+    principal_curvature_y: 1 / (225 * 0.09),
     young_modulus_1: 2.1 * 10 ** 5,
     young_modulus_2: 2.1 * 10 ** 5,
     k: 5 / 6,
@@ -217,7 +217,8 @@ Es = expand(Es)
 
 remark('expanding is done')
 
-Es_diff = [Mul(*[nested_arg for nested_arg in arg.args if not nested_arg.has(x) and not nested_arg.has(y)]) for arg in Es.args]
+Es_diff = [Mul(*[nested_arg for nested_arg in arg.args if not nested_arg.has(x) and not nested_arg.has(y)]) for arg in
+           Es.args]
 
 remark('Derivatives have been separated')
 
@@ -283,7 +284,7 @@ y_center = values[upper_limit_y] / 2
 y_quarter = values[upper_limit_y] / 4
 epsilon = 1 * 10 ** (-5)
 delta_q = 0.1
-MAX = 33
+MAX = 40
 
 Q_y = []
 
