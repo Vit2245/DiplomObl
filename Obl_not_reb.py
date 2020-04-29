@@ -9,11 +9,12 @@ import numpy as np
 import scipy.integrate as integrate
 import symengine as sm
 import sympy as sp
+import numba as nb
+from numba import njit, jit
 from numpy import linalg as la
 from sympy.parsing.sympy_parser import parse_expr
-
+from numba import jit
 start_all=datetime.now()
-
 
 sys.setrecursionlimit(10 ** 6)
 
@@ -21,7 +22,7 @@ start_time = datetime.now()
 Num = Union[int, float]
 
 
-n =4
+n = 2
 N = np.power(n, 2)
 h = 0.09
 aa = round(60 * h, 2)
@@ -301,12 +302,11 @@ int_y.close()
 #
 Num = Union[int, float]
 
-
 def replace_by_dict(ep: [str], variables: [str], dictionary: dict, a: Num, b: Num, s=sp.symbols) -> None:
+
     for index, elem in enumerate(ep):
+        # start = datetime.now()
         zamena = ''
-        # print(index)
-        # put the polynom's members in the right order
         for zz in variables:
             if elem.find(zz):
                 i = elem.find(zz)
@@ -320,36 +320,27 @@ def replace_by_dict(ep: [str], variables: [str], dictionary: dict, a: Num, b: Nu
                 ep[index] = elem
             continue
         if zamena[1:] in dictionary:
-            # print("нашел")
-            # print(zamena[1:])
             result = dictionary.get(zamena[1:])
-            # print(result)
-            # print(result)
-            # ep[index] = elem[:-1] + operator + str(result)
             if elem[-1] == '*':
                 ep[index] = elem + '' + str(result)
+                # print("Нашел",datetime.now() - start)
             else:
                 ep[index] = elem + '*' + str(result)
+                # print("Нашел",datetime.now() - start)
         else:
-            # print("не нашел")
             zam_x = sm.expand(zamena[1:])
-            # print(zam_x)
-            # result=Quadrature.simpson(lambda xx: (zam_x*A).subs(x,xx), 0, 5.4, rtol=1e-10)
             if s == 'x':
                 result = integrate.quad(lambda xx: (zam_x * A).subs(x, xx), a, b)[0]
-                if result > -0.00001 and result < 0.00001:
-                    result = 0
+
             else:
                 result = integrate.quad(lambda yy: (zam_x * B).subs(y, yy), a, b)[0]
-                if result > -0.00001 and result < 0.00001:
-                    result = 0
-
             dictionary.update({zamena[1:]: result})
-
             if elem[-1] == '*':
                 ep[index] = elem +'' + str(result)
+                # print("Не Нашел",datetime.now() - start)
             else:
                 ep[index] = elem + '*' + str(result)
+                # print("Не Нашел",datetime.now() - start)
 
 replace_by_dict(EP, variable_x, dict_x, 0, 5.4, 'x')
 
@@ -362,12 +353,6 @@ int_x.close()
 replace_by_dict(EP, variable_y, dict_y, 0, 5.4, 'y')
 
 
-
-
-print("Время раскрытия скобок3")
-print(datetime.now() - start_time)
-print('Всего прошло времени')
-print(datetime.now() - start_all)
 int_y = open('out_y.txt','w')
 with int_y as out:
     for key, val in dict_y.items():
@@ -375,6 +360,10 @@ with int_y as out:
 
 
 int_y.close()
+print("Время раскрытия скобок3")
+print(datetime.now() - start_time)
+print('Всего прошло времени')
+print(datetime.now() - start_all)
 number = 0
 zxc=[]
 with open('агт.txt', 'w') as out:
@@ -432,8 +421,14 @@ start_timeS = datetime.now()
 
 
 
-# def Sum1(el,eln,nn,mass):
-#     el += reduce((lambda x, y: x + y), mass[(eln-1)*nn:eln * nn])
+@jit
+def naive_sum (xx):
+    ans = 0
+
+    for i in xx:
+        ans+=i
+    return ans
+
 # thread1 = Thread(target=Sum1, args=(product,2,nnn,itt,))
 # thread2 = Thread(target=Sum1, args=(product,3,nnn,itt,))
 # thread3 = Thread(target=Sum1, args=(product,4,nnn,itt,))
@@ -481,6 +476,7 @@ start_timeS = datetime.now()
 # thread13.join()
 # thread14.join()
 # thread15.join()
+
 product += reduce((lambda x, y: x + y), itt[:nnn])
 product += reduce((lambda x, y: x + y), itt[nnn:2*nnn])
 product += reduce((lambda x, y: x + y), itt[2*nnn:3*nnn])
@@ -498,14 +494,15 @@ product += reduce((lambda x, y: x + y), itt[13*nnn:14*nnn])
 product += reduce((lambda x, y: x + y), itt[14*nnn:15*nnn])
 product += reduce((lambda x, y: x + y), itt[15*nnn:16*nnn])
 product += reduce((lambda x, y: x + y), itt[16*nnn:])
+
+# product=naive_sum(itt)
+#
+#
+# product=sm.expand(product)
+
+print(product)
 print("Время сумма2")
 print(datetime.now() - start_timeS)
-
-
-
-product=sm.expand(product)
-
-
 
 
 print("Время Allin")
@@ -518,7 +515,7 @@ Es = product - AA
 Es = sm.expand(Es)
 print("Es")
 print(datetime.now() - start_time)
-# print(Es)
+print(Es)
 print('Всего прошло времени')
 print(datetime.now() - start_all)
 # print(Coef)
@@ -526,7 +523,7 @@ start_time1 = datetime.now()
 Jacobi = []
 for i in SN:
     Jacobi.append(sm.expand(sm.diff(Es, i)))
-print(type(Jacobi[0]))
+print(Jacobi)
 print("Время первая производная")
 print(datetime.now() - start_time1)
 print('Всего прошло времени')
@@ -538,7 +535,7 @@ for dpU in Jacobi:
     for symb in SN:
         lineOfHessian.append(sm.diff(dpU, symb))
     Deter.append(lineOfHessian)
-
+print(Deter)
 print(type(Deter[0][0]))
 print("Время вторая производная")
 print(datetime.now() - start_time2)
@@ -566,40 +563,30 @@ BufV = np.zeros((5 * N), dtype=float)
 Buf = np.zeros((5 * N), dtype=float)
 
 delq = 0.1
-MAX = 34
+MAX = 33
 Q_y = []
 
 
 dict_coef = dict(zip(SN, list(Coef)))
 dict_coef.update({q: 0.})
-print(dict_coef.keys())
-start_time = datetime.now()
-SN.append(q)
 
-# start_time = datetime.now()
-# lambda_deter = sm.lambdify([*dict_coef.keys()], Deter)
-#
-# print("Время матрицы dict")
-# print(datetime.now() - start_time)
-# start_time = datetime.now()
-# lambda_jacobi = sm.lambdify([*dict_coef.keys()], Jacobi)
-#
-# print("Время матрицы dict")
-# print(datetime.now() - start_time)
+
+
+
 
 
 
 start_time = datetime.now()
-lambda_deter = sm.lambdify(SN, Deter)
+lambda_deter = sm.lambdify([*dict_coef.keys()], Deter)
 
-print("Время матрицы SN")
-print(datetime.now() - start_time)
-start_time = datetime.now()
-lambda_jacobi= sm.lambdify(SN, Jacobi)
-
-print("Время матрицы SN")
+print("Время матрицы Dict Deter")
 print(datetime.now() - start_time)
 
+start_time = datetime.now()
+lambda_jacobi= sm.lambdify([*dict_coef.keys()], Jacobi)
+
+print("Время матрицы dict Jacobi")
+print(datetime.now() - start_time)
 
 print('Всего прошло времени')
 print(datetime.now() - start_all)
@@ -607,13 +594,15 @@ start_time2 = datetime.now()
 for qi in range(0, MAX + 1):
     qq = round(delq * qi, 2)  # Увеличиваем нагрузку
     dict_coef.update({q: qq})
-    # print('Увеличиваем нагрузку qq={: f}'.format(qq), " коэффициенты: ", end="")
+    print('Увеличиваем нагрузку qq={: f}'.format(qq), " коэффициенты: ", end="")
     delta = 1
     kol_iter = 0
-    # print(dict_coef)
+    print(dict_coef)
     while delta > epsillon:
         dict_coef.update(zip(SN, list(Coef)))
+        print(dict_coef)
         dict_values = dict_coef.values()
+        # print(dict_values)
         Deter2 = lambda_deter(*dict_values)
         Jacobi2 = lambda_jacobi(*dict_values)
         Rans = np.dot(np.array(la.inv(Deter2)), Jacobi2).reshape(Coef.shape)
@@ -622,10 +611,10 @@ for qi in range(0, MAX + 1):
         delta = np.sum(np.abs(Coef - XkPred)) / len(Coef)  # ??
         XkPred = np.array(Coef)
         kol_iter = kol_iter + 1
-        if kol_iter > 22:
+        if kol_iter > 16:
             delta = 0
 
-    # print("kol_iter=", kol_iter, "delta=", delta)
+    print("kol_iter=", kol_iter, "delta=", delta)
     wc1 = W
     Xk_new = list(Coef)
     for wi in range(2 * N, 3 * N):
