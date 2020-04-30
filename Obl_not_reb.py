@@ -11,11 +11,12 @@ import scipy.integrate as integrate
 import sympy
 from scipy.linalg import inv
 from symengine import expand
-from sympy import Symbol, pi, sin, cos, symbols, diff, S, latex, init_printing, \
-    lambdify, Mul, Add
+from sympy import Symbol, pi, sin, cos, symbols, Derivative, S, latex, init_printing, \
+    lambdify, Mul, Add, Basic
 
 sys.setrecursionlimit(10 ** 6)
 Num = Union[int, float]
+Expr = Union[Basic, None]
 
 init_printing()
 
@@ -126,27 +127,27 @@ def create_functional(n):
             psi_x += fill(m, g, psix, 4, i)
             psi_y += fill(m, g, psiy, 5, i)
 
-    Theta1 = -(diff(W, x)) / Lame_A - principal_curvature_x * U
-    Theta2 = -(diff(W, y)) / Lame_B - principal_curvature_y * V
+    Theta1 = -(Derivative(W, x)) / Lame_A - principal_curvature_x * U
+    Theta2 = -(Derivative(W, y)) / Lame_B - principal_curvature_y * V
 
-    ex = (diff(U, x)) / Lame_A + (diff(Lame_A, y)) * V / (Lame_A * Lame_B) - principal_curvature_x * W + (
+    ex = (Derivative(U, x)) / Lame_A + (Derivative(Lame_A, y)) * V / (Lame_A * Lame_B) - principal_curvature_x * W + (
             S(1) / 2) * Theta1 ** 2
 
-    ey = (diff(V, y)) / Lame_B + (diff(Lame_B, x)) * U / (Lame_A * Lame_B) - principal_curvature_y * W + (
+    ey = (Derivative(V, y)) / Lame_B + (Derivative(Lame_B, x)) * U / (Lame_A * Lame_B) - principal_curvature_y * W + (
             S(1) / 2) * Theta2 ** 2
 
-    gxy = (diff(V, x)) / Lame_A + (diff(U, y)) / Lame_B - (diff(Lame_A, y)) * U / (Lame_A * Lame_B) - (
-            diff(Lame_B, x) * V / (
+    gxy = (Derivative(V, x)) / Lame_A + (Derivative(U, y)) / Lame_B - (Derivative(Lame_A, y)) * U / (Lame_A * Lame_B) - (
+            Derivative(Lame_B, x) * V / (
             Lame_A * Lame_B) + Theta1 * Theta2)
 
     gxz = k * (f.subs(i, z)) * (psi_x - Theta1)
     gyz = k * (f.subs(i, z)) * (psi_y - Theta2)
 
-    kappa1 = (diff(psi_x, x)) / Lame_A + (diff(Lame_A, y)) * psi_y / (Lame_A * Lame_B)
-    kappa2 = (diff(psi_y, y)) / Lame_B + (diff(Lame_B, x)) * psi_x / (Lame_A * Lame_B)
+    kappa1 = (Derivative(psi_x, x)) / Lame_A + (Derivative(Lame_A, y)) * psi_y / (Lame_A * Lame_B)
+    kappa2 = (Derivative(psi_y, y)) / Lame_B + (Derivative(Lame_B, x)) * psi_x / (Lame_A * Lame_B)
     kappa12 = S(1) / 2 * (
-            (diff(psi_y, x)) / Lame_A + (diff(psi_x, y)) / Lame_B - (
-            (diff(Lame_A, y)) * psi_x + (diff(Lame_B, x)) * psi_y) / (
+            (Derivative(psi_y, x)) / Lame_A + (Derivative(psi_x, y)) / Lame_B - (
+            (Derivative(Lame_A, y)) * psi_x + (Derivative(Lame_B, x)) * psi_y) / (
                     Lame_A * Lame_B))
 
     moment_x = (S(1) / 12) * young_modulus_1 * h ** 3 * (Poisson_coefficient_21 * kappa2 + kappa1) / (
@@ -185,6 +186,43 @@ def create_functional(n):
 
 Es, SN, W = create_functional(n)
 
+
+# function for for searching all ways that walk to the specified symbol
+def recursive_cleaning_internal(expr, symbol):
+    stack = []
+    if expr == symbol:
+        return expr
+    for arg in expr.args:
+        branch = recursive_cleaning_internal(arg, symbol)
+        if branch:
+            stack.append(branch)
+    if stack:
+        return expr.func(tuple(stack))
+    return
+
+
+# Type hinting wrapper
+def recursive_cleaning(expr: Basic, symbol: Symbol) -> Expr:
+    return recursive_cleaning_internal(expr, symbol)
+
+
+test_expr = Add(3, sin(x))
+Ex = recursive_cleaning_internal(test_expr, x)
+
+
+# TODO: substitute the approximate functions to functional
+# approximate[x][1] = sin(2 * i * pi * x / upper_limit_x)
+# approximate[x][2] = sin((2 * i - 1) * pi * x / upper_limit_x)
+# approximate[x][3] = sin((2 * i - 1) * pi * x / upper_limit_x)
+# approximate[x][4] = cos((2 * i - 1) * pi * x / upper_limit_x)
+# approximate[x][5] = sin((2 * i - 1) * pi * x / upper_limit_x)
+# approximate[y][1] = sin((2 * i - 1) * pi * y / upper_limit_y)
+# approximate[y][2] = sin(2 * i * pi * y / upper_limit_y)
+# approximate[y][3] = sin((2 * i - 1) * pi * y / upper_limit_y)
+# approximate[y][4] = sin((2 * i - 1) * pi * y / upper_limit_y)
+# approximate[y][5] = cos((2 * i - 1) * pi * y / upper_limit_y)
+# TODO: check the "7000-th" element of the functional. Does it have only four factors too?
+
 values = {
     upper_limit_x: round(60 * 0.09, 2),
     upper_limit_y: round(60 * 0.09, 2),
@@ -217,7 +255,7 @@ Es = expand(Es)
 
 remark('expanding is done')
 
-Es_diff = [Mul(*[nested_arg for nested_arg in arg.args if not nested_arg.has(x) and not nested_arg.has(y)]) for arg in
+Es_Derivative = [Mul(*[nested_arg for nested_arg in arg.args if not nested_arg.has(x) and not nested_arg.has(y)]) for arg in
            Es.args]
 
 remark('Derivatives have been separated')
@@ -237,13 +275,13 @@ Integral_y = [scipy.integrate.quad(int_lambda, 0, values[upper_limit_y])[0] for 
 
 remark('integrals have been created')
 
-Diff_sum = Add(*[Mul(term, Integral_x[i], Integral_y[i]) for i, term in enumerate(Es_diff)])
+Diff_sum = Add(*[Mul(term, Integral_x[i], Integral_y[i]) for i, term in enumerate(Es_Derivative)])
 
-remark('General differential function created')
+remark('General Derivativeerential function created')
 
 Jacobi = []
 for i in SN:
-    Jacobi.append(diff(Diff_sum, i))
+    Jacobi.append(Derivative(Diff_sum, i))
 
 remark("Jacobi's list have been created")
 
@@ -251,7 +289,7 @@ Hessian = []
 for dpU in Jacobi:
     lineOfHessian = []
     for symb in SN:
-        lineOfHessian.append(diff(dpU, symb))
+        lineOfHessian.append(Derivative(dpU, symb))
     Hessian.append(lineOfHessian)
 
 remark('Hessian have been created')
