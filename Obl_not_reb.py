@@ -136,9 +136,10 @@ def create_functional(n):
     ey = (Derivative(V, y)) / Lame_B + (Derivative(Lame_B, x)) * U / (Lame_A * Lame_B) - principal_curvature_y * W + (
             S(1) / 2) * Theta2 ** 2
 
-    gxy = (Derivative(V, x)) / Lame_A + (Derivative(U, y)) / Lame_B - (Derivative(Lame_A, y)) * U / (Lame_A * Lame_B) - (
-            Derivative(Lame_B, x) * V / (
-            Lame_A * Lame_B) + Theta1 * Theta2)
+    gxy = (Derivative(V, x)) / Lame_A + (Derivative(U, y)) / Lame_B - (Derivative(Lame_A, y)) * U / (
+            Lame_A * Lame_B) - (
+                  Derivative(Lame_B, x) * V / (
+                  Lame_A * Lame_B) + Theta1 * Theta2)
 
     gxz = k * (f.subs(i, z)) * (psi_x - Theta1)
     gyz = k * (f.subs(i, z)) * (psi_y - Theta2)
@@ -169,6 +170,7 @@ def create_functional(n):
     Qx = Shear_modulus_13 * k * h * (psi_x - Theta1)
     Qy = Shear_modulus_23 * k * h * (psi_y - Theta2)
 
+    # TODO: refactor strings below using +=
     potential_energy1 = exertion_x * ex + exertion_y * ey
     potential_energy3 = potential_energy1 + S(1) / 2 * (exertion_xy + exertion_yx) * gxy
     potential_energy4 = potential_energy3 + moment_x * kappa1 + moment_y * kappa2
@@ -197,7 +199,7 @@ def recursive_cleaning_internal(expr, symbol):
         if branch:
             stack.append(branch)
     if stack:
-        return expr.func(tuple(stack))
+        return expr.func(*stack)
     return
 
 
@@ -206,9 +208,7 @@ def recursive_cleaning(expr: Basic, symbol: Symbol) -> Expr:
     return recursive_cleaning_internal(expr, symbol)
 
 
-test_expr = Add(3, sin(x))
-Ex = recursive_cleaning_internal(test_expr, x)
-
+Ex = recursive_cleaning(Es, x)
 
 # TODO: substitute the approximate functions to functional
 # approximate[x][1] = sin(2 * i * pi * x / upper_limit_x)
@@ -255,8 +255,8 @@ Es = expand(Es)
 
 remark('expanding is done')
 
-Es_Derivative = [Mul(*[nested_arg for nested_arg in arg.args if not nested_arg.has(x) and not nested_arg.has(y)]) for arg in
-           Es.args]
+Es_Derivative = [Mul(*[nested_arg for nested_arg in arg.args if not nested_arg.has(x) and not nested_arg.has(y)]) for
+                 arg in Es.args]
 
 remark('Derivatives have been separated')
 
