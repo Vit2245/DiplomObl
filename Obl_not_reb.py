@@ -45,6 +45,7 @@ def output_latex(path: str, *args):
         file.write('\\end{dmath}\n\\end{document}')
 
 
+# TODO: we cannot easily reduce operands in positional operators like Pow or Derivative (diff)
 # function for for searching all ways that walk to the specified symbol
 def recursive_cleaning_internal(expr, symbol):
     stack = []
