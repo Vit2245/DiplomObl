@@ -9,10 +9,11 @@ import numpy as np
 import scipy
 import scipy.integrate as integrate
 import sympy
+from graphviz import render
 from scipy.linalg import inv
 from symengine import expand
-from sympy import Symbol, pi, sin, cos, symbols, Derivative, S, latex, init_printing, \
-    lambdify, Mul, Add, Basic
+from sympy import Symbol, pi, sin, cos, symbols, diff, S, latex, init_printing, \
+    lambdify, Mul, Add, Basic, dotprint, sympify, separatevars
 
 sys.setrecursionlimit(10 ** 6)
 Num = Union[int, float]
@@ -45,14 +46,18 @@ def output_latex(path: str, *args):
         file.write('\\end{dmath}\n\\end{document}')
 
 
-# TODO: we cannot easily reduce operands in positional operators like Pow or Derivative (diff)
 # function for for searching all ways that walk to the specified symbol
-def recursive_cleaning_internal(expr, symbol):
-    stack = []
-    if expr == symbol:
+def recursive_cleaning_internal(expr, symbols):
+    if expr in symbols:
         return expr
+    if expr.is_Pow:
+        branch = recursive_cleaning_internal(expr.args[0], symbols)
+        if branch:
+            return expr.func(branch, expr.args[1])
+        return
+    stack = []
     for arg in expr.args:
-        branch = recursive_cleaning_internal(arg, symbol)
+        branch = recursive_cleaning_internal(arg, symbols)
         if branch:
             stack.append(branch)
     if stack:
@@ -61,8 +66,18 @@ def recursive_cleaning_internal(expr, symbol):
 
 
 # Type hinting wrapper
-def recursive_cleaning(expr: Basic, symbol: Symbol) -> Expr:
-    return recursive_cleaning_internal(expr, symbol)
+def recursive_cleaning(expr: Basic, *symbols: [Symbol]) -> Expr:
+    return recursive_cleaning_internal(expr, symbols)
+
+
+def render_expr(expr: Basic):
+    filename = 'Graphviz.gv'
+    with open(filename, 'w') as graph:
+        dp = dotprint(expr)
+        graph.write(dp)
+    import os
+    os.environ["PATH"] += os.pathsep + 'C:/Program Files (x86)/Graphviz2.38/bin/'
+    render('dot', 'svg', filename)
 
 
 if __name__ == '__main__':
@@ -71,6 +86,7 @@ if __name__ == '__main__':
 
     n = 1
     N = n ** 2
+
 
     x = Symbol('x')
     y = Symbol('y')
@@ -96,20 +112,32 @@ if __name__ == '__main__':
 
 
     def create_functional(n):
-        f = 6 * (1 / 4 - i ** 2 / h ** 2)
+
+        f = S(6) * (S(1) / 4 - i ** 2 / h ** 2)
 
         approximate = {x: {}, y: {}}
 
-        approximate[x][1] = sin(2 * i * pi * x / upper_limit_x)
-        approximate[x][2] = sin((2 * i - 1) * pi * x / upper_limit_x)
-        approximate[x][3] = sin((2 * i - 1) * pi * x / upper_limit_x)
-        approximate[x][4] = cos((2 * i - 1) * pi * x / upper_limit_x)
-        approximate[x][5] = sin((2 * i - 1) * pi * x / upper_limit_x)
-        approximate[y][1] = sin((2 * i - 1) * pi * y / upper_limit_y)
-        approximate[y][2] = sin(2 * i * pi * y / upper_limit_y)
-        approximate[y][3] = sin((2 * i - 1) * pi * y / upper_limit_y)
-        approximate[y][4] = sin((2 * i - 1) * pi * y / upper_limit_y)
-        approximate[y][5] = cos((2 * i - 1) * pi * y / upper_limit_y)
+        # approximate[x][1] = sin(2 * i * pi * x / upper_limit_x)
+        # approximate[x][2] = sin((2 * i - 1) * pi * x / upper_limit_x)
+        # approximate[x][3] = sin((2 * i - 1) * pi * x / upper_limit_x)
+        # approximate[x][4] = cos((2 * i - 1) * pi * x / upper_limit_x)
+        # approximate[x][5] = sin((2 * i - 1) * pi * x / upper_limit_x)
+        # approximate[y][1] = sin((2 * i - 1) * pi * y / upper_limit_y)
+        # approximate[y][2] = sin(2 * i * pi * y / upper_limit_y)
+        # approximate[y][3] = sin((2 * i - 1) * pi * y / upper_limit_y)
+        # approximate[y][4] = sin((2 * i - 1) * pi * y / upper_limit_y)
+        # approximate[y][5] = cos((2 * i - 1) * pi * y / upper_limit_y)
+
+        approximate[x][1] = Symbol(f'X1')
+        approximate[x][2] = Symbol(f'X2')
+        approximate[x][3] = Symbol(f'X3')
+        approximate[x][4] = Symbol(f'X4')
+        approximate[x][5] = Symbol(f'X5')
+        approximate[y][1] = Symbol(f'Y1')
+        approximate[y][2] = Symbol(f'Y2')
+        approximate[y][3] = Symbol(f'Y3')
+        approximate[y][4] = Symbol(f'Y4')
+        approximate[y][5] = Symbol(f'Y5')
 
         U = 0
         V = 0
@@ -135,10 +163,12 @@ if __name__ == '__main__':
         for line in u + v + w + psix + psiy:
             SN += line
 
+
         def fill(dim_1, dim_2, symbols_list, group, param) -> list:
             return symbols_list[dim_1][dim_2] \
                    * approximate[x][group].subs(param, dim_1 + 1) \
                    * approximate[y][group].subs(param, dim_2 + 1)
+
 
         for m in range(n):
             for g in range(n):
@@ -148,30 +178,30 @@ if __name__ == '__main__':
                 psi_x += fill(m, g, psix, 4, i)
                 psi_y += fill(m, g, psiy, 5, i)
 
-        Theta1 = -(Derivative(W, x)) / Lame_A - principal_curvature_x * U
-        Theta2 = -(Derivative(W, y)) / Lame_B - principal_curvature_y * V
+        Theta1 = -(diff(W, x)) / Lame_A - principal_curvature_x * U
+        Theta2 = -(diff(W, y)) / Lame_B - principal_curvature_y * V
 
-        ex = (Derivative(U, x)) / Lame_A + (Derivative(Lame_A, y)) * V / (
+        ex = (diff(U, x)) / Lame_A + (diff(Lame_A, y)) * V / (
                 Lame_A * Lame_B) - principal_curvature_x * W + (
                      S(1) / 2) * Theta1 ** 2
 
-        ey = (Derivative(V, y)) / Lame_B + (Derivative(Lame_B, x)) * U / (
+        ey = (diff(V, y)) / Lame_B + (diff(Lame_B, x)) * U / (
                 Lame_A * Lame_B) - principal_curvature_y * W + (
                      S(1) / 2) * Theta2 ** 2
 
-        gxy = (Derivative(V, x)) / Lame_A + (Derivative(U, y)) / Lame_B - (Derivative(Lame_A, y)) * U / (
+        gxy = (diff(V, x)) / Lame_A + (diff(U, y)) / Lame_B - (diff(Lame_A, y)) * U / (
                 Lame_A * Lame_B) - (
-                      Derivative(Lame_B, x) * V / (
+                      diff(Lame_B, x) * V / (
                       Lame_A * Lame_B) + Theta1 * Theta2)
 
         gxz = k * (f.subs(i, z)) * (psi_x - Theta1)
         gyz = k * (f.subs(i, z)) * (psi_y - Theta2)
 
-        kappa1 = (Derivative(psi_x, x)) / Lame_A + (Derivative(Lame_A, y)) * psi_y / (Lame_A * Lame_B)
-        kappa2 = (Derivative(psi_y, y)) / Lame_B + (Derivative(Lame_B, x)) * psi_x / (Lame_A * Lame_B)
+        kappa1 = (diff(psi_x, x)) / Lame_A + (diff(Lame_A, y)) * psi_y / (Lame_A * Lame_B)
+        kappa2 = (diff(psi_y, y)) / Lame_B + (diff(Lame_B, x)) * psi_x / (Lame_A * Lame_B)
         kappa12 = S(1) / 2 * (
-                (Derivative(psi_y, x)) / Lame_A + (Derivative(psi_x, y)) / Lame_B - (
-                (Derivative(Lame_A, y)) * psi_x + (Derivative(Lame_B, x)) * psi_y) / (
+                (diff(psi_y, x)) / Lame_A + (diff(psi_x, y)) / Lame_B - (
+                (diff(Lame_A, y)) * psi_x + (diff(Lame_B, x)) * psi_y) / (
                         Lame_A * Lame_B))
 
         moment_x = (S(1) / 12) * young_modulus_1 * h ** 3 * (Poisson_coefficient_21 * kappa2 + kappa1) / (
@@ -193,38 +223,28 @@ if __name__ == '__main__':
         Qx = Shear_modulus_13 * k * h * (psi_x - Theta1)
         Qy = Shear_modulus_23 * k * h * (psi_y - Theta2)
 
-        # TODO: refactor strings below using +=
-        potential_energy1 = exertion_x * ex + exertion_y * ey
-        potential_energy3 = potential_energy1 + S(1) / 2 * (exertion_xy + exertion_yx) * gxy
-        potential_energy4 = potential_energy3 + moment_x * kappa1 + moment_y * kappa2
-        potential_energy6 = potential_energy4 + (moment_xy + moment_yx) * kappa12
-        potential_energy7 = potential_energy6 + Qx * (psi_x - Theta1)
-        potential_energy8 = potential_energy7 + Qy * (psi_y - Theta2)
+        potential_energy = exertion_x * ex + exertion_y * ey
+        potential_energy += S(1) / 2 * (exertion_xy + exertion_yx) * gxy
+        potential_energy += moment_x * kappa1 + moment_y * kappa2
+        potential_energy += (moment_xy + moment_yx) * kappa12
+        potential_energy += Qx * (psi_x - Theta1)
+        potential_energy += Qy * (psi_y - Theta2)
 
-        EP = S(1) / 2 * potential_energy8
+        EP = S(1) / 2 * potential_energy
         AA = Px * U + Py * V + W * q
 
         Es = EP - AA
+
+        a = separatevars(Es, [x, y] + SN, force=True)
+        render_expr(recursive_cleaning(sympify(expand(a)),
+                                       *[nested_item for item in approximate.values() for nested_item in item.values()]))
 
         return Es, SN, W
 
 
     Es, SN, W = create_functional(n)
 
-    Ex = recursive_cleaning(Es, x)
-
-    # TODO: substitute the approximate functions to functional
-    # approximate[x][1] = sin(2 * i * pi * x / upper_limit_x)
-    # approximate[x][2] = sin((2 * i - 1) * pi * x / upper_limit_x)
-    # approximate[x][3] = sin((2 * i - 1) * pi * x / upper_limit_x)
-    # approximate[x][4] = cos((2 * i - 1) * pi * x / upper_limit_x)
-    # approximate[x][5] = sin((2 * i - 1) * pi * x / upper_limit_x)
-    # approximate[y][1] = sin((2 * i - 1) * pi * y / upper_limit_y)
-    # approximate[y][2] = sin(2 * i * pi * y / upper_limit_y)
-    # approximate[y][3] = sin((2 * i - 1) * pi * y / upper_limit_y)
-    # approximate[y][4] = sin((2 * i - 1) * pi * y / upper_limit_y)
-    # approximate[y][5] = cos((2 * i - 1) * pi * y / upper_limit_y)
-    # TODO: check the "7000-th" element of the functional. Does it have only four factors too?
+    # Ex = recursive_cleaning(Es, x)
 
     values = {
         upper_limit_x: round(60 * 0.09, 2),
@@ -254,15 +274,17 @@ if __name__ == '__main__':
 
     remark('replacing is done')
 
-    Es = expand(Es)
+    Es = sympify(expand(Es))
+
+    render_expr(Add(Es.args[:10]))
 
     remark('expanding is done')
 
-    Es_Derivative = [Mul(*[nested_arg for nested_arg in arg.args if not nested_arg.has(x) and not nested_arg.has(y)])
-                     for
-                     arg in Es.args]
+    Es_diff = [Mul(*[nested_arg for nested_arg in arg.args if not nested_arg.has(x) and not nested_arg.has(y)])
+               for
+               arg in Es.args]
 
-    remark('Derivatives have been separated')
+    remark('diffs have been separated')
 
     Es_int_x = [Mul(*[nested_arg for nested_arg in arg.args if nested_arg.has(x)]) for arg in Es.args]
     Es_int_y = [Mul(*[nested_arg for nested_arg in arg.args if nested_arg.has(y)]) for arg in Es.args]
@@ -279,13 +301,13 @@ if __name__ == '__main__':
 
     remark('integrals have been created')
 
-    Diff_sum = Add(*[Mul(term, Integral_x[i], Integral_y[i]) for i, term in enumerate(Es_Derivative)])
+    Diff_sum = Add(*[Mul(term, Integral_x[i], Integral_y[i]) for i, term in enumerate(Es_diff)])
 
-    remark('General Derivativeerential function created')
+    remark('General differential function created')
 
     Jacobi = []
     for i in SN:
-        Jacobi.append(Derivative(Diff_sum, i))
+        Jacobi.append(diff(Diff_sum, i))
 
     remark("Jacobi's list have been created")
 
@@ -293,7 +315,7 @@ if __name__ == '__main__':
     for dpU in Jacobi:
         lineOfHessian = []
         for symb in SN:
-            lineOfHessian.append(Derivative(dpU, symb))
+            lineOfHessian.append(diff(dpU, symb))
         Hessian.append(lineOfHessian)
 
     remark('Hessian have been created')
