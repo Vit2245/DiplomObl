@@ -8,6 +8,7 @@ import numpy
 import numpy as np
 import scipy
 import scipy.integrate as integrate
+import symengine
 import sympy
 from scipy.linalg import inv
 from symengine import expand
@@ -213,7 +214,7 @@ Es = Es_lambda_values(*values.values())
 
 remark('replacing is done')
 
-Es = sympify(expand(Es))
+Es = expand(Es)
 
 remark('expanding is done')
 
@@ -228,10 +229,10 @@ def separate(expr):
         int_y_factor = []
         for nested_arg in arg.args:
             nn_arg = nested_arg
-            if nested_arg.func is Pow:
+            if nested_arg.is_Pow:
                 nn_arg = nested_arg.args[0]
-            if nn_arg.func in [sin, cos]:
-                if x in nn_arg.args[0].args:
+            if nn_arg.is_Function:  # sin or cos - may not working in other conditions
+                if nn_arg.has(x):
                     int_x_factor.append(nested_arg)
                 else:
                     int_y_factor.append(nested_arg)
