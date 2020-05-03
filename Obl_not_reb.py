@@ -217,14 +217,32 @@ Es = expand(Es)
 
 remark('expanding is done')
 
-Es_diff = [Mul(*[nested_arg for nested_arg in arg.args if not nested_arg.has(x) and not nested_arg.has(y)]) for arg in
-           Es.args]
+
+def separate(expr):
+    derivative = []
+    int_x = []
+    int_y = []
+    for arg in expr.args:
+        der_factor = []
+        int_x_factor = []
+        int_y_factor = []
+        for nested_arg in arg.args:
+            if nested_arg.has(x):
+                int_x_factor.append(nested_arg)
+            elif nested_arg.has(y):
+                int_y_factor.append(nested_arg)
+            else:
+                der_factor.append(nested_arg)
+
+        derivative.append(Mul(*der_factor))
+        int_x.append(Mul(*int_x_factor))
+        int_y.append(Mul(*int_y_factor))
+    return derivative, int_x, int_y
+
+
+Es_diff, Es_int_x, Es_int_y = separate(Es)
 
 remark('Derivatives have been separated')
-
-Es_int_x = [Mul(*[nested_arg for nested_arg in arg.args if nested_arg.has(x)]) for arg in Es.args]
-Es_int_y = [Mul(*[nested_arg for nested_arg in arg.args if nested_arg.has(y)]) for arg in Es.args]
-
 remark('Integrals have been separated')
 
 Int_lambdas_x = [lambdify(x, term * values[Lame_A], modules=[{'Mul': cupy.prod}, cupy]) for term in Es_int_x]
