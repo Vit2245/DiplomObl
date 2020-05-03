@@ -12,7 +12,7 @@ import sympy
 from scipy.linalg import inv
 from symengine import expand
 from sympy import Symbol, pi, sin, cos, symbols, diff, S, latex, init_printing, \
-    lambdify, Mul, Add
+    lambdify, Mul, Add, separatevars, Pow, sympify
 
 sys.setrecursionlimit(10 ** 6)
 Num = Union[int, float]
@@ -213,7 +213,7 @@ Es = Es_lambda_values(*values.values())
 
 remark('replacing is done')
 
-Es = expand(Es)
+Es = sympify(expand(Es))
 
 remark('expanding is done')
 
@@ -227,10 +227,14 @@ def separate(expr):
         int_x_factor = []
         int_y_factor = []
         for nested_arg in arg.args:
-            if nested_arg.has(x):
-                int_x_factor.append(nested_arg)
-            elif nested_arg.has(y):
-                int_y_factor.append(nested_arg)
+            nn_arg = nested_arg
+            if nested_arg.func is Pow:
+                nn_arg = nested_arg.args[0]
+            if nn_arg.func in [sin, cos]:
+                if x in nn_arg.args[0].args:
+                    int_x_factor.append(nested_arg)
+                else:
+                    int_y_factor.append(nested_arg)
             else:
                 der_factor.append(nested_arg)
 
