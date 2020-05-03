@@ -46,27 +46,69 @@ def output_latex(path: str, *args):
         file.write('\\end{dmath}\n\\end{document}')
 
 
-# function for for searching all ways that walk to the specified symbol
-def recursive_cleaning_internal(expr, symbols):
-    if expr in symbols:
-        return expr
-    if expr.is_Pow:
-        branch = recursive_cleaning_internal(expr.args[0], symbols)
-        if branch:
-            return expr.func(branch, expr.args[1])
-        return
-    stack = []
-    for arg in expr.args:
-        branch = recursive_cleaning_internal(arg, symbols)
-        if branch:
-            stack.append(branch)
-    if stack:
-        return expr.func(*stack)
-    return
+x = Symbol('x')
+y = Symbol('y')
+q = Symbol('q')
+i = Symbol('i')
+upper_limit_x = Symbol('aa')
+upper_limit_y = Symbol('bb')
+principal_curvature_x = Symbol('kx')
+principal_curvature_y = Symbol('ky')
+young_modulus_1 = Symbol('E1')
+young_modulus_2 = Symbol('E2')
+k = Symbol('k')
+r = Symbol('r')
+z = Symbol('z')
+Poisson_coefficient_12 = Symbol('mu12')
+Poisson_coefficient_21 = Symbol('mu21')
+h = Symbol('h')
+Shear_modulus_12 = Symbol('G12')
+Shear_modulus_13 = Symbol('G13')
+Shear_modulus_23 = Symbol('G23')
+Lame_A = Symbol('A')
+Lame_B = Symbol('B')
+
+values = {
+    upper_limit_x: round(60 * 0.09, 2),
+    upper_limit_y: round(60 * 0.09, 2),
+    principal_curvature_x: 1 / (225 * 0.09),
+    principal_curvature_y: 1 / (225 * 0.09),
+    young_modulus_1: 2.1 * 10 ** 5,
+    young_modulus_2: 2.1 * 10 ** 5,
+    k: 5 / 6,
+    r: 225 * 0.09,
+    z: -(1 / 2) * 0.09,
+    Poisson_coefficient_12: 0.3,
+    Poisson_coefficient_21: 0.3,
+    h: 0.09,
+    Shear_modulus_12: 0.33 * 10 ** 5,
+    Shear_modulus_13: 0.33 * 10 ** 5,
+    Shear_modulus_23: 0.33 * 10 ** 5,
+    Lame_A: 1.,
+    Lame_B: 1.
+}
 
 
 # Type hinting wrapper
 def recursive_cleaning(expr: Basic, *symbols: [Symbol]) -> Expr:
+    # function for for searching all ways that walk to the specified symbol
+    def recursive_cleaning_internal(expr, symbols):
+        if expr in symbols:
+            return expr
+        if expr.is_Pow:
+            branch = recursive_cleaning_internal(expr.args[0], symbols)
+            if branch:
+                return expr.func(branch, expr.args[1])
+            return
+        stack = []
+        for arg in expr.args:
+            branch = recursive_cleaning_internal(arg, symbols)
+            if branch:
+                stack.append(branch)
+        if stack:
+            return expr.func(*stack)
+        return
+
     return recursive_cleaning_internal(expr, symbols)
 
 
@@ -80,6 +122,177 @@ def render_expr(expr: Basic):
     render('dot', 'svg', filename)
 
 
+def create_integrals_dict():
+    ...
+
+
+approximate = {x: {}, y: {}}
+approximate[x][1] = sin(2 * i * pi * x / upper_limit_x)
+approximate[x][2] = sin((2 * i - 1) * pi * x / upper_limit_x)
+approximate[x][3] = sin((2 * i - 1) * pi * x / upper_limit_x)
+approximate[x][4] = cos((2 * i - 1) * pi * x / upper_limit_x)
+approximate[x][5] = sin((2 * i - 1) * pi * x / upper_limit_x)
+approximate[y][1] = sin((2 * i - 1) * pi * y / upper_limit_y)
+approximate[y][2] = sin(2 * i * pi * y / upper_limit_y)
+approximate[y][3] = sin((2 * i - 1) * pi * y / upper_limit_y)
+approximate[y][4] = sin((2 * i - 1) * pi * y / upper_limit_y)
+approximate[y][5] = cos((2 * i - 1) * pi * y / upper_limit_y)
+
+
+def show_approximates():
+    expressions = [
+        nested_item.subs([(y, x),
+                          (upper_limit_y, upper_limit_x),
+                          (upper_limit_x, values[upper_limit_x]),
+                          (i, S(j))])
+        for item in approximate.values() for nested_item in item.values() for j in range(1, 6)]
+    plot = plt
+    for expression in expressions:
+        lambda_expr = lambdify(x, expression)
+        create_plot(lambda_expr, plot)
+    plot.show()
+
+
+def show_approximate(k):
+    expressions = [
+        list(item.values())[k].subs([(y, x),
+                                     (upper_limit_y, upper_limit_x),
+                                     (upper_limit_x, values[upper_limit_x]),
+                                     (i, S(j))])
+        for item in approximate.values() for j in range(1, 6)]
+    plot = plt
+    for expression in expressions:
+        lambda_expr = lambdify(x, expression)
+        create_plot(lambda_expr, plot)
+    plot.show()
+
+
+def create_plot(func, plot):
+    try:
+        create_plot.num += 1
+    except AttributeError:
+        create_plot.num = 1
+    plot.figure(num=1, figsize=(8, 6))
+    X = np.arange(0., np.pi, 0.001)
+    plot.plot(X, func(X), linestyle='--', marker=',', markersize=1, label=f'{create_plot.num}')
+    plot.legend(loc='lower left')
+    plot.grid(True)
+    plot.xlabel("x")
+    plot.ylabel("f(x)")
+    plot.title('График функции')
+
+    return plot
+
+
+def create_functional(n):
+    f = S(6) * (S(1) / 4 - i ** 2 / h ** 2)
+
+    # approximate[x][1] = Symbol(f'X1')
+    # approximate[x][2] = Symbol(f'X2')
+    # approximate[x][3] = Symbol(f'X3')
+    # approximate[x][4] = Symbol(f'X4')
+    # approximate[x][5] = Symbol(f'X5')
+    # approximate[y][1] = Symbol(f'Y1')
+    # approximate[y][2] = Symbol(f'Y2')
+    # approximate[y][3] = Symbol(f'Y3')
+    # approximate[y][4] = Symbol(f'Y4')
+    # approximate[y][5] = Symbol(f'Y5')
+
+    U = 0
+    V = 0
+    W = 0
+    Psi_x = 0
+    Psi_y = 0
+
+    u = [[None] * n for _ in range(n)]
+    v = [[None] * n for _ in range(n)]
+    w = [[None] * n for _ in range(n)]
+    psix = [[None] * n for _ in range(n)]
+    psiy = [[None] * n for _ in range(n)]
+
+    for m in range(n):
+        for g in range(n):
+            u[m][g] = (symbols(f'u{m + 1}{g + 1}'))
+            v[m][g] = (symbols(f'v{m + 1}{g + 1}'))
+            w[m][g] = (symbols(f'w{m + 1}{g + 1}'))
+            psix[m][g] = (symbols(f'psix{m + 1}{g + 1}'))
+            psiy[m][g] = (symbols(f'psiy{m + 1}{g + 1}'))
+
+    SN = []
+    for line in u + v + w + psix + psiy:
+        SN += line
+
+    def fill(dim_1, dim_2, symbols_list, group, param) -> list:
+        return symbols_list[dim_1][dim_2] \
+               * approximate[x][group].subs(param, dim_1 + 1) \
+               * approximate[y][group].subs(param, dim_2 + 1)
+
+    for m in range(n):
+        for g in range(n):
+            U += fill(m, g, u, 1, i)
+            V += fill(m, g, v, 2, i)
+            W += fill(m, g, w, 3, i)
+            Psi_x += fill(m, g, psix, 4, i)
+            Psi_y += fill(m, g, psiy, 5, i)
+
+    Theta1 = -(diff(W, x)) / Lame_A - principal_curvature_x * U
+    Theta2 = -(diff(W, y)) / Lame_B - principal_curvature_y * V
+
+    ex = (diff(U, x)) / Lame_A + (diff(Lame_A, y)) * V / (
+            Lame_A * Lame_B) - principal_curvature_x * W + (
+                 S(1) / 2) * Theta1 ** 2
+
+    ey = (diff(V, y)) / Lame_B + (diff(Lame_B, x)) * U / (
+            Lame_A * Lame_B) - principal_curvature_y * W + (
+                 S(1) / 2) * Theta2 ** 2
+
+    gxy = (diff(V, x)) / Lame_A + (diff(U, y)) / Lame_B - (diff(Lame_A, y)) * U / (
+            Lame_A * Lame_B) - (
+                  diff(Lame_B, x) * V / (
+                  Lame_A * Lame_B) + Theta1 * Theta2)
+
+    kappa1 = (diff(Psi_x, x)) / Lame_A + (diff(Lame_A, y)) * Psi_y / (Lame_A * Lame_B)
+    kappa2 = (diff(Psi_y, y)) / Lame_B + (diff(Lame_B, x)) * Psi_x / (Lame_A * Lame_B)
+    kappa12 = S(1) / 2 * (
+            (diff(Psi_y, x)) / Lame_A + (diff(Psi_x, y)) / Lame_B - (
+            (diff(Lame_A, y)) * Psi_x + (diff(Lame_B, x)) * Psi_y) / (
+                    Lame_A * Lame_B))
+
+    moment_x = (S(1) / 12) * young_modulus_1 * h ** 3 * (Poisson_coefficient_21 * kappa2 + kappa1) / (
+            1 - Poisson_coefficient_12 * Poisson_coefficient_21)
+    moment_y = (S(1) / 12) * young_modulus_2 * h ** 3 * (Poisson_coefficient_12 * kappa1 + kappa2) / (
+            1 - Poisson_coefficient_12 * Poisson_coefficient_21)
+    moment_xy = (S(1) / 6) * Shear_modulus_12 * h ** 3 * kappa12
+    moment_yx = (S(1) / 6) * Shear_modulus_12 * h ** 3 * kappa12
+    exertion_x = (young_modulus_1 * h / (1 - Poisson_coefficient_12 * Poisson_coefficient_21)) * (
+            ex + Poisson_coefficient_21 * ey)
+    exertion_y = (young_modulus_2 * h / (1 - Poisson_coefficient_12 * Poisson_coefficient_21)) * (
+            ey + Poisson_coefficient_12 * ex)
+    exertion_xy = Shear_modulus_12 * h * gxy
+    exertion_yx = Shear_modulus_12 * h * gxy
+
+    Qx = Shear_modulus_13 * k * h * (Psi_x - Theta1)
+    Qy = Shear_modulus_23 * k * h * (Psi_y - Theta2)
+
+    potential_energy = exertion_x * ex + exertion_y * ey
+    potential_energy += S(1) / 2 * (exertion_xy + exertion_yx) * gxy
+    potential_energy += moment_x * kappa1 + moment_y * kappa2
+    potential_energy += (moment_xy + moment_yx) * kappa12
+    potential_energy += Qx * (Psi_x - Theta1)
+    potential_energy += Qy * (Psi_y - Theta2)
+
+    EP = S(1) / 2 * potential_energy
+    AA = W * q
+
+    Es = EP - AA
+
+    a = separatevars(Es, [x, y] + SN, force=True)
+    render_expr(recursive_cleaning(sympify(expand(a)),
+                                   *[nested_item for item in approximate.values() for nested_item in item.values()]))
+
+    return Es, SN, W
+
+
 if __name__ == '__main__':
     stop_watch = StopWatch()
     remark = stop_watch.remark
@@ -87,184 +300,9 @@ if __name__ == '__main__':
     n = 1
     N = n ** 2
 
-
-    x = Symbol('x')
-    y = Symbol('y')
-    q = Symbol('q')
-    i = Symbol('i')
-    upper_limit_x = Symbol('aa')
-    upper_limit_y = Symbol('bb')
-    principal_curvature_x = Symbol('kx')
-    principal_curvature_y = Symbol('ky')
-    young_modulus_1 = Symbol('E1')
-    young_modulus_2 = Symbol('E2')
-    k = Symbol('k')
-    r = Symbol('r')
-    z = Symbol('z')
-    Poisson_coefficient_12 = Symbol('mu12')
-    Poisson_coefficient_21 = Symbol('mu21')
-    h = Symbol('h')
-    Shear_modulus_12 = Symbol('G12')
-    Shear_modulus_13 = Symbol('G13')
-    Shear_modulus_23 = Symbol('G23')
-    Lame_A = Symbol('A')
-    Lame_B = Symbol('B')
-
-
-    def create_functional(n):
-
-        f = S(6) * (S(1) / 4 - i ** 2 / h ** 2)
-
-        approximate = {x: {}, y: {}}
-
-        # approximate[x][1] = sin(2 * i * pi * x / upper_limit_x)
-        # approximate[x][2] = sin((2 * i - 1) * pi * x / upper_limit_x)
-        # approximate[x][3] = sin((2 * i - 1) * pi * x / upper_limit_x)
-        # approximate[x][4] = cos((2 * i - 1) * pi * x / upper_limit_x)
-        # approximate[x][5] = sin((2 * i - 1) * pi * x / upper_limit_x)
-        # approximate[y][1] = sin((2 * i - 1) * pi * y / upper_limit_y)
-        # approximate[y][2] = sin(2 * i * pi * y / upper_limit_y)
-        # approximate[y][3] = sin((2 * i - 1) * pi * y / upper_limit_y)
-        # approximate[y][4] = sin((2 * i - 1) * pi * y / upper_limit_y)
-        # approximate[y][5] = cos((2 * i - 1) * pi * y / upper_limit_y)
-
-        approximate[x][1] = Symbol(f'X1')
-        approximate[x][2] = Symbol(f'X2')
-        approximate[x][3] = Symbol(f'X3')
-        approximate[x][4] = Symbol(f'X4')
-        approximate[x][5] = Symbol(f'X5')
-        approximate[y][1] = Symbol(f'Y1')
-        approximate[y][2] = Symbol(f'Y2')
-        approximate[y][3] = Symbol(f'Y3')
-        approximate[y][4] = Symbol(f'Y4')
-        approximate[y][5] = Symbol(f'Y5')
-
-        U = 0
-        V = 0
-        W = 0
-        psi_x = 0
-        psi_y = 0
-
-        u = [[None] * n for _ in range(n)]
-        v = [[None] * n for _ in range(n)]
-        w = [[None] * n for _ in range(n)]
-        psix = [[None] * n for _ in range(n)]
-        psiy = [[None] * n for _ in range(n)]
-
-        for m in range(n):
-            for g in range(n):
-                u[m][g] = (symbols(f'u{m + 1}{g + 1}'))
-                v[m][g] = (symbols(f'v{m + 1}{g + 1}'))
-                w[m][g] = (symbols(f'w{m + 1}{g + 1}'))
-                psix[m][g] = (symbols(f'psix{m + 1}{g + 1}'))
-                psiy[m][g] = (symbols(f'psiy{m + 1}{g + 1}'))
-
-        SN = []
-        for line in u + v + w + psix + psiy:
-            SN += line
-
-
-        def fill(dim_1, dim_2, symbols_list, group, param) -> list:
-            return symbols_list[dim_1][dim_2] \
-                   * approximate[x][group].subs(param, dim_1 + 1) \
-                   * approximate[y][group].subs(param, dim_2 + 1)
-
-
-        for m in range(n):
-            for g in range(n):
-                U += fill(m, g, u, 1, i)
-                V += fill(m, g, v, 2, i)
-                W += fill(m, g, w, 3, i)
-                psi_x += fill(m, g, psix, 4, i)
-                psi_y += fill(m, g, psiy, 5, i)
-
-        Theta1 = -(diff(W, x)) / Lame_A - principal_curvature_x * U
-        Theta2 = -(diff(W, y)) / Lame_B - principal_curvature_y * V
-
-        ex = (diff(U, x)) / Lame_A + (diff(Lame_A, y)) * V / (
-                Lame_A * Lame_B) - principal_curvature_x * W + (
-                     S(1) / 2) * Theta1 ** 2
-
-        ey = (diff(V, y)) / Lame_B + (diff(Lame_B, x)) * U / (
-                Lame_A * Lame_B) - principal_curvature_y * W + (
-                     S(1) / 2) * Theta2 ** 2
-
-        gxy = (diff(V, x)) / Lame_A + (diff(U, y)) / Lame_B - (diff(Lame_A, y)) * U / (
-                Lame_A * Lame_B) - (
-                      diff(Lame_B, x) * V / (
-                      Lame_A * Lame_B) + Theta1 * Theta2)
-
-        gxz = k * (f.subs(i, z)) * (psi_x - Theta1)
-        gyz = k * (f.subs(i, z)) * (psi_y - Theta2)
-
-        kappa1 = (diff(psi_x, x)) / Lame_A + (diff(Lame_A, y)) * psi_y / (Lame_A * Lame_B)
-        kappa2 = (diff(psi_y, y)) / Lame_B + (diff(Lame_B, x)) * psi_x / (Lame_A * Lame_B)
-        kappa12 = S(1) / 2 * (
-                (diff(psi_y, x)) / Lame_A + (diff(psi_x, y)) / Lame_B - (
-                (diff(Lame_A, y)) * psi_x + (diff(Lame_B, x)) * psi_y) / (
-                        Lame_A * Lame_B))
-
-        moment_x = (S(1) / 12) * young_modulus_1 * h ** 3 * (Poisson_coefficient_21 * kappa2 + kappa1) / (
-                1 - Poisson_coefficient_12 * Poisson_coefficient_21)
-        moment_y = (S(1) / 12) * young_modulus_2 * h ** 3 * (Poisson_coefficient_12 * kappa1 + kappa2) / (
-                1 - Poisson_coefficient_12 * Poisson_coefficient_21)
-        moment_xy = (S(1) / 6) * Shear_modulus_12 * h ** 3 * kappa12
-        moment_yx = (S(1) / 6) * Shear_modulus_12 * h ** 3 * kappa12
-        exertion_x = (young_modulus_1 * h / (1 - Poisson_coefficient_12 * Poisson_coefficient_21)) * (
-                ex + Poisson_coefficient_21 * ey)
-        exertion_y = (young_modulus_2 * h / (1 - Poisson_coefficient_12 * Poisson_coefficient_21)) * (
-                ey + Poisson_coefficient_12 * ex)
-        exertion_xy = Shear_modulus_12 * h * gxy
-        exertion_yx = Shear_modulus_12 * h * gxy
-
-        Px = 0
-        Py = 0
-
-        Qx = Shear_modulus_13 * k * h * (psi_x - Theta1)
-        Qy = Shear_modulus_23 * k * h * (psi_y - Theta2)
-
-        potential_energy = exertion_x * ex + exertion_y * ey
-        potential_energy += S(1) / 2 * (exertion_xy + exertion_yx) * gxy
-        potential_energy += moment_x * kappa1 + moment_y * kappa2
-        potential_energy += (moment_xy + moment_yx) * kappa12
-        potential_energy += Qx * (psi_x - Theta1)
-        potential_energy += Qy * (psi_y - Theta2)
-
-        EP = S(1) / 2 * potential_energy
-        AA = Px * U + Py * V + W * q
-
-        Es = EP - AA
-
-        a = separatevars(Es, [x, y] + SN, force=True)
-        render_expr(recursive_cleaning(sympify(expand(a)),
-                                       *[nested_item for item in approximate.values() for nested_item in item.values()]))
-
-        return Es, SN, W
-
-
     Es, SN, W = create_functional(n)
 
     # Ex = recursive_cleaning(Es, x)
-
-    values = {
-        upper_limit_x: round(60 * 0.09, 2),
-        upper_limit_y: round(60 * 0.09, 2),
-        principal_curvature_x: 1 / (225 * 0.09),
-        principal_curvature_y: 1 / (225 * 0.09),
-        young_modulus_1: 2.1 * 10 ** 5,
-        young_modulus_2: 2.1 * 10 ** 5,
-        k: 5 / 6,
-        r: 225 * 0.09,
-        z: -(1 / 2) * 0.09,
-        Poisson_coefficient_12: 0.3,
-        Poisson_coefficient_21: 0.3,
-        h: 0.09,
-        Shear_modulus_12: 0.33 * 10 ** 5,
-        Shear_modulus_13: 0.33 * 10 ** 5,
-        Shear_modulus_23: 0.33 * 10 ** 5,
-        Lame_A: 1.,
-        Lame_B: 1.
-    }
 
     W_lambda_values = lambdify(values.keys(), W, sympy)
     W = W_lambda_values(*values.values())
