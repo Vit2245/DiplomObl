@@ -1,6 +1,9 @@
 from unittest import TestCase
-from sympy import Add, sin, cos, Mul, Pow, Symbol
-from Obl_not_reb import recursive_cleaning
+
+import matplotlib
+from sympy import Add, sin, cos, Mul, Pow, Symbol, Basic, symbols
+from Obl_not_reb import recursive_cleaning, show_approximates, create_plot, create_functional, show_approximate
+import matplotlib.pyplot as plt
 
 
 class Test(TestCase):
@@ -22,3 +25,20 @@ class Test(TestCase):
         self.assertEqual(test_expr5, Pow(cos(Mul(sin(x), x)), 3))
         self.assertEqual(test_expr6, Pow(cos(Mul(sin(x), y)), 3))
         self.assertEqual(test_expr7, Pow(cos(Mul(sin(x), y)), 3))
+
+    def test_show_approximates(self):
+        show_approximates()
+
+    def test_create_plot(self):
+        plot = create_plot(lambda x: x ** 2, plt)
+        # plot.show()
+
+    def test_create_functional(self):
+        Es, SN, W = create_functional(1)
+
+        self.assertIsInstance(Es, Basic)
+        self.assertIsInstance(W, Basic)
+        self.assertEqual(SN, list(symbols('u11, v11, w11, psix11, psiy11')))
+
+    def test_show_approximate(self):
+        show_approximate(3)
