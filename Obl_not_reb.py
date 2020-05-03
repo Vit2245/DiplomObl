@@ -13,7 +13,7 @@ from graphviz import render
 from scipy.linalg import inv
 from symengine import expand
 from sympy import Symbol, pi, sin, cos, symbols, diff, S, latex, init_printing, \
-    lambdify, Mul, Add, Basic, dotprint, sympify, separatevars
+    lambdify, Mul, Add, Basic, dotprint, sympify, separatevars, Function
 
 sys.setrecursionlimit(10 ** 6)
 Num = Union[int, float]
@@ -100,6 +100,15 @@ def recursive_cleaning(expr: Basic, *symbols: [Symbol]) -> Expr:
             if branch:
                 return expr.func(branch, expr.args[1])
             return
+        if expr.is_Derivative:
+            branch = recursive_cleaning_internal(expr.args[0], symbols)
+            if branch:
+                args = expr.args[1:]
+                for arg in args:
+                    if arg[0] not in symbols:
+                        return
+                return expr
+            return
         stack = []
         for arg in expr.args:
             branch = recursive_cleaning_internal(arg, symbols)
@@ -127,16 +136,28 @@ def create_integrals_dict():
 
 
 approximate = {x: {}, y: {}}
-approximate[x][1] = sin(2 * i * pi * x / upper_limit_x)
-approximate[x][2] = sin((2 * i - 1) * pi * x / upper_limit_x)
-approximate[x][3] = sin((2 * i - 1) * pi * x / upper_limit_x)
-approximate[x][4] = cos((2 * i - 1) * pi * x / upper_limit_x)
-approximate[x][5] = sin((2 * i - 1) * pi * x / upper_limit_x)
-approximate[y][1] = sin((2 * i - 1) * pi * y / upper_limit_y)
-approximate[y][2] = sin(2 * i * pi * y / upper_limit_y)
-approximate[y][3] = sin((2 * i - 1) * pi * y / upper_limit_y)
-approximate[y][4] = sin((2 * i - 1) * pi * y / upper_limit_y)
-approximate[y][5] = cos((2 * i - 1) * pi * y / upper_limit_y)
+# approximate[x][1] = sin(2 * i * pi * x / upper_limit_x)
+# approximate[x][2] = sin((2 * i - 1) * pi * x / upper_limit_x)
+# approximate[x][3] = sin((2 * i - 1) * pi * x / upper_limit_x)
+# approximate[x][4] = cos((2 * i - 1) * pi * x / upper_limit_x)
+# approximate[x][5] = sin((2 * i - 1) * pi * x / upper_limit_x)
+# approximate[y][1] = sin((2 * i - 1) * pi * y / upper_limit_y)
+# approximate[y][2] = sin(2 * i * pi * y / upper_limit_y)
+# approximate[y][3] = sin((2 * i - 1) * pi * y / upper_limit_y)
+# approximate[y][4] = sin((2 * i - 1) * pi * y / upper_limit_y)
+# approximate[y][5] = cos((2 * i - 1) * pi * y / upper_limit_y)
+
+
+approximate[x][1] = Function(f'X1')(x, i)
+approximate[x][2] = Function(f'X2')(x, i)
+approximate[x][3] = Function(f'X3')(x, i)
+approximate[x][4] = Function(f'X4')(x, i)
+approximate[x][5] = Function(f'X5')(x, i)
+approximate[y][1] = Function(f'Y1')(y, i)
+approximate[y][2] = Function(f'Y2')(y, i)
+approximate[y][3] = Function(f'Y3')(y, i)
+approximate[y][4] = Function(f'Y4')(y, i)
+approximate[y][5] = Function(f'Y5')(y, i)
 
 
 def show_approximates():
@@ -186,17 +207,6 @@ def create_plot(func, plot):
 
 def create_functional(n):
     f = S(6) * (S(1) / 4 - i ** 2 / h ** 2)
-
-    # approximate[x][1] = Symbol(f'X1')
-    # approximate[x][2] = Symbol(f'X2')
-    # approximate[x][3] = Symbol(f'X3')
-    # approximate[x][4] = Symbol(f'X4')
-    # approximate[x][5] = Symbol(f'X5')
-    # approximate[y][1] = Symbol(f'Y1')
-    # approximate[y][2] = Symbol(f'Y2')
-    # approximate[y][3] = Symbol(f'Y3')
-    # approximate[y][4] = Symbol(f'Y4')
-    # approximate[y][5] = Symbol(f'Y5')
 
     U = 0
     V = 0
