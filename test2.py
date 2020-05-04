@@ -9,11 +9,13 @@ import numpy as np
 import scipy.integrate as integrate
 import symengine as sm
 import sympy as sp
+
 import numba as nb
 from numba import njit, jit
 from numpy import linalg as la
 # from sympy.parsing.sympy_parser import parse_expr
 from numba import jit, numba
+from time import gmtime, strftime
 import pickle as pk
 class StopWatch:
     def __init__(self):
@@ -25,15 +27,17 @@ class StopWatch:
     def remark(self, comment: str):
         print(comment + ':', self.lap())
 start_all=datetime.now()
-
+stop_watch = StopWatch()
+remark = stop_watch.remark
 sys.setrecursionlimit(10 ** 9)
 
-start_time = datetime.now()
+
 Num = Union[int, float]
 
 
-n = 3
+n = 2
 N = np.power(n, 2)
+##### Пологая
 # h = 0.09
 # aa = round(60 * h, 2)
 # aa1 = 0
@@ -51,7 +55,7 @@ N = np.power(n, 2)
 #
 # kx = 1 / r
 # ky = 1 / r
-
+##### Пологая
 x = sp.symbols('x')
 y = sp.symbols('y')
 q = sp.symbols('q')
@@ -60,7 +64,7 @@ q = sp.symbols('q')
 
 
 
-
+#####Тор
 h = 0.01
 aa = round(1/2*round(pi, 5), 5)
 aa1 = 0
@@ -79,15 +83,14 @@ A = r
 B = d+r*(sp.sin(x-alpha)+sp.sin(alpha))
 
 kx = 1 / r
-ky =sp.sin(x-alpha)/(d+r*(sp.sin(x-alpha)+sp.sin(alpha)));
-
+ky =sp.sin(x-alpha)/(d+r*(sp.sin(x-alpha)+sp.sin(alpha)))
+#####Тор
 
 G12 = 0.33 * 10 ** 5
 G13 = 0.33 * 10 ** 5
 G23 = 0.33 * 10 ** 5
 
-print('Всего прошло времени')
-print(datetime.now() - start_all)
+remark('Начальные условия')
 
 
 X1 = lambda i: sp.sin(2 * i * round(pi, 5) * x / aa)
@@ -95,14 +98,6 @@ X2 = lambda i: sp.sin((2 * i - 1) * round(pi, 5) * x / aa)
 X3 = lambda i: sp.sin((2 * i - 1) * round(pi, 5) * x / aa)
 X4 = lambda i: sp.cos((2 * i - 1) * round(pi, 5) * x / aa)
 X5 = lambda i: sp.sin((2 * i - 1) * round(pi, 5) * x / aa)
-
-
-
-
-
-
-
-
 Y1 = lambda i: sp.sin((2 * i - 1) * round(pi, 5) * y / bb)
 Y2 = lambda i: sp.sin(2 * i * round(pi, 5) * y / bb)
 Y3 = lambda i: sp.sin((2 * i - 1) * round(pi, 5) * y / bb)
@@ -164,8 +159,7 @@ for i in range(1, int(np.sqrt(N) + 1)):
         W = W + w[i - 1][j - 1] * X3(i) * Y3(j)
         Psix = Psix + psix[i - 1][j - 1] * X4(i) * Y4(j)
         Psiy = Psiy + psiy[i - 1][j - 1] * X5(i) * Y5(j)
-print('Всего прошло времени')
-print(datetime.now() - start_all)
+remark('UVWPSIXPSIY')
 # print(U)
 # print(V)
 # print(W)
@@ -209,73 +203,67 @@ varkappa12 = sm.expand(1 / 2 * (
 # print("#varkappa12")
 # print(varkappa12)
 
-print("#Mx")
+# print("#Mx")
 
 Mx = sm.expand((1 / 12) * E1 * h ** 3 * (mu21 * varkappa2 + varkappa1) / (1 - mu12 * mu21))
 # print(Mx)
 
 
-print("#My")
+# print("#My")
 
 My = sm.expand((1 / 12) * E2 * h ** 3 * (mu12 * varkappa1 + varkappa2) / (1 - mu12 * mu21))
 # print(My)
-print("#Mxy")
+# print("#Mxy")
 Mxy = sm.expand((1 / 6) * G12 * h ** 3 * varkappa12)
 
 # print(Mxy)
-print("#Myx")
+# print("#Myx")
 Myx = sm.expand((1 / 6) * G12 * h ** 3 * varkappa12)
 # print(Myx)
-print("#Nx")
+# print("#Nx")
 Nx = sm.expand((E1 * h / (1 - mu12 * mu21)) * (ex + mu21 * ey))
 # print(Nx)
 
-print("#Ny")
+# print("#Ny")
 Ny = sm.expand((E2 * h / (1 - mu12 * mu21)) * (ey + mu12 * ex))
 # print(Ny)
 
 
 Nxy = sm.expand(G12 * h * gxy)
-print("Nxy")
+# print("Nxy")
 # print(Nxy)
 
 Nyx = sm.expand(G12 * h * gxy)
-print("Nyx")
+# print("Nyx")
 # print(Nyx)
 
 Px = 0
 Py = 0
 Qx = sm.expand(G13 * k * h * (Psix - Theta1))
-print("Qx")
+# print("Qx")
 # print(Qx)
-
 Qy = sm.expand(G23 * k * h * (Psiy - Theta2))
-
-print("Qy")
+# print("Qy")
 # print(Qy)
 
-# Epp=Nx * ex+Ny * ey+1 / 2 * (Nxy + Nyx) * gxy +Mx * varkappa1+My * varkappa2 +(Mxy + Myx) * varkappa12 +Qx * (Psix - Theta1)+Qy * (Psiy - Theta2)
-# EPp=sm.expand(Epp)
-
-
 Epp1 = Nx * ex + Ny * ey
-print("Razbienie1")
+# print("Razbienie1")
 # print(Epp1)
 del (Nx, ex, Ny, ey)
 Epp3 = Epp1 + 1 / 2 * (Nxy + Nyx) * gxy
 del (Nxy, Nyx, gxy)
-print("Razbienie3")
+# print("Razbienie3")
 Epp4 = Epp3 + Mx * varkappa1 + My * varkappa2
-print("Razbienie4")
+# print("Razbienie4")
 del (Mx, varkappa1, My, varkappa2)
 Epp6 = Epp4 + (Mxy + Myx) * varkappa12
-print("Razbienie6")
+# print("Razbienie6")
 del (Mxy, Myx, varkappa12)
 Epp7 = Epp6 + Qx * (Psix - Theta1)
-print("Razbienie7")
+# print("Razbienie7")
 del (Qx, Psix, Theta1)
 Epp8 = Epp7 + Qy * (Psiy - Theta2)
-print("Razbienie8")
+# print("Razbienie8")
 del (Qy, Psiy, Theta2)
 
 AllEpp = Epp8*A*B
@@ -283,55 +271,14 @@ AllEpp = Epp8*A*B
 # print(sm.expand(AllEpp))
 del (Epp1, Epp3, Epp4, Epp6, Epp7, Epp8)
 
-
 start=datetime.now()
 EPp = sm.expand(AllEpp)
-print('Всего прошло времени')
-print(datetime.now() - start)
 
-start=datetime.now()
-# EPp = sp.expand(EPp)
-print('Всего прошло времени')
-print(datetime.now() - start)
-
-# print(EPp)
-print("Время раскрытия скобок")
-print(datetime.now() - start_time)
-#
 Epp=EPp.args
-# EP = []
-#
-# for xc in Epp:
-#     EP.append(str(sm.expand(xc)))
-
-# for i in EP:
-#     print(i)
-print('Всего прошло времени')
-print(datetime.now() - start_all)
+remark('Разбиение на слагемые')
 
 
-
-
-
-
-
-# int_x = open('out_x.txt')
-# with int_x as inp:
-#     for i in inp.readlines():
-#         key, val = i.strip().split(':')
-#         val = val.strip(' ')
-#         dict_x[key] = val
-# int_x.close()
-#
-# int_y = open('out_y.txt')
-# with int_y as inp:
-#     for i in inp.readlines():
-#         key, val = i.strip().split(':')
-#         val = val.strip(' ')
-#         dict_y[key] = val
-# int_y.close()
 Num = Union[int, float]
-
 
 input = open('data_x.pkl', 'rb')
 try:
@@ -340,98 +287,66 @@ except:
     dict_x={}
 input.close()
 
-
 input = open('data_y.pkl', 'rb')
 try:
     dict_y = pk.load(input)
 except:
     dict_y={}
 input.close()
-print(dict_x)
-print(dict_y)
-# def replace_by_dict(ep, dictionary: dict, a: Num, b: Num, s:sp.symbols):
-#     massznach=[]
-#     for arg in ep:
-#         # print(arg)
-#         mass=[]
-#         for nested_arg in arg.args:
-#             if nested_arg.has(s):
-#                 mass.append(nested_arg)
-#         t= sp.Mul(*mass)
-#         if t in dictionary:
-#             # print("1")
-#             massznach.append(dictionary.get(t))
-#         else:
-#             # print("2")
-#             zam_x = sm.expand(t)
-#             if s==x:
-#                 result = integrate.quad(lambda xx: (zam_x).subs(x, xx), a, b)[0]
-#                 dictionary.update({t: result})
-#             else:
-#                 result = integrate.quad(lambda yy: (zam_x).subs(y, yy), a, b)[0]
-#                 dictionary.update({t: result})
-#             massznach.append(result)
-#
-#     return massznach, dictionary
+# print(dict_x)
+# print(dict_y)
+
 def replace_by_dict(ep, dictionary1: dict, dictionary2: dict, a: Num, b: Num,):
     massznach_x=[]
     massznach_y = []
+    massznach=[]
     for arg in ep:
         # print(arg)
         mass_x = []
         mass_y = []
+        mass=[]
         for nested_arg in arg.args:
+            if not nested_arg.has(x) and not nested_arg.has(y):
+                mass.append(nested_arg)
             if nested_arg.has(x):
                 mass_x.append(nested_arg)
             if nested_arg.has(y):
                 mass_y.append(nested_arg)
         tx= sp.Mul(*mass_x)
         ty= sp.Mul(*mass_y)
+        t=sp.Mul(*mass)
         if tx in dictionary1:
-            # print("1")
             massznach_x.append(dictionary1.get(tx))
         else:
-            # print("2")
             zam_x = sm.expand(tx)
             result = integrate.quad(lambda xx: (zam_x).subs(x, xx), a, b)[0]
             dictionary1.update({tx: result})
             massznach_x.append(dictionary1.get(tx))
-
         if ty in dictionary2:
-            # print("1")
             massznach_y.append(dictionary2.get(ty))
         else:
-            # print("2")
             zam_y = sm.expand(ty)
             result = integrate.quad(lambda yy: (zam_y).subs(y, yy), a, b)[0]
             dictionary2.update({ty: result})
             massznach_y.append(result)
-
-    return massznach_x, dictionary1,massznach_y, dictionary2
-
-
-zxc,dict_x,zxc2,dict_y=replace_by_dict(Epp, dict_x,dict_y, 0, aa)
-print('Всего прошло времени1')
-print(datetime.now() - start)
+        massznach.append(t)
+    return massznach_x, dictionary1,massznach_y, dictionary2,massznach
 
 
+zxc,dict_x,zxc2,dict_y,mrg=replace_by_dict(Epp, dict_x,dict_y, 0, aa)
+remark('Начальные условия')
 output = open('data_x.pkl', 'wb')
 pk.dump(dict_x, output, 2)
 output.close()
 output = open('data_y.pkl', 'wb')
 pk.dump(dict_y, output, 2)
 output.close()
-Es_diff = [sp.Mul(*[nested_arg for nested_arg in arg.args if not nested_arg.has(x) and not nested_arg.has(y)]) for arg in Epp]
-print('Всего прошло времени')
-print(datetime.now() - start)
+remark('Начальные условия')
 funcional=[]
-for i,el in enumerate(Es_diff):
-    funcional.append(sm.expand(1 / 2 * sm.expand(el)*zxc[i]*zxc2[i]))
-print('Всего прошло времени')
-print(datetime.now() - start)
-
+for i in range(len(zxc)):
+    funcional.append(sm.expand(1 / 2 * sm.expand(mrg[i])*zxc[i]*zxc2[i]))
+remark('Начальные условия')
 dict_all={}
-
 print("*****************")
 for i in funcional:
     mas=i.args
@@ -439,12 +354,7 @@ for i in funcional:
         b=1
         for ii in mas[1:]:
             b*=ii
-
-        # print(b,mas[0])
-        # dict_all.update({b},mas[0])
         if b in dict_all:
-            # print("нашел")
-            # print(zamena[1:])
             result = dict_all.get(b)
             result+=mas[0]
             dict_all.update({b: result})
@@ -455,20 +365,16 @@ int_f = open('out_Fun.txt','w')
 with int_f as out:
     for key, val in dict_all.items():
         out.write('{}:{}\n'.format(key, val))
-
 int_f.close()
 
 from functools import reduce
 itt=[]
 start_timeS = datetime.now()
 for key in dict_all:
-
     itt.append(key*dict_all[key])
 
-print(itt)
-#
-print('Всего прошло времени')
-print(datetime.now() - start_all)
+
+remark('Начальные условия')
 
 nnn=len(itt)//16
 
@@ -510,8 +416,7 @@ Es = sm.expand(Es)
 print("Es")
 print(datetime.now() - start_time)
 # print(Es)
-print('Всего прошло времени')
-print(datetime.now() - start_all)
+remark('Начальные условия')
 # print(Coef)
 
 
@@ -522,8 +427,7 @@ for i in SN:
 
 print("Время первая производная")
 print(datetime.now() - start_time1)
-print('Всего прошло времени')
-print(datetime.now() - start_all)
+remark('Начальные условия')
 Deter = []
 start_time2 = datetime.now()
 for dpU in Jacobi:
@@ -541,8 +445,7 @@ print("Время вторая производная")
 print(datetime.now() - start_time2)
 
 
-print('Всего прошло времени')
-print(datetime.now() - start_all)
+
 
 epsillon = 1 * 10 ** (-5)
 
@@ -580,8 +483,7 @@ lambda_jacobi= sm.lambdify([*dict_coef.keys()], Jacobi)
 print("Время матрицы dict Jacobi")
 print(datetime.now() - start_time)
 
-print('Всего прошло времени')
-print(datetime.now() - start_all)
+remark('Начальные условия')
 start_time2 = datetime.now()
 for qi in range(0, MAX + 1):
     qq = round(delq * qi, 2)  # Увеличиваем нагрузку
@@ -605,14 +507,12 @@ for qi in range(0, MAX + 1):
         kol_iter = kol_iter + 1
         if kol_iter > 100:
             delta = 0
-
     # print("kol_iter=", kol_iter, "delta=", delta)
     res2.append(Coef)
     wc1 = W
     Xk_new = list(Coef)
     for wi in range(2 * N, 3 * N):
         wc1 = wc1.subs(SN[wi], Coef[wi])
-
     wc11 = wc1.subs(x, (aa + aa1) / 2)
     wc = wc11.subs(y, bb / 2)
     WC.append(wc)
@@ -634,15 +534,14 @@ plt.legend(loc='upper left')
 grid1 = plt.grid(True)
 plt.xlabel("W,м")
 plt.ylabel("q,МПа")
-from time import gmtime, strftime
+
 
 c= strftime("%H_%M_%S", gmtime())
 plt.title('График прогиба W n = '+str(n)+' '+str(c))
 fig.savefig('График прогиба W n = '+str(n)+' '+str(c))
 
 print(datetime.now() - start_time2)
-print('Всего прошло времени')
-print(datetime.now() - start_all)
+remark('Начальные условия')
 
 plt.show()
 fig1 = plt.figure(num=1, figsize=(8, 6))
@@ -659,6 +558,5 @@ plt.title('График прогиба W n = '+str(n)+' '+str(c))
 fig1.savefig('График прогиба приближен W n = '+str(n)+' '+str(c))
 
 print(datetime.now() - start_time2)
-print('Всего прошло времени')
-print(datetime.now() - start_all)
+remark('Начальные условия')
 plt.show()
