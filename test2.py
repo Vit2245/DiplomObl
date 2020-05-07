@@ -37,7 +37,10 @@ Num = Union[int, float]
 
 n = 2
 N = np.power(n, 2)
-##### Пологая
+x = sp.symbols('x')
+y = sp.symbols('y')
+q = sp.symbols('q')
+#### Пологая
 # h = 0.09
 # aa = round(60 * h, 2)
 # aa1 = 0
@@ -55,10 +58,8 @@ N = np.power(n, 2)
 #
 # kx = 1 / r
 # ky = 1 / r
-##### Пологая
-x = sp.symbols('x')
-y = sp.symbols('y')
-q = sp.symbols('q')
+#### Пологая
+
 
 
 
@@ -85,10 +86,13 @@ B = d+r*(sp.sin(x-alpha)+sp.sin(alpha))
 kx = 1 / r
 ky =sp.sin(x-alpha)/(d+r*(sp.sin(x-alpha)+sp.sin(alpha)))
 #####Тор
-
 G12 = 0.33 * 10 ** 5
 G13 = 0.33 * 10 ** 5
 G23 = 0.33 * 10 ** 5
+
+
+
+
 
 remark('Начальные условия')
 
@@ -275,24 +279,32 @@ start=datetime.now()
 EPp = sm.expand(AllEpp)
 
 Epp=EPp.args
+print(len(Epp))
 remark('Разбиение на слагемые')
 
-
+int_ff = open('aa1.txt','w')
+with int_ff as out:
+    for key in Epp:
+        out.write(str(key)+'\n')
+int_ff.close()
 Num = Union[int, float]
 
-input = open('data_x.pkl', 'rb')
 try:
+    input = open('data_x.pkl', 'rb')
     dict_x = pk.load(input)
+    input.close()
 except:
     dict_x={}
-input.close()
 
-input = open('data_y.pkl', 'rb')
+
+
 try:
+    input = open('data_y.pkl', 'rb')
     dict_y = pk.load(input)
+    input.close()
 except:
     dict_y={}
-input.close()
+
 # print(dict_x)
 # print(dict_y)
 
@@ -306,12 +318,20 @@ def replace_by_dict(ep, dictionary1: dict, dictionary2: dict, a: Num, b: Num,):
         mass_y = []
         mass=[]
         for nested_arg in arg.args:
-            if not nested_arg.has(x) and not nested_arg.has(y):
+            need=str(nested_arg)
+            # print(need)
+            # print(need.find('x'))
+            # print(need.find('y'))
+            # print(need.find('x'))
+            if need.find('x')==-1 and need.find('y')==-1 or need.find('psi')!=-1:
                 mass.append(nested_arg)
-            if nested_arg.has(x):
+                continue
+            if need.find('x')!=-1:
                 mass_x.append(nested_arg)
-            if nested_arg.has(y):
+                continue
+            if need.find('y')!=-1:
                 mass_y.append(nested_arg)
+                continue
         tx= sp.Mul(*mass_x)
         ty= sp.Mul(*mass_y)
         t=sp.Mul(*mass)
@@ -407,7 +427,7 @@ print(datetime.now() - start_timeS)
 
 print("Время Allin")
 start_time = datetime.now()
-AA = sp.integrate(sp.integrate((Px * U + Py * V + W * q) * A * B, (y, 0, aa)), (x, 0, bb))
+AA = sp.integrate(sp.integrate((Px * U + Py * V + W * q) * A * B, (y, 0, bb)), (x, 0, aa))
 # print(AA)
 
 AA = sm.expand(AA)
@@ -465,7 +485,7 @@ WC2 = []
 BufV = np.zeros((5 * N), dtype=float)
 Buf = np.zeros((5 * N), dtype=float)
 delq = 0.1
-MAX = 50
+MAX = 40
 Q_y = []
 
 dict_coef = dict(zip(SN, list(Coef)))
@@ -526,37 +546,54 @@ for qi in range(0, MAX + 1):
     wc23 = wc22.subs(y, bb / 4)
     WC2.append(wc23)
 
-print(datetime.now() - start_time2)
-fig = plt.figure(num=1, figsize=(8, 6))
-plt.plot(WC, Q_y, color='r', linestyle='--', marker='o', markersize=3, label='W((a+a1)/2,b/2)')
-plt.plot(WC2, Q_y, color='b', linestyle='--', marker='o', markersize=3, label='W((a+a1)/4,b/4)')
-plt.legend(loc='upper left')
+# print(datetime.now() - start_time2)
+# fig,ax = plt.figure(num=1, figsize=(8, 6))
+# ax.plot(WC, Q_y, color='r', linestyle='--', marker='o', markersize=3, label='W((a+a1)/2,b/2)')
+# ax.plot(WC2, Q_y, color='b', linestyle='--', marker='o', markersize=3, label='W((a+a1)/4,b/4)')
+# ax.legend(loc='upper left')
+# grid1 = plt.grid(True)
+# ax.xlabel("W,м")
+# ax.ylabel("q,МПа")
+# c= strftime("%H_%M_%S", gmtime())
+# ax.title('График прогиба W n = '+str(n))
+# fig.savefig('График прогиба W n = '+str(n)+' '+str(c))
+# ax.show()
+
+
+
+fig,ax = plt.subplots(num=1, figsize=(8, 6))
+ax.plot(WC, Q_y, color='green', linestyle='-.', marker='o', markersize=3, label='W((a+a1)/2,b/2) N= '+str(N))
+ax.plot(WC2, Q_y, color='purple', linestyle='-.', marker='o', markersize=3, label='W((a+a1)/4,b/4) N= '+str(N))
+ax.legend(loc='lower center')
 grid1 = plt.grid(True)
-plt.xlabel("W,м")
-plt.ylabel("q,МПа")
-
-
+ax.set_xlabel("W,м")
+ax.set_ylabel("q,МПа")
+# ax.set_ylim([0, 5.1])
+# ax.set_xlim([0, 0.45])
 c= strftime("%H_%M_%S", gmtime())
-plt.title('График прогиба W n = '+str(n)+' '+str(c))
-fig.savefig('График прогиба W n = '+str(n)+' '+str(c))
+ax.set_title('График прогиба W n = '+str(n))
+# fig.savefig('График прогиба W n = '+str(n)+' '+str(c))
+fig.show()
+
+
 
 print(datetime.now() - start_time2)
 remark('Начальные условия')
 
-plt.show()
-fig1 = plt.figure(num=1, figsize=(8, 6))
-plt.plot(WC[315:340], Q_y[315:340], color='r', linestyle='--', marker='o', markersize=3, label='W((a+a1)/2,b/2)')
-plt.plot(WC2[315:340], Q_y[315:340], color='b', linestyle='--', marker='o', markersize=3, label='W((a+a1)/4,b/4)')
-plt.legend(loc='upper left')
-grid1 = plt.grid(True)
-plt.xlabel("W,м")
-plt.ylabel("q,МПа")
+# fig1, ax1 = plt.subplots(num=1, figsize=(8, 6))
+# ax1.plot(WC, Q_y, color='green', linestyle='-.', marker='o', markersize=3, label='W((a+a1)/2,b/2) N= '+str(N))
+# ax1.plot(WC2, Q_y, color='purple', linestyle='-.', marker='o', markersize=3, label='W((a+a1)/4,b/4) N= '+str(N))
+# ax1.legend(loc='upper left')
+# grid1 = plt.grid(True)
+# ax1.set_ylim([2.7, 3.4])
+# ax1.set_xlim([0, 0.45])
+# ax1.set_xlabel("W,м")
+# ax1.set_ylabel("q,МПа")
+#
+# ax1.set_title('График прогиба W n = '+str(n))
+# fig1.savefig('График прогиба приближен W n = '+str(n)+' '+str(c))
+# fig1.show()
 
-
-
-plt.title('График прогиба W n = '+str(n)+' '+str(c))
-fig1.savefig('График прогиба приближен W n = '+str(n)+' '+str(c))
 
 print(datetime.now() - start_time2)
 remark('Начальные условия')
-plt.show()
